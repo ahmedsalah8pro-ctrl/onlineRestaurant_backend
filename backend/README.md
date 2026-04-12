@@ -115,6 +115,8 @@ Checkout flow outline:
 ```powershell
 php artisan test
 php vendor/bin/phpstan analyse --memory-limit=1G
+python tests/flows/full_api_flow.py --spawn-server --php "C:\path\to\php.exe"
+python tests/flows/route_coverage_audit.py "C:\path\to\php.exe"
 ```
 
 Current automated coverage includes:

@@ -182,6 +182,24 @@ def run_flow(args: argparse.Namespace) -> None:
         "Profile privacy update did not persist.",
     )
 
+    privacy_update = client.request(
+        "PATCH",
+        "/api/v1/profile/privacy",
+        token=customer_token,
+        json_body={
+            "is_public_profile": True,
+            "show_total_orders": False,
+            "show_total_spent": True,
+            "show_monthly_rank": False,
+            "show_yearly_rank": True,
+            "show_favorite_products": True,
+        },
+    )
+    assert_true(
+        privacy_update["data"]["show_total_orders"] is False,
+        "Dedicated profile privacy endpoint did not persist values.",
+    )
+
     address = client.request(
         "POST",
         "/api/v1/addresses",
@@ -463,6 +481,8 @@ def run_flow(args: argparse.Namespace) -> None:
         expected_status=201,
     )
     created_coupon_id = coupon_create["data"]["id"]
+    coupons_index = client.request("GET", "/api/v1/admin/coupons", token=admin_token)
+    assert_true(len(coupons_index["data"]) >= 1, "Admin coupons list is empty.")
     client.request("GET", f"/api/v1/admin/coupons/{created_coupon_id}", token=admin_token)
     client.request(
         "PATCH",
