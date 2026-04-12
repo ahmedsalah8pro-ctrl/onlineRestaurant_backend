@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Requests\Api\V1\Review;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreReviewRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'order_item_id' => ['nullable', 'integer', 'exists:order_items,id'],
+            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'comment' => ['nullable', 'string', 'max:1000'],
+            'is_anonymous' => ['sometimes', 'boolean'],
+        ];
+    }
+}

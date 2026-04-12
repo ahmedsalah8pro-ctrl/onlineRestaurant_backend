@@ -1,0 +1,2437 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$paginator of method App\\Http\\Controllers\\Api\\V1\\Admin\\AuditLogController\:\:paginatedResponse\(\) expects Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\<int, mixed\>, Illuminate\\Pagination\\LengthAwarePaginator\<int, App\\Models\\AuditLog\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AuditLogController.php
+
+		-
+			message: '#^Cannot call method load\(\) on App\\Models\\Branch\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/BranchController.php
+
+		-
+			message: '#^Cannot call method load\(\) on App\\Models\\Category\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/CategoryController.php
+
+		-
+			message: '#^Parameter \#1 \$value of static method Illuminate\\Support\\Str\:\:upper\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/CouponController.php
+
+		-
+			message: '#^Parameter \#1 \$value of static method Illuminate\\Support\\Str\:\:upper\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/GiftCardController.php
+
+		-
+			message: '#^Parameter \#1 \$paginator of method App\\Http\\Controllers\\Api\\V1\\Admin\\OrderController\:\:paginatedResponse\(\) expects Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\<int, mixed\>, Illuminate\\Pagination\\LengthAwarePaginator\<int, App\\Models\\Order\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/OrderController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:options\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Http/Controllers/Api/V1/Admin/ProductController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\Admin\\ProductController\:\:syncProductRelations\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/ProductController.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/ProductController.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/ProductController.php
+
+		-
+			message: '#^Cannot call method load\(\) on App\\Models\\Review\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/ReviewController.php
+
+		-
+			message: '#^Parameter \#1 \$paginator of method App\\Http\\Controllers\\Api\\V1\\Admin\\ReviewController\:\:paginatedResponse\(\) expects Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\<int, mixed\>, Illuminate\\Pagination\\LengthAwarePaginator\<int, App\\Models\\Review\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/ReviewController.php
+
+		-
+			message: '#^Cannot call method load\(\) on Spatie\\Permission\\Models\\Role\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/RoleController.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/UploadController.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 4
+			path: app/Http/Controllers/Api/V1/AuthController.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Laravel\\Sanctum\\PersonalAccessToken\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/V1/AuthController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/BranchController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/V1/CartController.php
+
+		-
+			message: '#^Parameter \#1 \$paginator of method App\\Http\\Controllers\\Api\\V1\\NotificationController\:\:paginatedResponse\(\) expects Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\<int, mixed\>, Illuminate\\Pagination\\LengthAwarePaginator\<int, Illuminate\\Notifications\\DatabaseNotification\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/NotificationController.php
+
+		-
+			message: '#^Cannot call method isPast\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Controllers/Api/V1/OrderController.php
+
+		-
+			message: '#^Parameter \#1 \$paginator of method App\\Http\\Controllers\\Api\\V1\\OrderController\:\:paginatedResponse\(\) expects Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\<int, mixed\>, Illuminate\\Pagination\\LengthAwarePaginator\<int, Illuminate\\Database\\Eloquent\\Model\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/OrderController.php
+
+		-
+			message: '#^Parameter \#1 \$paginator of method App\\Http\\Controllers\\Api\\V1\\ProductController\:\:paginatedResponse\(\) expects Illuminate\\Contracts\\Pagination\\LengthAwarePaginator\<int, mixed\>, Illuminate\\Pagination\\LengthAwarePaginator\<int, App\\Models\\Product\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/ProductController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$avatar_path\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_public_profile\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$show_favorite_products\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$show_monthly_rank\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$show_total_orders\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$show_total_spent\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$show_yearly_rank\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Binary operation "\+" between int\|non\-falsy\-string and 1 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\ProfileController\:\:buildStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Using nullsafe property access on non\-nullable type Illuminate\\Database\\Eloquent\\Model\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 6
+			path: app/Http/Controllers/Api/V1/ProfileController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\:\:visible\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/ReviewController.php
+
+		-
+			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/ReviewController.php
+
+		-
+			message: '#^Cannot call method orders\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/ReviewController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:transactions\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/WalletController.php
+
+		-
+			message: '#^Cannot call method isPast\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/WalletController.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: app/Http/Controllers/Api/V1/WalletController.php
+
+		-
+			message: '#^Cannot cast array\<string, string\>\|string\|null to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: app/Http/Middleware/SetApiLocale.php
+
+		-
+			message: '#^Parameter \#1 \$locale of static method Illuminate\\Support\\Facades\\App\:\:setLocale\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/SetApiLocale.php
+
+		-
+			message: '#^Parameter \#2 \$default of method Illuminate\\Http\\Request\:\:header\(\) expects array\<string, string\>\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/SetApiLocale.php
+
+		-
+			message: '#^Unable to resolve the template type TDefault in call to method Illuminate\\Http\\Request\:\:header\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Http/Middleware/SetApiLocale.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Address\\StoreAddressRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Address/StoreAddressRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Address\\UpdateAddressRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Address/UpdateAddressRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Branch\\StoreBranchRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Branch/StoreBranchRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Branch\\UpdateBranchRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Branch/UpdateBranchRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Category\\StoreCategoryRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Category/StoreCategoryRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Coupon\\StoreCouponRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Coupon/StoreCouponRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\DeliveryZone\\StoreDeliveryZoneRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/DeliveryZone/StoreDeliveryZoneRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\DeliveryZone\\UpdateDeliveryZoneRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/DeliveryZone/UpdateDeliveryZoneRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\DynamicPage\\StoreDynamicPageRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/DynamicPage/StoreDynamicPageRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\GiftCard\\StoreGiftCardRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/GiftCard/StoreGiftCardRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Order\\AssignDeliveryRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Order/AssignDeliveryRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Order\\UpdateOrderStatusRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Order/UpdateOrderStatusRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Product\\StoreProductRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Product/StoreProductRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Settings\\UpdateSettingGroupRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Settings/UpdateSettingGroupRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Tag\\StoreTagRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Tag/StoreTagRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Tag\\UpdateTagRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Tag/UpdateTagRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Admin\\Upload\\StoreUploadRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Admin/Upload/StoreUploadRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Auth\\LoginRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Auth/LoginRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Auth\\RegisterRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Auth/RegisterRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Cart\\StoreCartItemRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Cart/StoreCartItemRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Cart\\UpdateCartItemRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Cart/UpdateCartItemRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Order\\CheckoutRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Order/CheckoutRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Profile\\UpdateProfileRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Profile/UpdateProfileRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Review\\StoreReviewRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Review/StoreReviewRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Api\\V1\\Wallet\\RedeemGiftCardRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Api/V1/Wallet/RedeemGiftCardRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$apartment\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$area\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$building\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$city\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$country\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$floor\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$is_default\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$label\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$landmark\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$recipient_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\AddressResource\:\:\$street\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\AddressResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/AddressResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AuditLogResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AuditLogResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$username\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/AuditLogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\Auth\\UserResource\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/Auth/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\Auth\\UserResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/Auth/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\Auth\\UserResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/Auth/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\Auth\\UserResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/Auth/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\Auth\\UserResource\:\:\$primary_phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/Auth/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\Auth\\UserResource\:\:\$profile\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/Auth/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\Auth\\UserResource\:\:\$roles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/Auth/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\Auth\\UserResource\:\:\$username\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/Auth/UserResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\Auth\\UserResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/Auth/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$deliveryZones\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$latitude\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$longitude\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\BranchResource\:\:\$working_hours\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\BranchResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/BranchResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\CartResource\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/CartResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\CartResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/CartResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\CartResource\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/CartResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\CartResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/CartResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\CategoryResource\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/CategoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\CategoryResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/CategoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\CategoryResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/CategoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\CategoryResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/CategoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\CategoryResource\:\:\$parent_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/CategoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\CategoryResource\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/CategoryResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\CategoryResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/CategoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DeliveryZoneResource\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DeliveryZoneResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DeliveryZoneResource\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DeliveryZoneResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DeliveryZoneResource\:\:\$delivery_fee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DeliveryZoneResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DeliveryZoneResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DeliveryZoneResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DeliveryZoneResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DeliveryZoneResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DeliveryZoneResource\:\:\$max_delivery_time_minutes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DeliveryZoneResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DeliveryZoneResource\:\:\$min_delivery_time_minutes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DeliveryZoneResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DeliveryZoneResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/DeliveryZoneResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\DeliveryZoneResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/DeliveryZoneResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DynamicPageResource\:\:\$content\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/DynamicPageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DynamicPageResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DynamicPageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DynamicPageResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DynamicPageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DynamicPageResource\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/DynamicPageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\DynamicPageResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/DynamicPageResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\DynamicPageResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/DynamicPageResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$branch\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$coupon_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$coupon_snapshot\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$deliveryZone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$delivery_fee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$delivery_person_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$delivery_person_phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$discount_total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$statusLogs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$subtotal\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$wallet_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$coupon_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$delivery_fee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$discount_total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$grace_period_ends_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$placed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$subtotal\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$wallet_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\OrderResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/OrderResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$addonGroups\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$base_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$categories\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$main_image_path\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$media\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$short_description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$sizes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:\$tags\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\ProductDetailResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductDetailResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductResource\:\:\$base_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductResource\:\:\$best_seller_rank\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductResource\:\:\$is_best_seller_pinned\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductResource\:\:\$main_image_path\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductResource\:\:\$short_description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ProductResource\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\ProductResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/ProductResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ReviewResource\:\:\$comment\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ReviewResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ReviewResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ReviewResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ReviewResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ReviewResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ReviewResource\:\:\$is_anonymous\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/ReviewResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ReviewResource\:\:\$rating\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ReviewResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\ReviewResource\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/ReviewResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\ReviewResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/ReviewResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\TagResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/TagResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\TagResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/TagResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\TagResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/Api/V1/TagResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\TagResource\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/TagResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\TagResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/TagResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletResource\:\:\$balance\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletResource\:\:\$transactions\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\WalletResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$actor_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$balance_after\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$balance_before\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$reference_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$reference_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\Api\\V1\\WalletTransactionResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/Api/V1/WalletTransactionResource.php
+
+		-
+			message: '#^Class App\\Models\\AddonGroup uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AddonGroup.php
+
+		-
+			message: '#^Method App\\Models\\AddonGroup\:\:options\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AddonGroup.php
+
+		-
+			message: '#^Method App\\Models\\AddonGroup\:\:product\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AddonGroup.php
+
+		-
+			message: '#^Class App\\Models\\AddonOption uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AddonOption.php
+
+		-
+			message: '#^Method App\\Models\\AddonOption\:\:addonGroup\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AddonOption.php
+
+		-
+			message: '#^Class App\\Models\\AuditLog uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AuditLog.php
+
+		-
+			message: '#^Method App\\Models\\AuditLog\:\:actor\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AuditLog.php
+
+		-
+			message: '#^Method App\\Models\\AuditLog\:\:target\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AuditLog.php
+
+		-
+			message: '#^Class App\\Models\\Branch uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Branch.php
+
+		-
+			message: '#^Method App\\Models\\Branch\:\:deliveryZones\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Branch.php
+
+		-
+			message: '#^Method App\\Models\\Branch\:\:managers\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Branch.php
+
+		-
+			message: '#^Method App\\Models\\Branch\:\:products\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Branch.php
+
+		-
+			message: '#^Method App\\Models\\Branch\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Branch.php
+
+		-
+			message: '#^Method App\\Models\\Branch\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Branch.php
+
+		-
+			message: '#^Class App\\Models\\Cart uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Cart.php
+
+		-
+			message: '#^Method App\\Models\\Cart\:\:branch\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Cart.php
+
+		-
+			message: '#^Method App\\Models\\Cart\:\:items\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Cart.php
+
+		-
+			message: '#^Method App\\Models\\Cart\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Cart.php
+
+		-
+			message: '#^Class App\\Models\\CartItem uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CartItem.php
+
+		-
+			message: '#^Method App\\Models\\CartItem\:\:cart\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CartItem.php
+
+		-
+			message: '#^Method App\\Models\\CartItem\:\:product\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CartItem.php
+
+		-
+			message: '#^Method App\\Models\\CartItem\:\:productSize\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CartItem.php
+
+		-
+			message: '#^Class App\\Models\\Category uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Category.php
+
+		-
+			message: '#^Method App\\Models\\Category\:\:children\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Category.php
+
+		-
+			message: '#^Method App\\Models\\Category\:\:parent\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Category.php
+
+		-
+			message: '#^Method App\\Models\\Category\:\:products\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Category.php
+
+		-
+			message: '#^Method App\\Models\\Category\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Category.php
+
+		-
+			message: '#^Method App\\Models\\Category\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Category.php
+
+		-
+			message: '#^Class App\\Models\\Coupon uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Coupon.php
+
+		-
+			message: '#^Method App\\Models\\Coupon\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Coupon.php
+
+		-
+			message: '#^Method App\\Models\\Coupon\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Coupon.php
+
+		-
+			message: '#^Method App\\Models\\Coupon\:\:usages\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Coupon.php
+
+		-
+			message: '#^Class App\\Models\\CouponUsage uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CouponUsage.php
+
+		-
+			message: '#^Method App\\Models\\CouponUsage\:\:coupon\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CouponUsage.php
+
+		-
+			message: '#^Method App\\Models\\CouponUsage\:\:order\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CouponUsage.php
+
+		-
+			message: '#^Method App\\Models\\CouponUsage\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CouponUsage.php
+
+		-
+			message: '#^Class App\\Models\\DeliveryZone uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/DeliveryZone.php
+
+		-
+			message: '#^Method App\\Models\\DeliveryZone\:\:branch\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/DeliveryZone.php
+
+		-
+			message: '#^Method App\\Models\\DeliveryZone\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/DeliveryZone.php
+
+		-
+			message: '#^Method App\\Models\\DeliveryZone\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/DeliveryZone.php
+
+		-
+			message: '#^Class App\\Models\\DynamicPage uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/DynamicPage.php
+
+		-
+			message: '#^Method App\\Models\\DynamicPage\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/DynamicPage.php
+
+		-
+			message: '#^Method App\\Models\\DynamicPage\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/DynamicPage.php
+
+		-
+			message: '#^Class App\\Models\\GiftCard uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/GiftCard.php
+
+		-
+			message: '#^Method App\\Models\\GiftCard\:\:redeemedBy\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/GiftCard.php
+
+		-
+			message: '#^Method App\\Models\\GiftCard\:\:redemptions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/GiftCard.php
+
+		-
+			message: '#^Method App\\Models\\GiftCard\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/GiftCard.php
+
+		-
+			message: '#^Method App\\Models\\GiftCard\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/GiftCard.php
+
+		-
+			message: '#^Class App\\Models\\GiftCardRedemption uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/GiftCardRedemption.php
+
+		-
+			message: '#^Method App\\Models\\GiftCardRedemption\:\:giftCard\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/GiftCardRedemption.php
+
+		-
+			message: '#^Method App\\Models\\GiftCardRedemption\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/GiftCardRedemption.php
+
+		-
+			message: '#^Method App\\Models\\GiftCardRedemption\:\:walletTransaction\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/GiftCardRedemption.php
+
+		-
+			message: '#^Class App\\Models\\Order uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Order.php
+
+		-
+			message: '#^Method App\\Models\\Order\:\:address\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Order.php
+
+		-
+			message: '#^Method App\\Models\\Order\:\:branch\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Order.php
+
+		-
+			message: '#^Method App\\Models\\Order\:\:deliveryZone\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Order.php
+
+		-
+			message: '#^Method App\\Models\\Order\:\:items\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Order.php
+
+		-
+			message: '#^Method App\\Models\\Order\:\:statusLogs\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Order.php
+
+		-
+			message: '#^Method App\\Models\\Order\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Order.php
+
+		-
+			message: '#^Class App\\Models\\OrderItem uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/OrderItem.php
+
+		-
+			message: '#^Method App\\Models\\OrderItem\:\:order\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/OrderItem.php
+
+		-
+			message: '#^Method App\\Models\\OrderItem\:\:product\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/OrderItem.php
+
+		-
+			message: '#^Method App\\Models\\OrderItem\:\:productSize\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/OrderItem.php
+
+		-
+			message: '#^Class App\\Models\\OrderStatusLog uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/OrderStatusLog.php
+
+		-
+			message: '#^Method App\\Models\\OrderStatusLog\:\:actor\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/OrderStatusLog.php
+
+		-
+			message: '#^Method App\\Models\\OrderStatusLog\:\:order\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/OrderStatusLog.php
+
+		-
+			message: '#^Class App\\Models\\Product uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Method App\\Models\\Product\:\:addonGroups\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Method App\\Models\\Product\:\:branches\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Method App\\Models\\Product\:\:categories\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Method App\\Models\\Product\:\:media\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Method App\\Models\\Product\:\:reviews\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Method App\\Models\\Product\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Method App\\Models\\Product\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Method App\\Models\\Product\:\:sizes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Method App\\Models\\Product\:\:tags\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Product.php
+
+		-
+			message: '#^Class App\\Models\\ProductMedia uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/ProductMedia.php
+
+		-
+			message: '#^Method App\\Models\\ProductMedia\:\:product\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/ProductMedia.php
+
+		-
+			message: '#^Class App\\Models\\ProductSize uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/ProductSize.php
+
+		-
+			message: '#^Method App\\Models\\ProductSize\:\:product\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/ProductSize.php
+
+		-
+			message: '#^Class App\\Models\\Review uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Review.php
+
+		-
+			message: '#^Method App\\Models\\Review\:\:orderItem\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Review.php
+
+		-
+			message: '#^Method App\\Models\\Review\:\:product\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Review.php
+
+		-
+			message: '#^Method App\\Models\\Review\:\:scopeVisible\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Review.php
+
+		-
+			message: '#^Method App\\Models\\Review\:\:scopeVisible\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Review.php
+
+		-
+			message: '#^Method App\\Models\\Review\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Review.php
+
+		-
+			message: '#^Class App\\Models\\Setting uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Setting.php
+
+		-
+			message: '#^Class App\\Models\\Tag uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Tag.php
+
+		-
+			message: '#^Method App\\Models\\Tag\:\:products\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Tag.php
+
+		-
+			message: '#^Method App\\Models\\Tag\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Tag.php
+
+		-
+			message: '#^Method App\\Models\\Tag\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Tag.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:addresses\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:cart\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasOne does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:managedBranches\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:orders\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:profile\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasOne does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:reviews\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:secondaryPhones\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:wallet\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasOne does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Class App\\Models\\UserAddress uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserAddress.php
+
+		-
+			message: '#^Method App\\Models\\UserAddress\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserAddress.php
+
+		-
+			message: '#^Class App\\Models\\UserProfile uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserProfile.php
+
+		-
+			message: '#^Method App\\Models\\UserProfile\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserProfile.php
+
+		-
+			message: '#^Class App\\Models\\UserSecondaryPhone uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserSecondaryPhone.php
+
+		-
+			message: '#^Method App\\Models\\UserSecondaryPhone\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserSecondaryPhone.php
+
+		-
+			message: '#^Class App\\Models\\Wallet uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Wallet.php
+
+		-
+			message: '#^Method App\\Models\\Wallet\:\:transactions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Wallet.php
+
+		-
+			message: '#^Method App\\Models\\Wallet\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Wallet.php
+
+		-
+			message: '#^Class App\\Models\\WalletTransaction uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/WalletTransaction.php
+
+		-
+			message: '#^Method App\\Models\\WalletTransaction\:\:actor\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/WalletTransaction.php
+
+		-
+			message: '#^Method App\\Models\\WalletTransaction\:\:reference\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/WalletTransaction.php
+
+		-
+			message: '#^Method App\\Models\\WalletTransaction\:\:wallet\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/WalletTransaction.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 2
+			path: app/Notifications/OrderLifecycleNotification.php
+
+		-
+			message: '#^Method App\\Policies\\BranchPolicy\:\:hasAnyPermission\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Policies/BranchPolicy.php
+
+		-
+			message: '#^Method App\\Policies\\CategoryPolicy\:\:hasAnyPermission\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Policies/CategoryPolicy.php
+
+		-
+			message: '#^Method App\\Policies\\CouponPolicy\:\:hasAnyPermission\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Policies/CouponPolicy.php
+
+		-
+			message: '#^Method App\\Policies\\DynamicPagePolicy\:\:hasAnyPermission\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Policies/DynamicPagePolicy.php
+
+		-
+			message: '#^Method App\\Policies\\OrderPolicy\:\:hasAnyPermission\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Policies/OrderPolicy.php
+
+		-
+			message: '#^Method App\\Policies\\ProductPolicy\:\:hasAnyPermission\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Policies/ProductPolicy.php
+
+		-
+			message: '#^Method App\\Policies\\ReviewPolicy\:\:hasAnyPermission\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Policies/ReviewPolicy.php
+
+		-
+			message: '#^Method App\\Policies\\SettingPolicy\:\:hasAnyPermission\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Policies/SettingPolicy.php
+
+		-
+			message: '#^Cannot access property \$email on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Providers/HorizonServiceProvider.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProductSize\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ProductSize\>\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$branches\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$is_available_in_all_branches\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$pivot\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:items\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Method App\\Services\\Cart\\CartService\:\:addItem\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Method App\\Services\\Cart\\CartService\:\:addItem\(\) should return App\\Models\\Cart but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Method App\\Services\\Cart\\CartService\:\:configurationHash\(\) has parameter \$addonOptions with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Method App\\Services\\Cart\\CartService\:\:getOrCreate\(\) should return App\\Models\\Cart but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Method App\\Services\\Cart\\CartService\:\:removeItem\(\) should return App\\Models\\Cart but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Method App\\Services\\Cart\\CartService\:\:setBranch\(\) should return App\\Models\\Cart but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Method App\\Services\\Cart\\CartService\:\:updateItem\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Method App\\Services\\Cart\\CartService\:\:updateItem\(\) should return App\\Models\\Cart but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Parameter \#1 \$product of method App\\Services\\Pricing\\ProductPricingService\:\:calculate\(\) expects App\\Models\\Product, App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Parameter \#2 \$size of method App\\Services\\Pricing\\ProductPricingService\:\:calculate\(\) expects App\\Models\\ProductSize\|null, App\\Models\\ProductSize\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ProductSize\>\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Cart/CartService.php
+
+		-
+			message: '#^Cannot access property \$price_snapshot on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Cannot access property \$product on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Cannot access property \$product_id on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Cannot access property \$quantity on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Method App\\Services\\Coupons\\CouponService\:\:eligibleProductsTotal\(\) has parameter \$cartItems with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Method App\\Services\\Coupons\\CouponService\:\:eligibleProductsTotal\(\) has parameter \$conditions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Method App\\Services\\Coupons\\CouponService\:\:emptyResult\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Method App\\Services\\Coupons\\CouponService\:\:evaluate\(\) has parameter \$cartItems with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Method App\\Services\\Coupons\\CouponService\:\:evaluate\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Parameter \#1 \$conditions of method App\\Services\\Coupons\\CouponService\:\:eligibleProductsTotal\(\) expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: app/Services/Coupons/CouponService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\DeliveryZone\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\DeliveryZone\>\:\:\$delivery_fee\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Services/Orders/CheckoutService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\DeliveryZone\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\DeliveryZone\>\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Orders/CheckoutService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Services/Orders/CheckoutService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:items\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Orders/CheckoutService.php
+
+		-
+			message: '#^Cannot access property \$balance on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Orders/CheckoutService.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 1
+			path: app/Services/Orders/CheckoutService.php
+
+		-
+			message: '#^Method App\\Services\\Orders\\CheckoutService\:\:checkout\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Orders/CheckoutService.php
+
+		-
+			message: '#^Parameter \#1 \$cart of method App\\Services\\Cart\\CartService\:\:ensureBranchAvailability\(\) expects App\\Models\\Cart, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Orders/CheckoutService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$max_select\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$min_select\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$selection_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Cannot access property \$id on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Cannot access property \$name on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Method App\\Services\\Pricing\\ProductPricingService\:\:calculate\(\) has parameter \$addonOptions with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Method App\\Services\\Pricing\\ProductPricingService\:\:calculate\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Parameter \#1 \$option of method App\\Services\\Pricing\\ProductPricingService\:\:resolveAddonPrice\(\) expects App\\Models\\AddonOption, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Parameter \#2 \$array of function array_key_exists expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>price" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/Pricing/ProductPricingService.php
+
+		-
+			message: '#^Method App\\Services\\Settings\\SettingService\:\:getGroup\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Settings/SettingService.php
+
+		-
+			message: '#^Method App\\Services\\Settings\\SettingService\:\:publicSettings\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Settings/SettingService.php
+
+		-
+			message: '#^Method App\\Services\\Settings\\SettingService\:\:setGroup\(\) has parameter \$values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Settings/SettingService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$balance\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Wallet/WalletService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:transactions\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Wallet/WalletService.php
+
+		-
+			message: '#^Cannot access constant class on mixed\.$#'
+			identifier: classConstant.nonObject
+			count: 2
+			path: app/Services/Wallet/WalletService.php
+
+		-
+			message: '#^Cannot access property \$id on mixed\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Services/Wallet/WalletService.php
+
+		-
+			message: '#^Method App\\Services\\Wallet\\WalletService\:\:debit\(\) should return App\\Models\\WalletTransaction but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Wallet/WalletService.php
+
+		-
+			message: '#^Method App\\Support\\Translatable\:\:get\(\) has parameter \$value with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Support/Translatable.php
+
+		-
+			message: '#^Possibly invalid array key type mixed\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: app/Support/Translatable.php
+
+		-
+			message: '#^Parameter \#1 \$value of static method Illuminate\\Support\\Str\:\:headline\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: database/factories/CategoryFactory.php
+
+		-
+			message: '#^Parameter \#1 \$title of static method Illuminate\\Support\\Str\:\:slug\(\) expects string, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: database/factories/ProductFactory.php
+
+		-
+			message: '#^Parameter \#1 \$value of static method Illuminate\\Support\\Str\:\:title\(\) expects string, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: database/factories/ProductFactory.php
+
+		-
+			message: '#^Parameter \#1 \$string of function ucfirst expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: database/factories/ProductSizeFactory.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/seeders/DatabaseSeeder.php
+
+		-
+			message: '#^Binary operation "\." between ''Bearer '' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: tests/Feature/Api/AuthApiTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: tests/Feature/Api/NotificationApiTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with string will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Feature/Api/NotificationApiTest.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: tests/Feature/Api/NotificationApiTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:items\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/CouponServiceTest.php
