@@ -11,5 +11,8 @@
 !/backend/bootstrap/cache/.gitignore
 /backend/.env
 /backend/public/storage
+/backend/public/cdn/
 /backend/database/*.sqlite
 /backend/database/*.sqlite-journal
+/backend/storage/phpstan/
+/backend/tests/flows/__pycache__/
