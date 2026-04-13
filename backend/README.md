@@ -56,6 +56,7 @@ php artisan serve --host=127.0.0.1 --port=8000
 ## Main API Groups
 
 - Public:
+  - `GET /api/v1/health`
   - `GET /api/v1/settings/public`
   - `GET /api/v1/branches`
   - `GET /api/v1/categories`
@@ -103,6 +104,15 @@ Public products:
 curl http://127.0.0.1:8000/api/v1/products -H "Accept: application/json"
 ```
 
+Health check:
+
+```bash
+curl http://127.0.0.1:8000/api/v1/health \
+  -H "Accept: application/json" \
+  -H "Accept-Language: en" \
+  -H "X-Request-Id: ops-health-001"
+```
+
 Checkout flow outline:
 
 1. Login and store the returned access token.
@@ -122,6 +132,8 @@ python tests/flows/route_coverage_audit.py "C:\path\to\php.exe"
 Current automated coverage includes:
 
 - auth registration and token flow
+- request tracing headers and API metadata headers
+- health endpoint and operational readiness payload
 - public catalog endpoints
 - cart and checkout
 - customer notification listing and read flow

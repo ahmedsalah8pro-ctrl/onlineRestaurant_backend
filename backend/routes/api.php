@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\V1\BranchController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\DynamicPageController;
+use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\ProductController;
@@ -50,6 +51,7 @@ Route::prefix('v1')->group(function (): void {
     });
 
     Route::get('settings/public', [PublicSettingsController::class, 'show']);
+    Route::get('health', [HealthController::class, 'show']);
     Route::get('pages/{slug}', [DynamicPageController::class, 'show']);
     Route::get('profiles/{username}', [ProfileController::class, 'publicShow']);
 

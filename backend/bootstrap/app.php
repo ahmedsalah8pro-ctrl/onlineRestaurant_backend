@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SetApiLocale;
+use App\Http\Middleware\AttachApiMetadataHeaders;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             ForceJsonResponse::class,
             SetApiLocale::class,
+            AttachApiMetadataHeaders::class,
         ]);
 
         $middleware->alias([

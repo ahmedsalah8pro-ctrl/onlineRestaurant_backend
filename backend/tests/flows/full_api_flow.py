@@ -29,12 +29,17 @@ class FlowClient:
         token: str | None = None,
         json_body: dict[str, Any] | None = None,
         files: dict[str, Any] | None = None,
+        extra_headers: dict[str, str] | None = None,
+        expected_headers: dict[str, str | None] | None = None,
         expected_status: int = 200,
     ) -> dict[str, Any]:
         headers = {"Accept": "application/json"}
 
         if token:
             headers["Authorization"] = f"Bearer {token}"
+
+        if extra_headers:
+            headers.update(extra_headers)
 
         response = requests.request(
             method=method,
@@ -49,6 +54,17 @@ class FlowClient:
             raise FlowError(
                 f"{method} {path} expected {expected_status}, got {response.status_code}: {response.text}"
             )
+
+        if expected_headers:
+            for header_name, expected_value in expected_headers.items():
+                actual_value = response.headers.get(header_name)
+                if expected_value is None:
+                    assert_true(actual_value is not None, f"{method} {path} missing expected header {header_name}.")
+                else:
+                    assert_true(
+                        actual_value == expected_value,
+                        f"{method} {path} expected header {header_name}={expected_value}, got {actual_value}.",
+                    )
 
         try:
             payload = response.json()
@@ -118,6 +134,23 @@ def run_flow(args: argparse.Namespace) -> None:
 
     unauth = client.request("GET", "/api/v1/profile", expected_status=401)
     assert_true(unauth["success"] is False, "Unauthenticated profile request should fail.")
+
+    health = client.request(
+        "GET",
+        "/api/v1/health",
+        extra_headers={
+            "Accept-Language": "en",
+            "X-Request-Id": "flow-health-001",
+        },
+        expected_headers={
+            "X-Request-Id": "flow-health-001",
+            "X-API-Version": "v1",
+            "Content-Language": "en",
+            "X-Response-Time-Ms": None,
+        },
+    )
+    assert_true(health["data"]["status"] == "ok", "Health endpoint reported a degraded state.")
+    assert_true(health["data"]["app"]["api_version"] == "v1", "Health endpoint API version mismatch.")
 
     public_settings = client.request("GET", "/api/v1/settings/public")
     assert_true("general" in public_settings["data"], "Public settings payload is incomplete.")

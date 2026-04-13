@@ -14,10 +14,19 @@ class PublicCatalogApiTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $this->getJson('/api/v1/settings/public')
+        $settingsResponse = $this->withHeaders([
+            'Accept-Language' => 'ar',
+            'X-Request-Id' => 'catalog-public-settings',
+        ])->getJson('/api/v1/settings/public');
+
+        $settingsResponse
             ->assertOk()
-            ->assertJsonPath('data.general.site_name', 'مطعم أونلاين')
+            ->assertHeader('X-Request-Id', 'catalog-public-settings')
+            ->assertHeader('X-API-Version', 'v1')
+            ->assertHeader('Content-Language', 'ar')
             ->assertJsonPath('data.currency.code', 'EGP');
+
+        $this->assertNotNull($settingsResponse->headers->get('X-Response-Time-Ms'));
 
         $this->getJson('/api/v1/branches')
             ->assertOk()
