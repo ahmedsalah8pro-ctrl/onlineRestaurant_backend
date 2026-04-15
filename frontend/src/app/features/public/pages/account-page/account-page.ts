@@ -24,6 +24,10 @@ export class AccountPage implements OnInit {
   protected readonly addresses = signal<Address[]>([]);
   protected readonly notifications = signal<NotificationItem[]>([]);
   protected readonly loading = signal(false);
+  protected readonly addressDialogVisible = signal(false);
+  protected readonly editingAddressId = signal<number | null>(null);
+
+  protected addressDraft = this.createEmptyAddress();
 
   protected profileDraft = {
     name: '',
@@ -92,6 +96,52 @@ export class AccountPage implements OnInit {
     this.addresses.set(await firstValueFrom(this.publicApi.getAddresses()));
   }
 
+  protected openCreateAddress(): void {
+    this.addressDraft = this.createEmptyAddress();
+    this.editingAddressId.set(null);
+    this.addressDialogVisible.set(true);
+  }
+
+  protected openEditAddress(address: Address): void {
+    this.addressDraft = {
+      label: address.label ?? '',
+      recipient_name: address.recipient_name,
+      phone: address.phone,
+      country: address.country ?? 'Egypt',
+      city: address.city,
+      area: address.area,
+      street: address.street,
+      building: address.building ?? '',
+      floor: address.floor ?? '',
+      apartment: address.apartment ?? '',
+      landmark: address.landmark ?? '',
+      notes: address.notes ?? '',
+      is_default: address.is_default,
+    };
+    this.editingAddressId.set(address.id);
+    this.addressDialogVisible.set(true);
+  }
+
+  protected async saveAddress(): Promise<void> {
+    const addressId = this.editingAddressId();
+    const response = addressId
+      ? await firstValueFrom(this.publicApi.updateAddress(addressId, this.addressDraft))
+      : await firstValueFrom(this.publicApi.createAddress(this.addressDraft));
+
+    const next = [...this.addresses()];
+    const index = next.findIndex((entry) => entry.id === response.id);
+
+    if (index >= 0) {
+      next[index] = response;
+    } else {
+      next.unshift(response);
+    }
+
+    this.addresses.set(next);
+    this.addressDialogVisible.set(false);
+    this.message.add({ severity: 'success', summary: this.ui.t('account.addresses'), detail: this.ui.t('account.addressSaved') });
+  }
+
   protected confirmDeleteAddress(addressId: number): void {
     this.confirmation.confirm({
       header: this.ui.t('account.deleteAddressTitle'),
@@ -114,5 +164,23 @@ export class AccountPage implements OnInit {
     await firstValueFrom(this.publicApi.markAllNotificationsRead());
     this.notifications.set([]);
     this.message.add({ severity: 'success', summary: this.ui.t('account.notifications'), detail: this.ui.t('account.notificationsRead') });
+  }
+
+  private createEmptyAddress() {
+    return {
+      label: '',
+      recipient_name: '',
+      phone: '',
+      country: 'Egypt',
+      city: '',
+      area: '',
+      street: '',
+      building: '',
+      floor: '',
+      apartment: '',
+      landmark: '',
+      notes: '',
+      is_default: false,
+    };
   }
 }

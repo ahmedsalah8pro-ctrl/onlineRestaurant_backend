@@ -43,7 +43,18 @@
         </div>
 
         <div class="surface-grid" *ngFor="let group of current.addon_groups">
-          <h3>{{ group.name }}</h3>
+          <div class="detail-option-head">
+            <h3>{{ group.name }}</h3>
+            <button
+              *ngIf="group.selection_type === 'single' && !group.is_required"
+              pButton
+              type="button"
+              [label]="ui.t('product.clearSingle')"
+              severity="secondary"
+              (click)="clearSingleSelection(group)"
+            ></button>
+          </div>
+
           <div class="chip-row">
             <button
               pButton
@@ -57,21 +68,16 @@
         </div>
 
         <div class="detail-actions">
-          <p-inputnumber [ngModel]="quantity()" (ngModelChange)="quantity.set($event)" [min]="1"></p-inputnumber>
-
-          <p-select
-            [options]="storefront.branches()"
-            [ngModel]="selectedBranchId()"
-            (ngModelChange)="selectedBranchId.set($event)"
-            optionLabel="name"
-            optionValue="id"
-            [placeholder]="ui.t('product.branch')"
-          />
+          <div class="detail-actions__field">
+            <label>{{ ui.t('product.quantity') }}</label>
+            <p-inputnumber [ngModel]="quantity()" (ngModelChange)="quantity.set($event)" [min]="1" [showButtons]="true"></p-inputnumber>
+          </div>
 
           <button
             pButton
             type="button"
             [label]="ui.t('product.addToCart') + ' • ' + storefront.formatMoney(totalPrice())"
+            styleClass="detail-actions__submit"
             [loading]="addToCartLoading()"
             (click)="addToCart()"
           ></button>
@@ -88,7 +94,17 @@
       </div>
 
       <div class="review-form" *ngIf="auth.isAuthenticated()">
-        <p-select [options]="[1, 2, 3, 4, 5]" [(ngModel)]="reviewModel.rating" [placeholder]="ui.t('product.rating')"></p-select>
+        <div class="review-stars">
+          <button
+            type="button"
+            *ngFor="let star of [1, 2, 3, 4, 5]"
+            class="review-stars__button"
+            [class.is-active]="star <= reviewModel.rating"
+            (click)="setRating(star)"
+          >
+            ★
+          </button>
+        </div>
         <textarea pTextarea rows="4" [(ngModel)]="reviewModel.comment" [placeholder]="ui.t('product.writeReview')"></textarea>
         <div class="review-form__actions">
           <label class="review-form__toggle">
@@ -105,6 +121,7 @@
           <span>{{ review.rating }} ★</span>
         </div>
         <p>{{ review.comment || ui.t('product.noComment') }}</p>
+        <small *ngIf="review.created_at">{{ review.created_at | date: 'medium' }}</small>
       </article>
     </div>
   </section>

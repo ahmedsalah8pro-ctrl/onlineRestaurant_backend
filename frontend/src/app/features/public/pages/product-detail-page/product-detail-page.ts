@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 import { AddonGroup, AddonOption, ProductDetail, Review } from '../../../../core/models/api.models';
 import { AuthService } from '../../../../core/services/auth';
@@ -22,12 +23,12 @@ export class ProductDetailPage implements OnInit {
   protected readonly storefront = inject(StorefrontService);
   protected readonly runtime = inject(RuntimeConfigService);
   protected readonly ui = inject(UiTextService);
+  private readonly message = inject(MessageService);
 
   protected readonly product = signal<ProductDetail | null>(null);
   protected readonly reviews = signal<Review[]>([]);
   protected readonly loading = signal(false);
   protected readonly selectedSizeId = signal<number | null>(null);
-  protected readonly selectedBranchId = signal<number | null>(null);
   protected readonly quantity = signal(1);
   protected readonly reviewLoading = signal(false);
   protected readonly addToCartLoading = signal(false);
@@ -83,7 +84,6 @@ export class ProductDetailPage implements OnInit {
       this.product.set(product);
       this.reviews.set(reviews.items);
       this.selectedSizeId.set(product.sizes.find((size) => size.is_default)?.id ?? product.sizes[0]?.id ?? null);
-      this.selectedBranchId.set(this.storefront.branches()[0]?.id ?? null);
       this.selectedAddonMap.set({});
     } finally {
       this.loading.set(false);
@@ -95,6 +95,12 @@ export class ProductDetailPage implements OnInit {
     const selected = current[group.id] ?? [];
 
     if (group.selection_type === 'single') {
+      if (!group.is_required && selected.includes(optionId)) {
+        current[group.id] = [];
+        this.selectedAddonMap.set(current);
+        return;
+      }
+
       current[group.id] = [optionId];
       this.selectedAddonMap.set(current);
       return;
@@ -104,6 +110,16 @@ export class ProductDetailPage implements OnInit {
       ? selected.filter((value) => value !== optionId)
       : [...selected, optionId];
 
+    this.selectedAddonMap.set(current);
+  }
+
+  protected clearSingleSelection(group: AddonGroup): void {
+    if (group.is_required) {
+      return;
+    }
+
+    const current = { ...this.selectedAddonMap() };
+    current[group.id] = [];
     this.selectedAddonMap.set(current);
   }
 
@@ -131,11 +147,16 @@ export class ProductDetailPage implements OnInit {
           product_size_id: this.selectedSizeId(),
           addon_option_ids: this.selectedAddonIds(),
           quantity: this.quantity(),
-          branch_id: this.selectedBranchId(),
+          branch_id: this.storefront.cart()?.branch_id ?? this.storefront.branches()[0]?.id ?? null,
         }),
       );
 
       await this.storefront.refreshCart();
+      this.message.add({
+        severity: 'success',
+        summary: this.ui.t('cart.title'),
+        detail: `${current.name} - ${this.ui.t('product.addToCart')}`,
+      });
     } finally {
       this.addToCartLoading.set(false);
     }
@@ -165,6 +186,10 @@ export class ProductDetailPage implements OnInit {
     } finally {
       this.reviewLoading.set(false);
     }
+  }
+
+  protected setRating(rating: number): void {
+    this.reviewModel.rating = rating;
   }
 
   private findOption(optionId: number): AddonOption | undefined {

@@ -76,10 +76,27 @@ class CartService
     public function updateItem(User $user, int $itemId, array $payload): Cart
     {
         $cart = $user->cart()->firstOrFail();
-        $item = $cart->items()->findOrFail($itemId);
+        $item = $cart->items()->with(['product.sizes', 'product.addonGroups.options'])->findOrFail($itemId);
+
+        $size = array_key_exists('product_size_id', $payload)
+            ? ($payload['product_size_id']
+                ? ProductSize::where('product_id', $item->product_id)->findOrFail($payload['product_size_id'])
+                : null)
+            : $item->productSize;
+
+        $addonOptionIds = array_key_exists('addon_option_ids', $payload)
+            ? ($payload['addon_option_ids'] ?? [])
+            : ($item->selected_addon_option_ids ?? []);
+        $addonOptions = AddonOption::whereIn('id', $addonOptionIds)->get();
+        $priceData = $this->pricingService->calculate($item->product, $size, $addonOptions);
 
         $item->update([
+            'product_size_id' => $size?->id,
             'quantity' => max(1, (int) $payload['quantity']),
+            'price_snapshot' => $priceData['unit_price'],
+            'selected_addon_option_ids' => $addonOptions->pluck('id')->values()->all(),
+            'selected_addons_snapshot' => $priceData['addon_snapshots'],
+            'configuration_hash' => $this->configurationHash($item->product_id, $size?->id, $addonOptions),
         ]);
 
         return $cart->fresh(['items.product.categories', 'items.productSize']);

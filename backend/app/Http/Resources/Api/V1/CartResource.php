@@ -16,10 +16,12 @@ class CartResource extends JsonResource
             'items' => $this->items->map(fn ($item) => [
                 'id' => $item->id,
                 'product_id' => $item->product_id,
+                'product_size_id' => $item->product_size_id,
                 'product_name' => Translatable::get($item->product->name),
                 'size' => $item->productSize ? Translatable::get($item->productSize->name) : null,
                 'quantity' => $item->quantity,
                 'price_snapshot' => (float) $item->price_snapshot,
+                'selected_addon_option_ids' => $item->selected_addon_option_ids ?? [],
                 'selected_addons' => $item->selected_addons_snapshot,
                 'line_subtotal' => round((float) $item->price_snapshot * $item->quantity, 2),
             ]),

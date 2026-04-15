@@ -4,50 +4,68 @@
     <h1 class="section-title">{{ ui.t('checkout.title') }}</h1>
 
     <div class="form-grid">
-      <p-select
-        [options]="storefront.branches()"
-        [(ngModel)]="form.branch_id"
-        optionLabel="name"
-        optionValue="id"
-        [placeholder]="ui.t('menu.branch')"
-        (ngModelChange)="form.delivery_zone_id = zones()[0]?.id ?? null"
-      />
+      <div class="field-stack">
+        <label>{{ ui.t('menu.branch') }}</label>
+        <p-select
+          [options]="storefront.branches()"
+          [(ngModel)]="form.branch_id"
+          optionLabel="name"
+          optionValue="id"
+          [placeholder]="ui.t('menu.branch')"
+          (ngModelChange)="form.delivery_zone_id = zones()[0]?.id ?? null"
+        />
+      </div>
 
-      <p-select
-        [options]="zones()"
-        [(ngModel)]="form.delivery_zone_id"
-        optionLabel="name"
-        optionValue="id"
-        [placeholder]="ui.t('checkout.deliveryZone')"
-      />
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.deliveryZone') }}</label>
+        <p-select
+          [options]="zones()"
+          [(ngModel)]="form.delivery_zone_id"
+          optionLabel="name"
+          optionValue="id"
+          [placeholder]="ui.t('checkout.deliveryZone')"
+        />
+      </div>
 
-      <p-select
-        [options]="addresses()"
-        [(ngModel)]="form.address_id"
-        optionLabel="label"
-        optionValue="id"
-        [placeholder]="ui.t('checkout.address')"
-      />
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.address') }}</label>
+        <p-select
+          [options]="addresses()"
+          [(ngModel)]="form.address_id"
+          optionLabel="label"
+          optionValue="id"
+          [placeholder]="ui.t('checkout.address')"
+        />
+      </div>
 
-      <textarea pTextarea rows="4" [(ngModel)]="form.notes" [placeholder]="ui.t('checkout.notes')"></textarea>
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.notes') }}</label>
+        <textarea pTextarea rows="4" [(ngModel)]="form.notes" [placeholder]="ui.t('checkout.notes')"></textarea>
+      </div>
 
       <div class="coupon-box">
         <input pInputText [(ngModel)]="form.coupon_code" [placeholder]="ui.t('checkout.coupon')" />
         <button pButton type="button" [label]="ui.t('checkout.preview')" severity="secondary" (click)="previewCoupon()"></button>
       </div>
 
-      <p-inputnumber [(ngModel)]="form.wallet_amount" [max]="walletBalance()" [min]="0" [showButtons]="true"></p-inputnumber>
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.walletBalance') }}</label>
+        <p-inputnumber [(ngModel)]="form.wallet_amount" [max]="walletBalance()" [min]="0" [showButtons]="true"></p-inputnumber>
+      </div>
 
-      <p-select
-        [options]="[
-          { label: 'Cash On Delivery', value: 'cash_on_delivery' },
-          { label: 'Wallet', value: 'wallet' },
-          { label: 'Wallet + COD', value: 'wallet_plus_cash_on_delivery' }
-        ]"
-        [(ngModel)]="form.payment_method"
-        optionLabel="label"
-        optionValue="value"
-      />
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.paymentMethod') }}</label>
+        <p-select
+          [options]="[
+            { label: 'Cash On Delivery', value: 'cash_on_delivery' },
+            { label: 'Wallet', value: 'wallet' },
+            { label: 'Wallet + COD', value: 'wallet_plus_cash_on_delivery' }
+          ]"
+          [(ngModel)]="form.payment_method"
+          optionLabel="label"
+          optionValue="value"
+        />
+      </div>
 
       <button pButton type="button" [label]="ui.t('checkout.placeOrder')" [loading]="loading()" (click)="submitOrder()"></button>
     </div>
@@ -56,12 +74,30 @@
   <div class="glass-panel checkout-card">
     <span class="eyebrow">{{ ui.t('checkout.quickAddress') }}</span>
     <div class="form-grid">
-      <input pInputText [(ngModel)]="newAddress.label" [placeholder]="ui.t('checkout.address')" />
-      <input pInputText [(ngModel)]="newAddress.recipient_name" [placeholder]="ui.t('checkout.recipient')" />
-      <input pInputText [(ngModel)]="newAddress.phone" [placeholder]="ui.t('account.phone')" />
-      <input pInputText [(ngModel)]="newAddress.city" [placeholder]="ui.t('checkout.city')" />
-      <input pInputText [(ngModel)]="newAddress.area" [placeholder]="ui.t('checkout.area')" />
-      <input pInputText [(ngModel)]="newAddress.street" [placeholder]="ui.t('checkout.street')" />
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.address') }}</label>
+        <input pInputText [(ngModel)]="newAddress.label" [placeholder]="ui.t('checkout.address')" />
+      </div>
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.recipient') }}</label>
+        <input pInputText [(ngModel)]="newAddress.recipient_name" [placeholder]="ui.t('checkout.recipient')" />
+      </div>
+      <div class="field-stack">
+        <label>{{ ui.t('account.phone') }}</label>
+        <input pInputText type="tel" inputmode="numeric" [(ngModel)]="newAddress.phone" [placeholder]="ui.t('checkout.phoneHint')" />
+      </div>
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.city') }}</label>
+        <input pInputText [(ngModel)]="newAddress.city" [placeholder]="ui.t('checkout.city')" />
+      </div>
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.area') }}</label>
+        <input pInputText [(ngModel)]="newAddress.area" [placeholder]="ui.t('checkout.area')" />
+      </div>
+      <div class="field-stack">
+        <label>{{ ui.t('checkout.street') }}</label>
+        <input pInputText [(ngModel)]="newAddress.street" [placeholder]="ui.t('checkout.street')" />
+      </div>
       <button pButton type="button" [label]="ui.t('checkout.saveAddress')" severity="secondary" (click)="createAddress()"></button>
     </div>
 

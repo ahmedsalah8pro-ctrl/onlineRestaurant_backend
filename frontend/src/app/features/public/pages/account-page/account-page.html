@@ -42,14 +42,22 @@
 
     <div class="surface-grid two-columns">
       <div class="glass-panel account-card">
-        <span class="eyebrow">{{ ui.t('account.addresses') }}</span>
-        <div class="address-card" *ngFor="let address of addresses()">
+        <div class="panel-head">
           <div>
+            <span class="eyebrow">{{ ui.t('account.addresses') }}</span>
+            <h2>{{ ui.t('account.addresses') }}</h2>
+          </div>
+          <button pButton type="button" [label]="ui.t('account.addAddress')" (click)="openCreateAddress()"></button>
+        </div>
+        <div class="address-card" *ngFor="let address of addresses()">
+          <div class="address-card__body">
             <strong>{{ address.label || address.area }}</strong>
             <p>{{ ui.addressSummary(address.city, address.area, address.street) }}</p>
+            <small>{{ address.phone }}</small>
           </div>
           <div class="address-actions">
             <button pButton type="button" [label]="ui.t('account.setDefault')" severity="secondary" (click)="setDefaultAddress(address.id)"></button>
+            <button pButton type="button" [label]="ui.t('account.editAddress')" severity="secondary" (click)="openEditAddress(address)"></button>
             <button pButton type="button" [label]="ui.t('account.delete')" severity="danger" (click)="confirmDeleteAddress(address.id)"></button>
           </div>
         </div>
@@ -65,11 +73,51 @@
         </div>
 
         <div class="notification-card" *ngFor="let notification of notifications()">
-          <p-tag [value]="ui.notificationTitle(notification)" [severity]="ui.notificationSeverity(notification)"></p-tag>
+          <div class="notification-card__head">
+            <p-tag [value]="ui.notificationTitle(notification)" [severity]="ui.notificationSeverity(notification)"></p-tag>
+            <span>{{ notification.created_at | date: 'medium' }}</span>
+          </div>
           <strong>{{ ui.notificationMessage(notification) }}</strong>
-          <p>{{ notification.created_at | date: 'medium' }}</p>
         </div>
       </div>
     </div>
   }
+
+  <p-dialog
+    [visible]="addressDialogVisible()"
+    [modal]="true"
+    [draggable]="false"
+    [dismissableMask]="true"
+    [style]="{ width: 'min(760px, 94vw)' }"
+    (onHide)="addressDialogVisible.set(false)"
+  >
+    <div class="address-dialog">
+      <div>
+        <span class="eyebrow">{{ editingAddressId() ? ui.t('account.editAddress') : ui.t('account.addAddress') }}</span>
+        <h2>{{ ui.t('account.addresses') }}</h2>
+      </div>
+
+      <div class="form-grid">
+        <input pInputText [(ngModel)]="addressDraft.label" [placeholder]="ui.t('checkout.address')" />
+        <input pInputText [(ngModel)]="addressDraft.recipient_name" [placeholder]="ui.t('checkout.recipient')" />
+        <input pInputText [(ngModel)]="addressDraft.phone" [placeholder]="ui.t('account.phone')" />
+        <input pInputText [(ngModel)]="addressDraft.city" [placeholder]="ui.t('checkout.city')" />
+        <input pInputText [(ngModel)]="addressDraft.area" [placeholder]="ui.t('checkout.area')" />
+        <input pInputText [(ngModel)]="addressDraft.street" [placeholder]="ui.t('checkout.street')" />
+        <input pInputText [(ngModel)]="addressDraft.building" placeholder="Building" />
+        <input pInputText [(ngModel)]="addressDraft.floor" placeholder="Floor" />
+        <input pInputText [(ngModel)]="addressDraft.apartment" placeholder="Apartment" />
+        <textarea pTextarea rows="3" [(ngModel)]="addressDraft.notes" [placeholder]="ui.t('checkout.notes')"></textarea>
+      </div>
+
+      <div class="address-dialog__toggle">
+        <span>{{ ui.t('account.setDefault') }}</span>
+        <p-toggleswitch [(ngModel)]="addressDraft.is_default"></p-toggleswitch>
+      </div>
+
+      <div class="address-dialog__actions">
+        <button pButton type="button" [label]="ui.t('account.saveProfile')" (click)="saveAddress()"></button>
+      </div>
+    </div>
+  </p-dialog>
 </section>

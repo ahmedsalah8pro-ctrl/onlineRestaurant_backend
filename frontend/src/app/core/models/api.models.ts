@@ -170,6 +170,7 @@ export interface ProductListItem {
     average: number;
     count: number;
   };
+  addon_groups_count?: number;
 }
 
 export interface ProductMediaItem {
@@ -223,10 +224,12 @@ export interface ProductDetail extends ProductListItem {
 export interface CartItem {
   id: number;
   product_id: number;
+  product_size_id?: number | null;
   product_name: string;
   size?: string | null;
   quantity: number;
   price_snapshot: number;
+  selected_addon_option_ids?: number[];
   selected_addons: Array<Record<string, unknown>>;
   line_subtotal: number;
 }

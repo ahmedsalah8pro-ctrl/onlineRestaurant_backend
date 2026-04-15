@@ -2,44 +2,82 @@
   <p-toast position="top-center"></p-toast>
   <p-confirmdialog></p-confirmdialog>
 
-  <aside class="admin-sidebar">
-    <div class="admin-brand">
-      <span class="eyebrow">{{ ui.t('admin.section.branding') }}</span>
-      <h2>{{ storefront.siteName() }}</h2>
-      <p>{{ adminName() }}</p>
-    </div>
-
-    <nav class="admin-nav">
-      <section class="admin-nav-group" *ngFor="let group of navGroups">
-        <div class="admin-nav-group__title">{{ ui.t(group.labelKey) }}</div>
-        <a
-          *ngFor="let item of group.items"
-          [routerLink]="item.path"
-          routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
-        >
-          {{ ui.t(item.labelKey) }}
-        </a>
-      </section>
-    </nav>
-
-    <div class="admin-sidebar__footer">
-      <a routerLink="/">{{ ui.t('nav.storefront') }}</a>
-      <div class="admin-domains">
-        <span>{{ runtime.frontendBaseUrl }}</span>
-        <span>{{ runtime.apiBaseUrl }}</span>
+  <aside class="admin-sidebar admin-sidebar--desktop">
+    <div class="admin-sidebar__inner">
+      <div class="admin-brand">
+        <span class="eyebrow">{{ ui.t('admin.section.branding') }}</span>
+        <h2>{{ storefront.siteName() }}</h2>
+        <p>{{ adminName() }}</p>
       </div>
-      <button pButton type="button" [label]="ui.t('admin.logout')" severity="secondary" (click)="logout()"></button>
+
+      <nav class="admin-nav">
+        <section class="admin-nav-group" *ngFor="let group of navGroups">
+          <div class="admin-nav-group__title">{{ ui.t(group.labelKey) }}</div>
+          <a
+            *ngFor="let item of group.items"
+            [routerLink]="item.path"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
+          >
+            {{ ui.t(item.labelKey) }}
+          </a>
+        </section>
+      </nav>
+
+      <div class="admin-sidebar__footer">
+        <a routerLink="/">{{ ui.t('nav.storefront') }}</a>
+        <div class="admin-domains">
+          <span>{{ runtime.frontendBaseUrl }}</span>
+          <span>{{ runtime.apiBaseUrl }}</span>
+        </div>
+        <button pButton type="button" [label]="ui.t('admin.logout')" severity="secondary" (click)="logout()"></button>
+      </div>
     </div>
   </aside>
 
+  <p-drawer [(visible)]="mobileMenuOpen" position="right" [modal]="true" styleClass="admin-drawer">
+    <div class="admin-sidebar admin-sidebar--drawer">
+      <div class="admin-sidebar__inner">
+        <div class="admin-brand">
+          <span class="eyebrow">{{ ui.t('admin.menu') }}</span>
+          <h2>{{ storefront.siteName() }}</h2>
+          <p>{{ adminName() }}</p>
+        </div>
+
+        <nav class="admin-nav">
+          <section class="admin-nav-group" *ngFor="let group of navGroups">
+            <div class="admin-nav-group__title">{{ ui.t(group.labelKey) }}</div>
+            <a
+              *ngFor="let item of group.items"
+              [routerLink]="item.path"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
+              (click)="closeMenu()"
+            >
+              {{ ui.t(item.labelKey) }}
+            </a>
+          </section>
+        </nav>
+
+        <div class="admin-sidebar__footer">
+          <a routerLink="/" (click)="closeMenu()">{{ ui.t('nav.storefront') }}</a>
+          <button pButton type="button" [label]="ui.t('admin.logout')" severity="secondary" (click)="logout()"></button>
+        </div>
+      </div>
+    </div>
+  </p-drawer>
+
   <div class="admin-main">
     <header class="admin-topbar glass-panel">
-      <div>
-        <span class="eyebrow">{{ ui.t('admin.title') }}</span>
-        <h1>{{ storefront.siteName() }} {{ ui.t('admin.title') }}</h1>
-        <p class="section-copy">{{ ui.t('admin.subtitle') }}</p>
+      <div class="admin-topbar__heading">
+        <button pButton type="button" icon="pi pi-bars" severity="secondary" styleClass="admin-topbar__menu" (click)="toggleMenu()"></button>
+        <div>
+          <span class="eyebrow">{{ ui.t('admin.title') }}</span>
+          <h1>{{ storefront.siteName() }} {{ ui.t('admin.title') }}</h1>
+          <p class="section-copy">{{ ui.t('admin.subtitle') }}</p>
+        </div>
       </div>
+
       <div class="admin-topbar__chips">
         <p-tag [value]="ui.t('admin.section.branding')" severity="success"></p-tag>
         <p-tag [value]="ui.t('admin.section.catalog')" severity="info"></p-tag>

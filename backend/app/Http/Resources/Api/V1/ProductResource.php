@@ -25,6 +25,7 @@ class ProductResource extends JsonResource
                 'average' => round((float) ($this->reviews_avg_rating ?? 0), 2),
                 'count' => (int) ($this->reviews_count ?? 0),
             ],
+            'addon_groups_count' => (int) ($this->addon_groups_count ?? 0),
         ];
     }
 }

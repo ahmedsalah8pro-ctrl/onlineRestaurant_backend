@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
 import { StorefrontService } from '../../../../core/services/storefront';
@@ -17,6 +17,8 @@ export class AdminShell implements OnInit {
   protected readonly storefront = inject(StorefrontService);
   protected readonly ui = inject(UiTextService);
   protected readonly runtime = inject(RuntimeConfigService);
+  private readonly router = inject(Router);
+  protected mobileMenuOpen = false;
 
   protected readonly navGroups = [
     {
@@ -59,5 +61,15 @@ export class AdminShell implements OnInit {
 
   protected async logout(): Promise<void> {
     await this.auth.logout();
+    this.mobileMenuOpen = false;
+    await this.router.navigateByUrl('/admin/login');
+  }
+
+  protected toggleMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  protected closeMenu(): void {
+    this.mobileMenuOpen = false;
   }
 }

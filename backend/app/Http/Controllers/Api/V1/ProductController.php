@@ -18,6 +18,7 @@ class ProductController extends Controller
     {
         $query = Product::query()
             ->active()
+            ->withCount('addonGroups')
             ->withCount('reviews')
             ->withAvg(['reviews as reviews_avg_rating' => fn ($q) => $q->visible()], 'rating');
 
@@ -32,10 +33,21 @@ class ProductController extends Controller
 
         if ($request->filled('search')) {
             $search = strtolower($request->string('search'));
-            $query->where(function ($subQuery) use ($search) {
-                $subQuery->where('slug', 'like', "%{$search}%")
-                    ->orWhereRaw('LOWER(json_extract(name, "$.ar")) like ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(json_extract(name, "$.en")) like ?', ["%{$search}%"]);
+            $alternateSearch = strtolower((string) $request->string('search_alt'));
+            $query->where(function ($queryBuilder) use ($search, $alternateSearch) {
+                $queryBuilder->where(function ($subQuery) use ($search) {
+                    $subQuery->where('slug', 'like', "%{$search}%")
+                        ->orWhereRaw('LOWER(json_extract(name, "$.ar")) like ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(json_extract(name, "$.en")) like ?', ["%{$search}%"]);
+                });
+
+                if ($alternateSearch !== '' && $alternateSearch !== $search) {
+                    $queryBuilder->orWhere(function ($subQuery) use ($alternateSearch) {
+                    $subQuery->where('slug', 'like', "%{$alternateSearch}%")
+                        ->orWhereRaw('LOWER(json_extract(name, "$.ar")) like ?', ["%{$alternateSearch}%"])
+                        ->orWhereRaw('LOWER(json_extract(name, "$.en")) like ?', ["%{$alternateSearch}%"]);
+                    });
+                }
             });
         }
 

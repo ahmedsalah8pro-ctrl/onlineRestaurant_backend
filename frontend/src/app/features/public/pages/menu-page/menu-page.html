@@ -6,16 +6,22 @@
       <p class="section-copy">{{ ui.t('menu.copy') }}</p>
     </div>
 
-    <div class="menu-toolbar__filters">
-      <input pInputText [placeholder]="ui.t('menu.search')" [(ngModel)]="filters.search" />
+    <div class="menu-branch-picker">
+      <button
+        pButton
+        type="button"
+        *ngFor="let branch of storefront.branches()"
+        [label]="branch.name"
+        [severity]="filters.branch_id === branch.id ? undefined : 'secondary'"
+        (click)="setBranch(branch.id)"
+      ></button>
+    </div>
 
-      <p-select
-        [options]="storefront.branches()"
-        [(ngModel)]="filters.branch_id"
-        optionLabel="name"
-        optionValue="id"
-        [placeholder]="ui.t('menu.branch')"
-      />
+    <div class="menu-toolbar__filters" *ngIf="filters.branch_id; else chooseBranchFirst">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText [placeholder]="ui.t('menu.search')" [(ngModel)]="filters.search" (ngModelChange)="onFiltersChanged()" />
+      </span>
 
       <p-select
         [options]="storefront.categories()"
@@ -23,6 +29,7 @@
         optionLabel="name"
         optionValue="id"
         [placeholder]="ui.t('menu.category')"
+        (ngModelChange)="onFiltersChanged()"
       />
 
       <p-select
@@ -31,23 +38,39 @@
         optionLabel="label"
         optionValue="value"
         [placeholder]="ui.t('menu.sort')"
+        (ngModelChange)="onFiltersChanged()"
       />
-
-      <button pButton type="button" [label]="ui.t('menu.apply')" (click)="loadProducts(1)"></button>
     </div>
   </div>
+
+  <ng-template #chooseBranchFirst>
+    <div class="glass-panel menu-empty">
+      <h2>{{ ui.t('menu.chooseBranch') }}</h2>
+      <p>{{ ui.t('menu.chooseBranchCopy') }}</p>
+    </div>
+  </ng-template>
 
   @if (loading()) {
     <div class="loading-state glass-panel">
       <p-progressspinner strokeWidth="3"></p-progressspinner>
     </div>
-  } @else {
+  } @else if (filters.branch_id) {
     <div class="menu-grid">
-      <article class="menu-card glass-panel" *ngFor="let product of products()">
+      <article class="menu-card glass-panel" *ngFor="let product of products()" (click)="openPreview(product.id)">
         <img
           [src]="runtime.resolveAsset(product.main_image_path, 'https://placehold.co/480x320/111827/ffffff?text=Menu')"
           [alt]="product.name"
         />
+
+        <button
+          class="menu-card__quick-add"
+          pButton
+          type="button"
+          icon="pi pi-shopping-cart"
+          [loading]="quickAddLoadingId() === product.id"
+          (click)="quickAdd(product, $event)"
+        ></button>
+
         <div class="menu-card__body">
           <div class="menu-card__header">
             <h3>{{ product.name }}</h3>
@@ -58,7 +81,10 @@
             <span>{{ storefront.formatMoney(product.base_price) }}</span>
             <span>{{ product.rating_summary.average }} ★</span>
           </div>
-          <a [routerLink]="['/products', product.id]">{{ ui.t('menu.details') }}</a>
+          <div class="menu-card__actions">
+            <button pButton type="button" [label]="ui.t('menu.fastAdd')" severity="secondary" (click)="quickAdd(product, $event)"></button>
+            <a [routerLink]="['/products', product.id]" (click)="$event.stopPropagation()">{{ ui.t('menu.details') }}</a>
+          </div>
         </div>
       </article>
     </div>
@@ -72,4 +98,40 @@
       </div>
     </div>
   }
+
+  <p-dialog
+    [visible]="previewVisible()"
+    [modal]="true"
+    [draggable]="false"
+    [dismissableMask]="true"
+    [style]="{ width: 'min(960px, 94vw)' }"
+    (onHide)="closePreview()"
+  >
+    @if (previewLoading()) {
+      <div class="loading-state">
+        <p-progressspinner strokeWidth="3"></p-progressspinner>
+      </div>
+    } @else if (previewProduct(); as current) {
+      <div class="preview-modal">
+        <img
+          [src]="runtime.resolveAsset(current.main_image_path, current.media[0]?.url || 'https://placehold.co/640x520/111827/ffffff?text=Preview')"
+          [alt]="current.name"
+        />
+        <div class="preview-modal__body">
+          <span class="eyebrow">{{ ui.t('menu.previewTitle') }}</span>
+          <h2>{{ current.name }}</h2>
+          <p>{{ current.short_description || current.description || ui.t('menu.noDescription') }}</p>
+          <div class="preview-modal__meta">
+            <span>{{ storefront.formatMoney(current.base_price) }}</span>
+            <span>{{ current.rating_summary.average }} ★</span>
+            <span>{{ current.sizes.length }} {{ ui.t('product.sizes') }}</span>
+          </div>
+          <div class="preview-modal__actions">
+            <button pButton type="button" [label]="ui.t('menu.fastAdd')" (click)="quickAdd(current, $event)"></button>
+            <a pButton severity="secondary" [routerLink]="['/products', current.id]" (click)="closePreview()">{{ ui.t('menu.fullDetails') }}</a>
+          </div>
+        </div>
+      </div>
+    }
+  </p-dialog>
 </section>
