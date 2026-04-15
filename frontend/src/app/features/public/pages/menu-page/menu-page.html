@@ -1,0 +1,75 @@
+<section class="page-shell surface-grid">
+  <div class="glass-panel menu-toolbar">
+    <div>
+      <span class="eyebrow">Browse</span>
+      <h1 class="section-title">Menu Explorer</h1>
+      <p class="section-copy">Search, branch filter, category filter, sorting, and backend pagination.</p>
+    </div>
+
+    <div class="menu-toolbar__filters">
+      <input pInputText placeholder="Search products" [(ngModel)]="filters.search" />
+
+      <p-select
+        [options]="storefront.branches()"
+        [(ngModel)]="filters.branch_id"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Branch"
+      />
+
+      <p-select
+        [options]="storefront.categories()"
+        [(ngModel)]="filters.category_id"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Category"
+      />
+
+      <p-select
+        [options]="sortOptions"
+        [(ngModel)]="filters.sort"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Sort"
+      />
+
+      <button pButton type="button" label="Apply" (click)="loadProducts(1)"></button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state glass-panel">
+      <p-progressspinner strokeWidth="3"></p-progressspinner>
+    </div>
+  } @else {
+    <div class="menu-grid">
+      <article class="menu-card glass-panel" *ngFor="let product of products()">
+        <img
+          [src]="runtime.resolveAsset(product.main_image_path, 'https://placehold.co/480x320/111827/ffffff?text=Menu')"
+          [alt]="product.name"
+        />
+        <div class="menu-card__body">
+          <div class="menu-card__header">
+            <h3>{{ product.name }}</h3>
+            <p-tag *ngIf="product.is_best_seller_pinned" value="Best Seller" severity="warn"></p-tag>
+          </div>
+          <p>{{ product.short_description || 'Configurable product with variants, add-ons, and branch rules.' }}</p>
+          <div class="menu-card__meta">
+            <span>{{ storefront.formatMoney(product.base_price) }}</span>
+            <span>{{ product.rating_summary.average }} ★</span>
+          </div>
+          <a [routerLink]="['/products', product.id]">Open product</a>
+        </div>
+      </article>
+    </div>
+
+    <div class="menu-pagination glass-panel">
+      <span>Total: {{ total() }}</span>
+      <div class="menu-pagination__actions">
+        <button pButton type="button" label="Prev" severity="secondary" [disabled]="page() <= 1" (click)="loadProducts(page() - 1)"></button>
+        <span>Page {{ page() }} / {{ lastPage() }}</span>
+        <button pButton type="button" label="Next" severity="secondary" [disabled]="page() >= lastPage()" (click)="loadProducts(page() + 1)"></button>
+      </div>
+    </div>
+  }
+</section>

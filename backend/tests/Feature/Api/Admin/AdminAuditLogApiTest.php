@@ -14,7 +14,7 @@ class AdminAuditLogApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_super_admin_can_view_audit_logs_for_settings_and_upload_actions(): void
+    public function test_super_admin_can_view_audit_logs_for_settings_import_reset_and_upload_actions(): void
     {
         $this->seed(DatabaseSeeder::class);
         Storage::fake('uploads');
@@ -34,6 +34,17 @@ class AdminAuditLogApiTest extends TestCase
             'Accept' => 'application/json',
         ])->assertCreated();
 
+        $this->postJson('/api/v1/admin/settings/import', [
+            'groups' => [
+                'general' => [
+                    'site_name' => 'Audit Restaurant',
+                ],
+            ],
+        ])->assertOk();
+
+        $this->postJson('/api/v1/admin/settings/branding/reset')
+            ->assertOk();
+
         $this->assertDatabaseHas('audit_logs', [
             'action' => 'settings.group.updated',
             'actor_id' => 1,
@@ -41,6 +52,16 @@ class AdminAuditLogApiTest extends TestCase
 
         $this->assertDatabaseHas('audit_logs', [
             'action' => 'upload.created',
+            'actor_id' => 1,
+        ]);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'settings.import.completed',
+            'actor_id' => 1,
+        ]);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'settings.group.reset',
             'actor_id' => 1,
         ]);
 

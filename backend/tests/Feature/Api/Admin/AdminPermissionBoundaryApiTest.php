@@ -67,6 +67,15 @@ class AdminPermissionBoundaryApiTest extends TestCase
         ])
             ->assertForbidden();
 
+        $this->getJson('/api/v1/admin/settings/schema')
+            ->assertForbidden();
+
+        $this->getJson('/api/v1/admin/settings/export')
+            ->assertForbidden();
+
+        $this->postJson('/api/v1/admin/settings/branding/reset')
+            ->assertForbidden();
+
         $this->getJson('/api/v1/admin/audit-logs')
             ->assertForbidden();
     }

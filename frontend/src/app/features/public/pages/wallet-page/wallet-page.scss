@@ -1,0 +1,24 @@
+.wallet-card {
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.coupon-box,
+.transaction-row,
+.transaction-row__meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.transaction-row {
+  justify-content: space-between;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  padding-top: 0.9rem;
+}
+
+.transaction-row__meta {
+  flex-direction: column;
+  align-items: end;
+}

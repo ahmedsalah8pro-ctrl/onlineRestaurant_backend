@@ -128,6 +128,14 @@ class AdminManagementCoverageApiTest extends TestCase
         $this->getJson('/api/v1/admin/settings')
             ->assertOk();
 
+        $this->getJson('/api/v1/admin/settings/schema')
+            ->assertOk()
+            ->assertJsonPath('data.groups.branding.group', 'branding');
+
+        $this->getJson('/api/v1/admin/settings/general')
+            ->assertOk()
+            ->assertJsonPath('data.group', 'general');
+
         $this->patchJson('/api/v1/admin/settings/general', [
             'values' => [
                 'site_name' => 'Backend QA Restaurant',
@@ -135,6 +143,10 @@ class AdminManagementCoverageApiTest extends TestCase
         ])
             ->assertOk()
             ->assertJsonPath('data.site_name', 'Backend QA Restaurant');
+
+        $this->getJson('/api/v1/admin/settings/export')
+            ->assertOk()
+            ->assertJsonPath('data.groups.general.site_name', 'Backend QA Restaurant');
 
         $review = Review::query()->latest()->firstOrFail();
         $this->getJson('/api/v1/admin/reviews')

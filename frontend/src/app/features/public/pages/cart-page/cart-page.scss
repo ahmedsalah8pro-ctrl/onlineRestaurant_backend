@@ -1,0 +1,25 @@
+.cart-panel,
+.cart-summary {
+  padding: 1.25rem;
+}
+
+.cart-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.cart-row__controls,
+.coupon-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .cart-row {
+    grid-template-columns: 1fr;
+  }
+}

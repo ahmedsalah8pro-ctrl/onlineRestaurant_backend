@@ -30,6 +30,9 @@ class BackendLandingTest extends TestCase
             ->assertJsonPath('data.scheme', 'https')
             ->assertJsonPath('data.host', 'restaurant-demo.ahmedsalah.dev')
             ->assertJsonPath('data.links.base_url', 'https://restaurant-demo.ahmedsalah.dev')
-            ->assertJsonPath('data.links.health', 'https://restaurant-demo.ahmedsalah.dev/api/v1/health');
+            ->assertJsonPath(
+                'data.links.health',
+                'https://restaurant-demo.ahmedsalah.dev/'.ltrim((string) config('app.api_public_prefix', '/api/v1'), '/').'/health'
+            );
     }
 }

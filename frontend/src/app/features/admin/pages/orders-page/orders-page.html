@@ -1,0 +1,44 @@
+<section class="glass-panel orders-admin-card">
+  <span class="eyebrow">Orders Manager</span>
+  <div class="order-row" *ngFor="let order of orders()">
+    <div>
+      <strong>#{{ order.id }}</strong>
+      <p>{{ order.status }} · {{ order.placed_at | date: 'medium' }}</p>
+    </div>
+    <div class="order-row__meta">
+      <strong>{{ storefront.formatMoney(order.total) }}</strong>
+      <button pButton type="button" label="Manage" severity="secondary" (click)="openOrder(order.id)"></button>
+    </div>
+  </div>
+
+  <p-dialog
+    header="Admin Order Manager"
+    [visible]="detailVisible()"
+    [modal]="true"
+    [style]="{ width: 'min(1000px, 96vw)' }"
+    (visibleChange)="detailVisible.set($event)"
+  >
+    @if (selectedOrder(); as order) {
+      <div class="surface-grid two-columns">
+        <div class="glass-panel order-panel">
+          <h3>Status workflow</h3>
+          <p-select [options]="statusOptions" [(ngModel)]="statusForm.status"></p-select>
+          <textarea pTextarea rows="4" [(ngModel)]="statusForm.notes" placeholder="Status notes"></textarea>
+          <button pButton type="button" label="Update Status" (click)="updateStatus()"></button>
+        </div>
+
+        <div class="glass-panel order-panel">
+          <h3>Delivery assignment</h3>
+          <input pInputText [(ngModel)]="deliveryForm.delivery_person_name" placeholder="Delivery person name" />
+          <input pInputText [(ngModel)]="deliveryForm.delivery_person_phone" placeholder="Delivery person phone" />
+          <button pButton type="button" label="Assign Delivery" severity="secondary" (click)="assignDelivery()"></button>
+        </div>
+      </div>
+
+      <div class="glass-panel order-panel">
+        <h3>Order payload</h3>
+        <pre>{{ selectedOrder() | json }}</pre>
+      </div>
+    }
+  </p-dialog>
+</section>

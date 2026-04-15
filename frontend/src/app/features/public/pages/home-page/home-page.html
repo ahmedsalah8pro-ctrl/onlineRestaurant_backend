@@ -1,0 +1,96 @@
+<section class="page-shell surface-grid">
+  <div class="home-hero glass-panel">
+    <div class="home-hero__copy">
+      <span class="eyebrow">Egyptian Restaurant Platform</span>
+      <h1 class="section-title">
+        <span class="brand-gradient-text">{{ storefront.siteName() }}</span>
+        <br />
+        {{ theme.resolveText(storefront.settings()?.branding?.brand_tagline) }}
+      </h1>
+      <p class="section-copy">
+        واجهة بسيطة كبداية، لكنها موصولة بكل منطق الـ backend الحالي: branches, menu,
+        cart, checkout, wallet, orders, reviews, وتهيئة العلامة التجارية من الـ admin API.
+      </p>
+
+      <div class="home-hero__actions">
+        <a pButton routerLink="/menu" label="Browse Menu"></a>
+        <a pButton routerLink="/admin" label="Open Admin" severity="secondary"></a>
+      </div>
+    </div>
+
+    <div class="home-hero__visual">
+      <div class="hero-orb"></div>
+      <div class="hero-card metric-card" *ngFor="let metric of metrics()">
+        <div class="metric-card__label">{{ metric.label }}</div>
+        <div class="metric-card__value">{{ metric.value }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="surface-grid three-columns">
+    <article class="glass-panel capability-card" *ngFor="let capability of capabilityCards">
+      <i class="pi pi-sparkles"></i>
+      <h3>{{ capability }}</h3>
+      <p class="section-copy">
+        Managed through the same Laravel API contracts and ready for re-branding per restaurant.
+      </p>
+    </article>
+  </div>
+
+  <section class="surface-grid two-columns">
+    <div class="glass-panel section-panel">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">Best Sellers</span>
+          <h2 class="section-title">Pinned And Dynamic Highlights</h2>
+        </div>
+        <a routerLink="/menu">Full menu</a>
+      </div>
+
+      <div class="surface-grid">
+        <article class="best-seller" *ngFor="let product of storefront.bestSellers()">
+          <div class="best-seller__media">
+            <img
+              [src]="runtime.resolveAsset(product.main_image_path, 'https://placehold.co/320x220/f97316/ffffff?text=Menu')"
+              [alt]="product.name"
+            />
+          </div>
+          <div class="best-seller__content">
+            <div class="best-seller__meta">
+              <span>{{ product.rating_summary.average }} ★</span>
+              <span>{{ product.rating_summary.count }} reviews</span>
+            </div>
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.short_description || 'Built from the current product catalog response.' }}</p>
+            <div class="best-seller__footer">
+              <strong>{{ storefront.formatMoney(product.base_price) }}</strong>
+              <a [routerLink]="['/products', product.id]">Details</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="glass-panel section-panel">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">Branches</span>
+          <h2 class="section-title">Delivery Coverage</h2>
+        </div>
+      </div>
+
+      <div class="branch-card" *ngFor="let branch of storefront.branches()">
+        <div>
+          <h3>{{ branch.name }}</h3>
+          <p>{{ branch.address || 'Configured from admin branch API.' }}</p>
+        </div>
+        <p-tag [value]="branch.is_active ? 'Active' : 'Disabled'" [severity]="branch.is_active ? 'success' : 'danger'"></p-tag>
+        <div class="branch-zones">
+          <span *ngFor="let zone of branch.delivery_zones">
+            {{ zone.name }} · {{ storefront.formatMoney(zone.delivery_fee) }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>

@@ -1,0 +1,26 @@
+<section class="page-shell surface-grid two-columns">
+  <div class="glass-panel wallet-card">
+    <span class="eyebrow">Wallet</span>
+    <h1 class="section-title">{{ storefront.formatMoney(wallet()?.balance) }}</h1>
+    <p class="section-copy">Redeem gift cards, inspect transaction history, and fund future orders.</p>
+
+    <div class="coupon-box">
+      <input pInputText [ngModel]="redeemCode()" (ngModelChange)="redeemCode.set($event)" placeholder="Gift card code" />
+      <button pButton type="button" label="Redeem" [loading]="loading()" (click)="redeem()"></button>
+    </div>
+  </div>
+
+  <div class="glass-panel wallet-card">
+    <span class="eyebrow">Transactions</span>
+    <div class="transaction-row" *ngFor="let transaction of transactions()">
+      <div>
+        <strong>{{ transaction.type }}</strong>
+        <p>{{ transaction.notes || 'Wallet event' }}</p>
+      </div>
+      <div class="transaction-row__meta">
+        <strong>{{ storefront.formatMoney(transaction.amount) }}</strong>
+        <small>{{ transaction.created_at | date: 'medium' }}</small>
+      </div>
+    </div>
+  </div>
+</section>

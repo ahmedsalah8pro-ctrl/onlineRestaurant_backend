@@ -1,0 +1,38 @@
+.auth-grid {
+  display: grid;
+  grid-template-columns: 1fr 0.85fr;
+  gap: 1rem;
+}
+
+.auth-card,
+.demo-card {
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.demo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.demo-row p,
+.demo-row small {
+  color: #64748b;
+}
+
+@media (max-width: 960px) {
+  .auth-grid {
+    grid-template-columns: 1fr;
+  }
+}

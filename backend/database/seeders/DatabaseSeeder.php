@@ -367,6 +367,31 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        $settingsGroupsRaw = config('admin_settings.groups', []);
+        /** @var array<string, array<string, mixed>> $settingsGroups */
+        $settingsGroups = is_array($settingsGroupsRaw) ? $settingsGroupsRaw : [];
+
+        foreach ($settingsGroups as $group => $groupDefinition) {
+            $fieldDefinitions = $groupDefinition['fields'] ?? [];
+
+            if (! is_array($fieldDefinitions)) {
+                continue;
+            }
+
+            foreach ($fieldDefinitions as $key => $fieldDefinition) {
+                if (! is_array($fieldDefinition)) {
+                    continue;
+                }
+
+                $value = $fieldDefinition['default'] ?? null;
+
+                Setting::updateOrCreate(
+                    ['group' => $group, 'key' => $key],
+                    ['value' => $value, 'value_type' => get_debug_type($value)]
+                );
+            }
+        }
+
         $address = UserAddress::factory()->create([
             'user_id' => $customer->id,
             'recipient_name' => 'Demo Customer',

@@ -1,0 +1,7 @@
+@if (page(); as current) {
+  <section class="page-shell glass-panel page-card">
+    <span class="eyebrow">Dynamic Page</span>
+    <h1 class="section-title">{{ current.title }}</h1>
+    <p class="section-copy">{{ current.content || 'This page content is served by the backend dynamic pages API.' }}</p>
+  </section>
+}

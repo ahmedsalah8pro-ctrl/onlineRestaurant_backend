@@ -1,0 +1,42 @@
+<section class="surface-grid two-columns">
+  <div class="glass-panel content-card">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Dynamic Pages</span>
+        <h2>CMS-like API pages</h2>
+      </div>
+      <button pButton type="button" label="Create Page" (click)="editPage()"></button>
+    </div>
+
+    <div class="catalog-record" *ngFor="let page of pages()">
+      <pre>{{ page | json }}</pre>
+      <div class="settings-actions">
+        <button pButton type="button" label="Edit" severity="secondary" (click)="editPage(page)"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-panel content-card">
+    <span class="eyebrow">Reviews Moderation</span>
+    <div class="catalog-record" *ngFor="let review of reviews()">
+      <pre>{{ review | json }}</pre>
+      <div class="settings-actions">
+        <button pButton type="button" label="Show" severity="secondary" (click)="toggleReview(review, true)"></button>
+        <button pButton type="button" label="Hide" severity="danger" (click)="toggleReview(review, false)"></button>
+      </div>
+    </div>
+  </div>
+
+  <p-dialog
+    header="Dynamic Page Payload"
+    [visible]="pageDialogVisible()"
+    [modal]="true"
+    [style]="{ width: 'min(980px, 95vw)' }"
+    (visibleChange)="pageDialogVisible.set($event)"
+  >
+    <textarea pTextarea rows="24" [ngModel]="pagePayloadText()" (ngModelChange)="pagePayloadText.set($event)"></textarea>
+    <div class="settings-actions">
+      <button pButton type="button" label="Save Page" (click)="savePage()"></button>
+    </div>
+  </p-dialog>
+</section>

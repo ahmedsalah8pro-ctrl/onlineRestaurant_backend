@@ -92,6 +92,10 @@ return [
 
     'order_grace_period_minutes' => (int) env('ORDER_GRACE_PERIOD_MINUTES', 2),
 
+    'frontend_url' => env('FRONTEND_URL', env('APP_URL', 'http://localhost')),
+
+    'api_public_prefix' => trim((string) env('API_PUBLIC_PREFIX', '/api/v1')),
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key

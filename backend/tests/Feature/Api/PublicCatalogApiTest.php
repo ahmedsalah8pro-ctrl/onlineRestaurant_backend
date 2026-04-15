@@ -24,7 +24,9 @@ class PublicCatalogApiTest extends TestCase
             ->assertHeader('X-Request-Id', 'catalog-public-settings')
             ->assertHeader('X-API-Version', 'v1')
             ->assertHeader('Content-Language', 'ar')
-            ->assertJsonPath('data.currency.code', 'EGP');
+            ->assertJsonPath('data.currency.code', 'EGP')
+            ->assertJsonPath('data.branding.logo_path', 'branding/logo.png')
+            ->assertJsonMissingPath('data.notifications');
 
         $this->assertNotNull($settingsResponse->headers->get('X-Response-Time-Ms'));
 

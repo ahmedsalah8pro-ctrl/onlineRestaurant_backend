@@ -1,0 +1,457 @@
+<?php
+
+return [
+    'version' => 1,
+    'groups' => [
+        'general' => [
+            'label' => ['ar' => 'الإعدادات العامة', 'en' => 'General Settings'],
+            'description' => [
+                'ar' => 'الهوية العامة والبيانات التشغيلية الأساسية للمطعم.',
+                'en' => 'Core identity and operational metadata for the restaurant brand.',
+            ],
+            'public' => true,
+            'fields' => [
+                'site_name' => [
+                    'type' => 'string',
+                    'default' => 'Online Restaurant',
+                    'rules' => ['required', 'string', 'max:120'],
+                    'public' => true,
+                    'example' => 'Hekaya Kitchen',
+                    'description' => [
+                        'ar' => 'اسم العلامة التجارية الأساسي المعروض للعملاء.',
+                        'en' => 'Primary brand name exposed to customers.',
+                    ],
+                ],
+                'legal_business_name' => [
+                    'type' => 'string',
+                    'default' => 'Online Restaurant LLC',
+                    'rules' => ['required', 'string', 'max:160'],
+                    'public' => false,
+                    'example' => 'Hekaya Restaurants LLC',
+                    'description' => [
+                        'ar' => 'الاسم القانوني المستخدم للفواتير والتعاقدات.',
+                        'en' => 'Legal business name for invoices and compliance.',
+                    ],
+                ],
+                'restaurant_code' => [
+                    'type' => 'string',
+                    'default' => 'restaurant-demo',
+                    'rules' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9\\-]+$/'],
+                    'public' => false,
+                    'example' => 'hekaya-cairo',
+                    'description' => [
+                        'ar' => 'معرف داخلي ثابت لكل علامة/مطعم داخل النسخة المباعة.',
+                        'en' => 'Stable internal identifier for each sold restaurant brand.',
+                    ],
+                ],
+                'website_slug' => [
+                    'type' => 'string',
+                    'default' => 'online-restaurant',
+                    'rules' => ['required', 'string', 'max:80', 'regex:/^[a-z0-9\\-]+$/'],
+                    'public' => true,
+                    'example' => 'hekaya-eg',
+                    'description' => [
+                        'ar' => 'Slug عام يمكن أن تستخدمه التطبيقات لاختيار هوية المطعم.',
+                        'en' => 'Public slug that clients can use to resolve restaurant identity.',
+                    ],
+                ],
+                'support_phone' => [
+                    'type' => 'string',
+                    'default' => '+20-100-000-0000',
+                    'rules' => ['required', 'string', 'max:30'],
+                    'public' => true,
+                    'example' => '+20-111-222-3333',
+                    'description' => [
+                        'ar' => 'رقم التواصل الرئيسي لخدمة العملاء.',
+                        'en' => 'Primary customer support phone number.',
+                    ],
+                ],
+                'support_email' => [
+                    'type' => 'email',
+                    'default' => 'support@example.com',
+                    'rules' => ['nullable', 'email', 'max:120'],
+                    'public' => true,
+                    'example' => 'support@restaurant.example',
+                    'description' => [
+                        'ar' => 'البريد العام للدعم إذا كان ظاهرًا للعملاء.',
+                        'en' => 'Public-facing support email when enabled.',
+                    ],
+                ],
+            ],
+        ],
+        'branding' => [
+            'label' => ['ar' => 'العلامة التجارية', 'en' => 'Branding'],
+            'description' => [
+                'ar' => 'أصول العلامة التجارية القابلة للتبديل بين المطاعم المختلفة.',
+                'en' => 'White-label branding assets that can be swapped per restaurant.',
+            ],
+            'public' => true,
+            'fields' => [
+                'brand_tagline' => [
+                    'type' => 'translatable_string',
+                    'default' => [
+                        'ar' => 'نكهات مصرية بطلبات أسرع.',
+                        'en' => 'Egyptian flavors with faster ordering.',
+                    ],
+                    'rules' => ['nullable', 'array:ar,en'],
+                    'nested_rules' => [
+                        'ar' => ['nullable', 'string', 'max:180'],
+                        'en' => ['nullable', 'string', 'max:180'],
+                    ],
+                    'public' => true,
+                ],
+                'logo_path' => [
+                    'type' => 'string',
+                    'default' => 'branding/logo.png',
+                    'rules' => ['nullable', 'string', 'max:2048'],
+                    'public' => true,
+                ],
+                'square_logo_path' => [
+                    'type' => 'string',
+                    'default' => 'branding/logo-square.png',
+                    'rules' => ['nullable', 'string', 'max:2048'],
+                    'public' => true,
+                ],
+                'favicon_path' => [
+                    'type' => 'string',
+                    'default' => 'branding/favicon.ico',
+                    'rules' => ['nullable', 'string', 'max:2048'],
+                    'public' => true,
+                ],
+                'cover_image_path' => [
+                    'type' => 'string',
+                    'default' => 'branding/cover.jpg',
+                    'rules' => ['nullable', 'string', 'max:2048'],
+                    'public' => true,
+                ],
+                'invoice_logo_path' => [
+                    'type' => 'string',
+                    'default' => 'branding/invoice-logo.png',
+                    'rules' => ['nullable', 'string', 'max:2048'],
+                    'public' => false,
+                ],
+                'brand_palette' => [
+                    'type' => 'object',
+                    'default' => [
+                        'primary' => '#B22222',
+                        'secondary' => '#111827',
+                        'accent' => '#F59E0B',
+                        'surface' => '#FFF7ED',
+                    ],
+                    'rules' => ['required', 'array:primary,secondary,accent,surface'],
+                    'nested_rules' => [
+                        'primary' => ['required', 'string', 'regex:/^#[A-Fa-f0-9]{6}$/'],
+                        'secondary' => ['required', 'string', 'regex:/^#[A-Fa-f0-9]{6}$/'],
+                        'accent' => ['required', 'string', 'regex:/^#[A-Fa-f0-9]{6}$/'],
+                        'surface' => ['required', 'string', 'regex:/^#[A-Fa-f0-9]{6}$/'],
+                    ],
+                    'public' => true,
+                ],
+                'social_links' => [
+                    'type' => 'object',
+                    'default' => [
+                        'facebook' => null,
+                        'instagram' => null,
+                        'tiktok' => null,
+                        'youtube' => null,
+                        'x' => null,
+                    ],
+                    'rules' => ['nullable', 'array:facebook,instagram,tiktok,youtube,x'],
+                    'nested_rules' => [
+                        'facebook' => ['nullable', 'url', 'max:2048'],
+                        'instagram' => ['nullable', 'url', 'max:2048'],
+                        'tiktok' => ['nullable', 'url', 'max:2048'],
+                        'youtube' => ['nullable', 'url', 'max:2048'],
+                        'x' => ['nullable', 'url', 'max:2048'],
+                    ],
+                    'public' => true,
+                ],
+            ],
+        ],
+        'localization' => [
+            'label' => ['ar' => 'اللغات والتوطين', 'en' => 'Localization'],
+            'description' => [
+                'ar' => 'قواعد اللغة والـ locale والتوقيت الافتراضي.',
+                'en' => 'Locale, language, and timezone behavior.',
+            ],
+            'public' => true,
+            'fields' => [
+                'default_locale' => [
+                    'type' => 'string',
+                    'default' => 'ar',
+                    'rules' => ['required', 'string', 'in:ar,en'],
+                    'public' => true,
+                    'options' => ['ar', 'en'],
+                ],
+                'fallback_locale' => [
+                    'type' => 'string',
+                    'default' => 'en',
+                    'rules' => ['required', 'string', 'in:ar,en'],
+                    'public' => false,
+                    'options' => ['ar', 'en'],
+                ],
+                'supported_locales' => [
+                    'type' => 'array',
+                    'default' => ['ar', 'en'],
+                    'rules' => ['required', 'array', 'min:1', 'max:5'],
+                    'nested_rules' => [
+                        '*' => ['string', 'in:ar,en'],
+                    ],
+                    'public' => true,
+                ],
+                'rtl_locales' => [
+                    'type' => 'array',
+                    'default' => ['ar'],
+                    'rules' => ['required', 'array', 'min:1', 'max:5'],
+                    'nested_rules' => [
+                        '*' => ['string', 'max:5'],
+                    ],
+                    'public' => true,
+                ],
+                'default_timezone' => [
+                    'type' => 'string',
+                    'default' => 'Africa/Cairo',
+                    'rules' => ['required', 'string', 'max:64'],
+                    'public' => true,
+                ],
+            ],
+        ],
+        'currency' => [
+            'label' => ['ar' => 'العملة', 'en' => 'Currency'],
+            'description' => [
+                'ar' => 'هوية العملة وقواعد تنسيق المبالغ.',
+                'en' => 'Currency identity and formatting rules.',
+            ],
+            'public' => true,
+            'fields' => [
+                'code' => [
+                    'type' => 'string',
+                    'default' => 'EGP',
+                    'rules' => ['required', 'string', 'regex:/^[A-Z]{3}$/'],
+                    'public' => true,
+                ],
+                'symbol' => [
+                    'type' => 'string',
+                    'default' => 'ج.م',
+                    'rules' => ['required', 'string', 'max:10'],
+                    'public' => true,
+                ],
+                'symbol_position' => [
+                    'type' => 'string',
+                    'default' => 'after',
+                    'rules' => ['required', 'string', 'in:before,after'],
+                    'public' => true,
+                    'options' => ['before', 'after'],
+                ],
+                'decimal_places' => [
+                    'type' => 'integer',
+                    'default' => 2,
+                    'rules' => ['required', 'integer', 'between:0,4'],
+                    'public' => true,
+                ],
+                'thousands_separator' => [
+                    'type' => 'string',
+                    'default' => ',',
+                    'rules' => ['required', 'string', 'max:3'],
+                    'public' => true,
+                ],
+                'decimal_separator' => [
+                    'type' => 'string',
+                    'default' => '.',
+                    'rules' => ['required', 'string', 'max:3'],
+                    'public' => true,
+                ],
+            ],
+        ],
+        'features' => [
+            'label' => ['ar' => 'تفعيل الخصائص', 'en' => 'Feature Flags'],
+            'description' => [
+                'ar' => 'تشغيل/إيقاف الوحدات الرئيسية لكل علامة تجارية.',
+                'en' => 'High-level toggles for per-brand backend capabilities.',
+            ],
+            'public' => true,
+            'fields' => [
+                'gift_cards_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'wallet_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'coupons_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'reviews_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'anonymous_reviews_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'social_login_enabled' => ['type' => 'boolean', 'default' => false, 'rules' => ['required', 'boolean'], 'public' => true],
+                'email_notifications_enabled' => ['type' => 'boolean', 'default' => false, 'rules' => ['required', 'boolean'], 'public' => false],
+                'broadcast_notifications_enabled' => ['type' => 'boolean', 'default' => false, 'rules' => ['required', 'boolean'], 'public' => false],
+                'dynamic_pages_enabled' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'maintenance_mode_enabled' => ['type' => 'boolean', 'default' => false, 'rules' => ['required', 'boolean'], 'public' => true],
+            ],
+        ],
+        'auth' => [
+            'label' => ['ar' => 'المصادقة والدخول', 'en' => 'Authentication'],
+            'description' => [
+                'ar' => 'سياسات تسجيل الدخول والتوكنات والهوية.',
+                'en' => 'Login, token, and identity configuration.',
+            ],
+            'public' => false,
+            'fields' => [
+                'login_with_email' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'login_with_username' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'require_primary_phone_verification' => ['type' => 'boolean', 'default' => false, 'rules' => ['required', 'boolean'], 'public' => false],
+                'allow_multi_device_tokens' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => false],
+                'personal_access_token_expiration_minutes' => ['type' => 'integer', 'default' => 43200, 'rules' => ['nullable', 'integer', 'min:5', 'max:525600'], 'public' => false],
+                'allowed_social_providers' => [
+                    'type' => 'array',
+                    'default' => ['google', 'facebook', 'discord'],
+                    'rules' => ['required', 'array', 'max:5'],
+                    'nested_rules' => [
+                        '*' => ['string', 'in:google,facebook,discord'],
+                    ],
+                    'public' => true,
+                ],
+            ],
+        ],
+        'ordering' => [
+            'label' => ['ar' => 'الطلبات والدفع', 'en' => 'Ordering'],
+            'description' => [
+                'ar' => 'سلوك السلة والـ checkout والنافذة الزمنية للتعديل.',
+                'en' => 'Cart, checkout, and grace-period behavior.',
+            ],
+            'public' => true,
+            'fields' => [
+                'grace_period_minutes' => ['type' => 'integer', 'default' => 2, 'rules' => ['required', 'integer', 'min:1', 'max:30'], 'public' => true],
+                'allow_order_notes' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'max_note_length' => ['type' => 'integer', 'default' => 1000, 'rules' => ['required', 'integer', 'min:50', 'max:5000'], 'public' => true],
+                'allow_cash_on_delivery' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'allow_wallet_payments' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'max_same_item_quantity' => ['type' => 'integer', 'default' => 25, 'rules' => ['required', 'integer', 'min:1', 'max:100'], 'public' => true],
+                'require_branch_selection_when_multiple' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+            ],
+        ],
+        'delivery' => [
+            'label' => ['ar' => 'الدليفري والتشغيل', 'en' => 'Delivery'],
+            'description' => [
+                'ar' => 'قواعد التوصيل العامة المشتركة بين الفروع.',
+                'en' => 'Shared delivery rules across branches.',
+            ],
+            'public' => true,
+            'fields' => [
+                'fallback_delivery_fee' => ['type' => 'decimal', 'default' => 25, 'rules' => ['required', 'numeric', 'min:0', 'max:100000'], 'public' => true],
+                'free_delivery_threshold' => ['type' => 'decimal', 'default' => 0, 'rules' => ['nullable', 'numeric', 'min:0', 'max:1000000'], 'public' => true],
+                'show_estimated_times' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => true],
+                'default_eta_min_minutes' => ['type' => 'integer', 'default' => 30, 'rules' => ['required', 'integer', 'min:5', 'max:240'], 'public' => true],
+                'default_eta_max_minutes' => ['type' => 'integer', 'default' => 60, 'rules' => ['required', 'integer', 'min:5', 'max:360', 'gte:default_eta_min_minutes'], 'public' => true],
+                'auto_assign_delivery_person' => ['type' => 'boolean', 'default' => false, 'rules' => ['required', 'boolean'], 'public' => false],
+            ],
+        ],
+        'notifications' => [
+            'label' => ['ar' => 'الإشعارات والبريد', 'en' => 'Notifications'],
+            'description' => [
+                'ar' => 'إعدادات البريد والإشعارات التي يمكن تبديلها لكل مطعم.',
+                'en' => 'Per-brand email and notification behavior.',
+            ],
+            'public' => false,
+            'fields' => [
+                'email_enabled' => ['type' => 'boolean', 'default' => false, 'rules' => ['required', 'boolean'], 'public' => false],
+                'email_driver' => ['type' => 'string', 'default' => 'log', 'rules' => ['required', 'string', 'in:log,smtp,phpmailer'], 'options' => ['log', 'smtp', 'phpmailer'], 'public' => false],
+                'order_created_customer' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => false],
+                'order_created_admin' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => false],
+                'order_status_updates' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => false],
+                'wallet_events' => ['type' => 'boolean', 'default' => true, 'rules' => ['required', 'boolean'], 'public' => false],
+                'broadcast_enabled' => ['type' => 'boolean', 'default' => false, 'rules' => ['required', 'boolean'], 'public' => false],
+                'smtp_host' => ['type' => 'string', 'default' => null, 'rules' => ['nullable', 'string', 'max:255'], 'public' => false],
+                'smtp_port' => ['type' => 'integer', 'default' => 587, 'rules' => ['nullable', 'integer', 'min:1', 'max:65535'], 'public' => false],
+                'smtp_encryption' => ['type' => 'string', 'default' => 'tls', 'rules' => ['nullable', 'string', 'in:tls,ssl,none'], 'options' => ['tls', 'ssl', 'none'], 'public' => false],
+                'smtp_from_address' => ['type' => 'email', 'default' => null, 'rules' => ['nullable', 'email', 'max:120'], 'public' => false],
+                'smtp_from_name' => ['type' => 'string', 'default' => null, 'rules' => ['nullable', 'string', 'max:120'], 'public' => false],
+            ],
+        ],
+        'uploads' => [
+            'label' => ['ar' => 'الرفع والوسائط', 'en' => 'Uploads'],
+            'description' => [
+                'ar' => 'قواعد التخزين العلني والأنواع المسموحة والأحجام القصوى.',
+                'en' => 'Public storage, mime allowlists, and file-size caps.',
+            ],
+            'public' => true,
+            'fields' => [
+                'public_disk' => ['type' => 'string', 'default' => 'uploads', 'rules' => ['required', 'string', 'max:50'], 'public' => false],
+                'public_base_url' => ['type' => 'string', 'default' => env('UPLOADS_CDN_URL', env('APP_URL', 'http://localhost').'/cdn'), 'rules' => ['nullable', 'url', 'max:2048'], 'public' => true],
+                'image_max_kb' => ['type' => 'integer', 'default' => 5120, 'rules' => ['required', 'integer', 'min:64', 'max:20480'], 'public' => false],
+                'video_max_kb' => ['type' => 'integer', 'default' => 51200, 'rules' => ['required', 'integer', 'min:512', 'max:102400'], 'public' => false],
+                'allowed_image_mimes' => [
+                    'type' => 'array',
+                    'default' => ['image/jpeg', 'image/png', 'image/webp'],
+                    'rules' => ['required', 'array', 'min:1', 'max:10'],
+                    'nested_rules' => [
+                        '*' => ['string', 'in:image/jpeg,image/png,image/webp,image/gif'],
+                    ],
+                    'public' => false,
+                ],
+                'allowed_video_mimes' => [
+                    'type' => 'array',
+                    'default' => ['video/mp4', 'video/webm'],
+                    'rules' => ['required', 'array', 'min:1', 'max:10'],
+                    'nested_rules' => [
+                        '*' => ['string', 'in:video/mp4,video/webm'],
+                    ],
+                    'public' => false,
+                ],
+                'path_prefix' => ['type' => 'string', 'default' => 'media', 'rules' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9_\\/-]+$/'], 'public' => false],
+                'virus_scan_mode' => ['type' => 'string', 'default' => 'simulated', 'rules' => ['required', 'string', 'in:simulated,disabled'], 'options' => ['simulated', 'disabled'], 'public' => false],
+            ],
+        ],
+        'theme' => [
+            'label' => ['ar' => 'بيانات الثيم', 'en' => 'Theme Data'],
+            'description' => [
+                'ar' => 'تخزين themeDesign.json وأي tokens مستقبلية كبيانات backend فقط.',
+                'en' => 'Backend-managed themeDesign.json and related design tokens.',
+            ],
+            'public' => true,
+            'fields' => [
+                'theme_json' => [
+                    'type' => 'json',
+                    'default' => [
+                        'version' => 1,
+                        'tokens' => [
+                            'primary' => '#B22222',
+                            'secondary' => '#111827',
+                            'surface' => '#FFF7ED',
+                            'radius' => '16px',
+                        ],
+                    ],
+                    'rules' => ['required', 'array'],
+                    'public' => true,
+                ],
+            ],
+        ],
+        'seo' => [
+            'label' => ['ar' => 'الهوية النصية وSEO', 'en' => 'SEO & Text Identity'],
+            'description' => [
+                'ar' => 'بيانات نصية عامة قابلة للاستهلاك من العملاء أو الصفحات الديناميكية.',
+                'en' => 'Public textual identity and SEO metadata for clients or dynamic pages.',
+            ],
+            'public' => true,
+            'fields' => [
+                'default_meta_title' => [
+                    'type' => 'translatable_string',
+                    'default' => ['ar' => 'مطعم أونلاين', 'en' => 'Online Restaurant'],
+                    'rules' => ['required', 'array:ar,en'],
+                    'nested_rules' => [
+                        'ar' => ['required', 'string', 'max:160'],
+                        'en' => ['required', 'string', 'max:160'],
+                    ],
+                    'public' => true,
+                ],
+                'default_meta_description' => [
+                    'type' => 'translatable_string',
+                    'default' => ['ar' => 'منصة طلبات مطاعم عربية ومصرية.', 'en' => 'Arabic and Egyptian restaurant ordering platform.'],
+                    'rules' => ['required', 'array:ar,en'],
+                    'nested_rules' => [
+                        'ar' => ['required', 'string', 'max:320'],
+                        'en' => ['required', 'string', 'max:320'],
+                    ],
+                    'public' => true,
+                ],
+                'default_og_image_path' => ['type' => 'string', 'default' => 'branding/og-default.jpg', 'rules' => ['nullable', 'string', 'max:2048'], 'public' => true],
+                'robots_indexing_enabled' => ['type' => 'boolean', 'default' => false, 'rules' => ['required', 'boolean'], 'public' => true],
+                'canonical_host' => ['type' => 'string', 'default' => env('APP_URL', 'http://localhost'), 'rules' => ['nullable', 'url', 'max:2048'], 'public' => true],
+            ],
+        ],
+    ],
+];

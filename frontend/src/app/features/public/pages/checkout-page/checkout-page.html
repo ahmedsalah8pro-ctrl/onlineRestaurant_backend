@@ -1,0 +1,78 @@
+<section class="page-shell checkout-grid">
+  <div class="glass-panel checkout-card">
+    <span class="eyebrow">Checkout</span>
+    <h1 class="section-title">Branch + Zone + Address Validation</h1>
+
+    <div class="form-grid">
+      <p-select
+        [options]="storefront.branches()"
+        [(ngModel)]="form.branch_id"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Branch"
+        (ngModelChange)="form.delivery_zone_id = zones()[0]?.id ?? null"
+      />
+
+      <p-select
+        [options]="zones()"
+        [(ngModel)]="form.delivery_zone_id"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Delivery Zone"
+      />
+
+      <p-select
+        [options]="addresses()"
+        [(ngModel)]="form.address_id"
+        optionLabel="label"
+        optionValue="id"
+        placeholder="Address"
+      />
+
+      <textarea pTextarea rows="4" [(ngModel)]="form.notes" placeholder="Order notes"></textarea>
+
+      <div class="coupon-box">
+        <input pInputText [(ngModel)]="form.coupon_code" placeholder="Coupon code" />
+        <button pButton type="button" label="Preview" severity="secondary" (click)="previewCoupon()"></button>
+      </div>
+
+      <p-inputnumber [(ngModel)]="form.wallet_amount" [max]="walletBalance()" [min]="0" [showButtons]="true"></p-inputnumber>
+
+      <p-select
+        [options]="[
+          { label: 'Cash On Delivery', value: 'cash_on_delivery' },
+          { label: 'Wallet', value: 'wallet' },
+          { label: 'Wallet + COD', value: 'wallet_plus_cash_on_delivery' }
+        ]"
+        [(ngModel)]="form.payment_method"
+        optionLabel="label"
+        optionValue="value"
+      />
+
+      <button pButton type="button" label="Place Order" [loading]="loading()" (click)="submitOrder()"></button>
+    </div>
+  </div>
+
+  <div class="glass-panel checkout-card">
+    <span class="eyebrow">Address Quick Add</span>
+    <div class="form-grid">
+      <input pInputText [(ngModel)]="newAddress.label" placeholder="Label" />
+      <input pInputText [(ngModel)]="newAddress.recipient_name" placeholder="Recipient name" />
+      <input pInputText [(ngModel)]="newAddress.phone" placeholder="Phone" />
+      <input pInputText [(ngModel)]="newAddress.city" placeholder="City" />
+      <input pInputText [(ngModel)]="newAddress.area" placeholder="Area" />
+      <input pInputText [(ngModel)]="newAddress.street" placeholder="Street" />
+      <button pButton type="button" label="Save Address" severity="secondary" (click)="createAddress()"></button>
+    </div>
+
+    @if (couponPreview()) {
+      <p-message severity="success" [text]="couponPreviewMessage()"></p-message>
+    }
+
+    <div class="checkout-summary">
+      <div><span>Cart subtotal</span><strong>{{ storefront.formatMoney(storefront.cart()?.subtotal) }}</strong></div>
+      <div><span>Wallet balance</span><strong>{{ storefront.formatMoney(walletBalance()) }}</strong></div>
+      <div><span>Delivery fee</span><strong>{{ storefront.formatMoney(selectedDeliveryFee()) }}</strong></div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,21 @@
+<section class="page-shell admin-login">
+  <div class="glass-panel admin-login__card">
+    <span class="eyebrow">Admin Access</span>
+    <h1 class="section-title">Backoffice Sign In</h1>
+    <p class="section-copy">Use the seeded super-admin account to operate the advanced admin API.</p>
+
+    @if (error()) {
+      <p-message severity="error" [text]="error()"></p-message>
+    }
+
+    <div class="form-grid">
+      <input pInputText [(ngModel)]="model.email_or_username" placeholder="Email or username" />
+      <p-password [(ngModel)]="model.password" [feedback]="false" [toggleMask]="true"></p-password>
+      <button pButton type="button" label="Login To Admin" [loading]="loading()" (click)="submit()"></button>
+    </div>
+
+    <div class="demo-note">
+      <strong>Demo:</strong> admin@example.com / Password1!
+    </div>
+  </div>
+</section>

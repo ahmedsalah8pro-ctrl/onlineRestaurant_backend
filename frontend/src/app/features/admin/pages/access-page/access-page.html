@@ -1,0 +1,30 @@
+@if (index(); as roleIndex) {
+  <section class="surface-grid two-columns">
+    <div class="glass-panel access-card">
+      <span class="eyebrow">Roles</span>
+      <div class="role-row" *ngFor="let role of roleIndex.roles">
+        <div>
+          <strong>{{ role.name }}</strong>
+          <p>{{ role.permissions.length }} permissions</p>
+        </div>
+        <div class="settings-actions">
+          <button pButton type="button" label="Edit" severity="secondary" (click)="editRole(role)"></button>
+          <button pButton type="button" label="Delete" severity="danger" (click)="removeRole(role.id)"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-panel access-card">
+      <span class="eyebrow">Role Editor</span>
+      <input pInputText [(ngModel)]="form.name" placeholder="Role name" />
+      <textarea pTextarea rows="14" [(ngModel)]="form.permissionsText" placeholder="One permission per line"></textarea>
+      <button pButton type="button" label="Save Role" (click)="saveRole()"></button>
+
+      <p-divider></p-divider>
+      <h3>Available permissions</h3>
+      <div class="permission-grid">
+        <p-chip *ngFor="let permission of roleIndex.permissions" [label]="permission.name"></p-chip>
+      </div>
+    </div>
+  </section>
+}

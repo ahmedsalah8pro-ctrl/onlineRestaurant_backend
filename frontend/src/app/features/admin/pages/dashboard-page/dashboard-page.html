@@ -1,0 +1,29 @@
+<section class="surface-grid">
+  <div class="surface-grid four-up">
+    <div class="metric-card" *ngFor="let metric of metrics()">
+      <div class="metric-card__label">{{ metric.label }}</div>
+      <div class="metric-card__value">{{ metric.value }}</div>
+    </div>
+  </div>
+
+  <div class="surface-grid two-columns">
+    <div class="glass-panel dashboard-card">
+      <span class="eyebrow">Analytics</span>
+      <highcharts-chart
+        [options]="chartOptions"
+        style="width: 100%; height: 420px; display: block;"
+      ></highcharts-chart>
+    </div>
+
+    <div class="glass-panel dashboard-card">
+      <span class="eyebrow">White Label Scope</span>
+      <h2>Admin API Controls</h2>
+      <ul class="dashboard-list">
+        <li>Brand identity and theme JSON</li>
+        <li>Branch and delivery zone structure</li>
+        <li>Menu catalog, pricing, sizes, and add-ons</li>
+        <li>Coupons, gift cards, uploads, and dynamic pages</li>
+      </ul>
+    </div>
+  </div>
+</section>

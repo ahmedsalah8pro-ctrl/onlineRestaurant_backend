@@ -31,12 +31,16 @@ class OrderLifecycleNotification extends Notification
     {
         $channels = ['database'];
         $settings = app(SettingService::class);
+        $emailEnabled = $settings->featureEnabled('email_notifications_enabled')
+            && (bool) $settings->getValue('notifications', 'email_enabled', false);
+        $broadcastEnabled = $settings->featureEnabled('broadcast_notifications_enabled')
+            && (bool) $settings->getValue('notifications', 'broadcast_enabled', false);
 
-        if ($settings->featureEnabled('email_notifications_enabled')) {
+        if ($emailEnabled) {
             $channels[] = 'mail';
         }
 
-        if ($settings->featureEnabled('broadcast_notifications_enabled')) {
+        if ($broadcastEnabled) {
             $channels[] = 'broadcast';
         }
 

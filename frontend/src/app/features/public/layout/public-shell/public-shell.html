@@ -1,0 +1,85 @@
+<div class="public-shell">
+  <header class="public-header glass-panel">
+    <div class="page-shell public-header__content">
+      <a class="brand-lockup" routerLink="/">
+        <div class="brand-lockup__mark">{{ siteName().slice(0, 1) }}</div>
+        <div>
+          <div class="brand-lockup__name">{{ siteName() }}</div>
+          <div class="brand-lockup__tagline">
+            {{ theme.resolveText(storefront.settings()?.branding?.brand_tagline) || 'Backend-first commerce for multi-branch restaurants.' }}
+          </div>
+        </div>
+      </a>
+
+      <nav class="public-nav">
+        @for (item of navigation; track item.path) {
+          @if (!item.auth || auth.isAuthenticated()) {
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+            >
+              {{ item.label }}
+            </a>
+          }
+        }
+      </nav>
+
+      <div class="public-actions">
+        <p-selectbutton
+          [options]="[
+            { label: 'AR', value: 'ar' },
+            { label: 'EN', value: 'en' }
+          ]"
+          [ngModel]="theme.locale()"
+          (ngModelChange)="switchLocale($event)"
+          optionLabel="label"
+          optionValue="value"
+        />
+
+        <a class="cart-pill" routerLink="/cart" *ngIf="auth.isAuthenticated()">
+          <i class="pi pi-shopping-bag"></i>
+          <span>{{ cartCount() }}</span>
+        </a>
+
+        @if (auth.isAuthenticated()) {
+          <a class="icon-link" routerLink="/account">
+            <i class="pi pi-user"></i>
+          </a>
+          @if (auth.isAdmin()) {
+            <a class="admin-link" routerLink="/admin">Admin</a>
+          }
+          <button pButton type="button" label="Logout" severity="secondary" (click)="logout()"></button>
+        } @else {
+          <a class="admin-link" routerLink="/auth">Login</a>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="public-main">
+    <router-outlet />
+  </main>
+
+  <footer class="public-footer">
+    <div class="page-shell public-footer__content">
+      <div>
+        <div class="brand-lockup__name">{{ siteName() }}</div>
+        <p class="section-copy">
+          API-first storefront ready for future web, mobile, and white-label brands.
+        </p>
+      </div>
+
+      <div class="public-footer__links">
+        <a routerLink="/pages/terms-of-service">TOS</a>
+        <a routerLink="/menu">Menu</a>
+        <a *ngIf="auth.isAdmin()" routerLink="/admin/settings">Brand Control</a>
+      </div>
+
+      <div class="public-footer__support">
+        <span>{{ storefront.settings()?.general?.support_phone || '+20-100-000-0000' }}</span>
+        <span>{{ storefront.settings()?.general?.support_email || 'support@example.com' }}</span>
+      </div>
+    </div>
+  </footer>
+</div>

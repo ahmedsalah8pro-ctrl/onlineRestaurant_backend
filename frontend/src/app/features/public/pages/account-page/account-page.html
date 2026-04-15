@@ -1,0 +1,74 @@
+<section class="page-shell surface-grid">
+  @if (profile(); as profileData) {
+    <div class="surface-grid two-columns">
+      <div class="glass-panel account-card">
+        <span class="eyebrow">Profile</span>
+        <h1 class="section-title">{{ profileData.user.name }}</h1>
+        <div class="surface-grid three-columns">
+          <div class="metric-card">
+            <div class="metric-card__label">Orders</div>
+            <div class="metric-card__value">{{ profileData.stats.total_orders }}</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card__label">Spent</div>
+            <div class="metric-card__value">{{ profileData.stats.total_spent }}</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card__label">Monthly Rank</div>
+            <div class="metric-card__value">#{{ profileData.stats.monthly_rank }}</div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <input pInputText [(ngModel)]="profileDraft.name" placeholder="Name" />
+          <input pInputText [(ngModel)]="profileDraft.username" placeholder="Username" />
+          <input pInputText [(ngModel)]="profileDraft.email" placeholder="Email" />
+          <input pInputText [(ngModel)]="profileDraft.primary_phone" placeholder="Primary phone" />
+          <button pButton type="button" label="Save Profile" [loading]="loading()" (click)="saveProfile()"></button>
+        </div>
+      </div>
+
+      <div class="glass-panel account-card">
+        <span class="eyebrow">Privacy</span>
+        <div class="toggle-row"><span>Public profile</span><p-toggleswitch [(ngModel)]="profileDraft.is_public_profile"></p-toggleswitch></div>
+        <div class="toggle-row"><span>Show orders</span><p-toggleswitch [(ngModel)]="profileDraft.show_total_orders"></p-toggleswitch></div>
+        <div class="toggle-row"><span>Show spending</span><p-toggleswitch [(ngModel)]="profileDraft.show_total_spent"></p-toggleswitch></div>
+        <div class="toggle-row"><span>Show monthly rank</span><p-toggleswitch [(ngModel)]="profileDraft.show_monthly_rank"></p-toggleswitch></div>
+        <div class="toggle-row"><span>Show yearly rank</span><p-toggleswitch [(ngModel)]="profileDraft.show_yearly_rank"></p-toggleswitch></div>
+        <div class="toggle-row"><span>Show favorites</span><p-toggleswitch [(ngModel)]="profileDraft.show_favorite_products"></p-toggleswitch></div>
+        <button pButton type="button" label="Save Privacy" severity="secondary" [loading]="loading()" (click)="savePrivacy()"></button>
+      </div>
+    </div>
+
+    <div class="surface-grid two-columns">
+      <div class="glass-panel account-card">
+        <span class="eyebrow">Addresses</span>
+        <div class="address-card" *ngFor="let address of addresses()">
+          <div>
+            <strong>{{ address.label || address.area }}</strong>
+            <p>{{ address.city }} · {{ address.area }} · {{ address.street }}</p>
+          </div>
+          <div class="address-actions">
+            <button pButton type="button" label="Default" severity="secondary" (click)="setDefaultAddress(address.id)"></button>
+            <button pButton type="button" icon="pi pi-trash" severity="danger" (click)="deleteAddress(address.id)"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-panel account-card">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">Notifications</span>
+            <h2>Customer Inbox</h2>
+          </div>
+          <button pButton type="button" label="Read All" severity="secondary" (click)="markAllRead()"></button>
+        </div>
+
+        <div class="notification-card" *ngFor="let notification of notifications()">
+          <strong>{{ notification.type }}</strong>
+          <p>{{ notification.created_at | date: 'medium' }}</p>
+        </div>
+      </div>
+    </div>
+  }
+</section>

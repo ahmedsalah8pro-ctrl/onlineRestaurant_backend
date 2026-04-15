@@ -1,0 +1,50 @@
+<section class="page-shell glass-panel orders-card">
+  <span class="eyebrow">Orders</span>
+  <h1 class="section-title">Customer Tracking</h1>
+
+  <div class="order-row" *ngFor="let order of orders()">
+    <div>
+      <strong>#{{ order.id }}</strong>
+      <p>{{ order.status }} · {{ order.placed_at | date: 'medium' }}</p>
+    </div>
+    <div class="order-row__meta">
+      <strong>{{ storefront.formatMoney(order.total) }}</strong>
+      <button pButton type="button" label="Details" severity="secondary" (click)="openOrder(order.id)"></button>
+    </div>
+  </div>
+
+  <p-dialog
+    header="Order Detail"
+    [visible]="detailVisible()"
+    [modal]="true"
+    [style]="{ width: 'min(920px, 95vw)' }"
+    (visibleChange)="detailVisible.set($event)"
+  >
+    @if (selectedOrder(); as order) {
+      <div class="surface-grid">
+        <div class="detail-grid">
+          <div><span>Status</span><strong>{{ order.status }}</strong></div>
+          <div><span>Total</span><strong>{{ storefront.formatMoney(order.total) }}</strong></div>
+          <div><span>Branch</span><strong>{{ order.branch?.name || 'N/A' }}</strong></div>
+          <div><span>Delivery</span><strong>{{ order.delivery_person_name || 'Pending' }}</strong></div>
+        </div>
+
+        <p-timeline [value]="order.status_logs">
+          <ng-template pTemplate="content" let-log>
+            <div class="timeline-card">
+              <strong>{{ log.to_status }}</strong>
+              <p>{{ log.notes || 'Status updated.' }}</p>
+              <small>{{ log.created_at | date: 'medium' }}</small>
+            </div>
+          </ng-template>
+        </p-timeline>
+
+        <textarea pTextarea rows="4" [ngModel]="noteDraft()" (ngModelChange)="noteDraft.set($event)" placeholder="Update notes if still within grace period"></textarea>
+        <div class="detail-actions">
+          <button pButton type="button" label="Save Notes" severity="secondary" (click)="saveNotes()"></button>
+          <button pButton type="button" label="Cancel Order" severity="danger" (click)="cancelOrder()"></button>
+        </div>
+      </div>
+    }
+  </p-dialog>
+</section>

@@ -1,0 +1,43 @@
+<section class="surface-grid">
+  <div class="catalog-tabs glass-panel">
+    <button
+      pButton
+      type="button"
+      *ngFor="let section of sections"
+      [label]="section"
+      [severity]="activeSection() === section ? undefined : 'secondary'"
+      (click)="loadSection(section)"
+    ></button>
+  </div>
+
+  <div class="glass-panel catalog-card">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Catalog CRUD</span>
+        <h2>{{ activeSection() }}</h2>
+      </div>
+      <button pButton type="button" label="Create" (click)="openCreate(activeSection())"></button>
+    </div>
+
+    <div class="catalog-record" *ngFor="let record of records()[activeSection()]">
+      <pre>{{ pretty(record) }}</pre>
+      <div class="catalog-record__actions">
+        <button pButton type="button" label="Edit" severity="secondary" (click)="openEdit(activeSection(), record)"></button>
+        <button pButton type="button" label="Delete" severity="danger" (click)="remove(activeSection(), recordId(record))"></button>
+      </div>
+    </div>
+  </div>
+
+  <p-dialog
+    header="Catalog Payload Editor"
+    [visible]="dialogVisible()"
+    [modal]="true"
+    [style]="{ width: 'min(980px, 95vw)' }"
+    (visibleChange)="dialogVisible.set($event)"
+  >
+    <textarea pTextarea rows="24" [ngModel]="payloadText()" (ngModelChange)="payloadText.set($event)"></textarea>
+    <div class="settings-actions">
+      <button pButton type="button" label="Save" (click)="save()"></button>
+    </div>
+  </p-dialog>
+</section>

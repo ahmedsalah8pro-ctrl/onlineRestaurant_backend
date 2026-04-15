@@ -1,0 +1,38 @@
+<div class="admin-shell-theme admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-brand">
+      <span class="eyebrow">White Label Control</span>
+      <h2>{{ storefront.siteName() }}</h2>
+      <p>{{ adminName() }}</p>
+    </div>
+
+    <nav class="admin-nav">
+      <a *ngFor="let item of navItems" [routerLink]="item.path" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: item.path === '/admin' }">
+        {{ item.label }}
+      </a>
+    </nav>
+
+    <div class="admin-sidebar__footer">
+      <a routerLink="/">Open Storefront</a>
+      <button pButton type="button" label="Logout" severity="secondary" (click)="logout()"></button>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <span class="eyebrow">Admin API</span>
+        <h1>{{ storefront.siteName() }} Control Center</h1>
+      </div>
+      <div class="admin-topbar__chips">
+        <p-tag value="Laravel API"></p-tag>
+        <p-tag value="Sanctum"></p-tag>
+        <p-tag value="White-label"></p-tag>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

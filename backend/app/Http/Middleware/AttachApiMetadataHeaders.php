@@ -16,7 +16,7 @@ class AttachApiMetadataHeaders
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->is('api/*')) {
+        if (! $this->isApiRequest($request)) {
             return $next($request);
         }
 
@@ -29,7 +29,9 @@ class AttachApiMetadataHeaders
         $response = $next($request);
 
         $segments = explode('/', trim($request->path(), '/'));
-        $apiVersion = $segments[1] ?? 'unknown';
+        $apiVersion = $segments[0] === 'api'
+            ? ($segments[1] ?? 'unknown')
+            : ($segments[0] ?? 'unknown');
 
         $response->headers->set('X-Request-Id', $requestId);
         $response->headers->set('X-API-Version', $apiVersion);
@@ -37,5 +39,10 @@ class AttachApiMetadataHeaders
         $response->headers->set('Content-Language', app()->getLocale());
 
         return $response;
+    }
+
+    private function isApiRequest(Request $request): bool
+    {
+        return $request->is('api/*') || $request->is('v1/*');
     }
 }

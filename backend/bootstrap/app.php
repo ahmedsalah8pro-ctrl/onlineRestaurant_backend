@@ -5,6 +5,7 @@ use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SetApiLocale;
 use App\Http\Middleware\AttachApiMetadataHeaders;
 use App\Http\Middleware\TrustProxies;
+use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function (): void {
+            Route::middleware('api')->prefix('v1')->group(base_path('routes/api_v1.php'));
             Route::middleware([TrustProxies::class])->get('/', BackendLandingController::class);
         },
     )
@@ -36,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api(prepend: [
             TrustProxies::class,
+            HandleCors::class,
             ForceJsonResponse::class,
             SetApiLocale::class,
             AttachApiMetadataHeaders::class,
@@ -48,8 +51,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (ValidationException $exception, Request $request) {
-            if (! $request->is('api/*')) {
+        $isApiRequest = static fn (Request $request): bool => $request->is('api/*') || $request->is('v1/*');
+
+        $exceptions->render(function (ValidationException $exception, Request $request) use ($isApiRequest) {
+            if (! $isApiRequest($request)) {
                 return null;
             }
 
@@ -60,8 +65,8 @@ return Application::configure(basePath: dirname(__DIR__))
             ], $exception->status);
         });
 
-        $exceptions->render(function (AuthenticationException $exception, Request $request) {
-            if (! $request->is('api/*')) {
+        $exceptions->render(function (AuthenticationException $exception, Request $request) use ($isApiRequest) {
+            if (! $isApiRequest($request)) {
                 return null;
             }
 
@@ -71,8 +76,8 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 401);
         });
 
-        $exceptions->render(function (AuthorizationException $exception, Request $request) {
-            if (! $request->is('api/*')) {
+        $exceptions->render(function (AuthorizationException $exception, Request $request) use ($isApiRequest) {
+            if (! $isApiRequest($request)) {
                 return null;
             }
 
@@ -82,8 +87,8 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 403);
         });
 
-        $exceptions->render(function (ModelNotFoundException $exception, Request $request) {
-            if (! $request->is('api/*')) {
+        $exceptions->render(function (ModelNotFoundException $exception, Request $request) use ($isApiRequest) {
+            if (! $isApiRequest($request)) {
                 return null;
             }
 
@@ -93,8 +98,8 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 404);
         });
 
-        $exceptions->render(function (HttpExceptionInterface $exception, Request $request) {
-            if (! $request->is('api/*')) {
+        $exceptions->render(function (HttpExceptionInterface $exception, Request $request) use ($isApiRequest) {
+            if (! $isApiRequest($request)) {
                 return null;
             }
 
@@ -104,8 +109,8 @@ return Application::configure(basePath: dirname(__DIR__))
             ], $exception->getStatusCode());
         });
 
-        $exceptions->render(function (\Throwable $exception, Request $request) {
-            if (! $request->is('api/*')) {
+        $exceptions->render(function (\Throwable $exception, Request $request) use ($isApiRequest) {
+            if (! $isApiRequest($request)) {
                 return null;
             }
 

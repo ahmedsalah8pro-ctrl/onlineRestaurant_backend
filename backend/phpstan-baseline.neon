@@ -793,114 +793,6 @@ parameters:
 			path: app/Http/Resources/Api/V1/DynamicPageResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$address\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$branch\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$coupon_code\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$coupon_snapshot\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$deliveryZone\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$delivery_fee\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$delivery_person_name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$delivery_person_phone\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$discount_total\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$items\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$notes\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$statusLogs\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$subtotal\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$total\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:\$wallet_amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
-			message: '#^Method App\\Http\\Resources\\Api\\V1\\OrderDetailResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Resources/Api/V1/OrderDetailResource.php
-
-		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\V1\\OrderResource\:\:\$coupon_code\.$#'
 			identifier: property.notFound
 			count: 1
@@ -2227,12 +2119,6 @@ parameters:
 			path: app/Services/Orders/CheckoutService.php
 
 		-
-			message: '#^Cannot cast mixed to int\.$#'
-			identifier: cast.int
-			count: 1
-			path: app/Services/Orders/CheckoutService.php
-
-		-
 			message: '#^Method App\\Services\\Orders\\CheckoutService\:\:checkout\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2315,24 +2201,6 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Services/Pricing/ProductPricingService.php
-
-		-
-			message: '#^Method App\\Services\\Settings\\SettingService\:\:getGroup\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Services/Settings/SettingService.php
-
-		-
-			message: '#^Method App\\Services\\Settings\\SettingService\:\:publicSettings\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Services/Settings/SettingService.php
-
-		-
-			message: '#^Method App\\Services\\Settings\\SettingService\:\:setGroup\(\) has parameter \$values with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Services/Settings/SettingService.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$balance\.$#'

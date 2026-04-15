@@ -12,6 +12,7 @@ use App\Services\Audit\AuditLogService;
 use App\Services\Cart\CartService;
 use App\Services\Coupons\CouponService;
 use App\Services\Notifications\OrderNotificationService;
+use App\Services\Settings\SettingService;
 use App\Services\Wallet\WalletService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -24,6 +25,7 @@ class CheckoutService
         protected CouponService $couponService,
         protected OrderNotificationService $orderNotificationService,
         protected AuditLogService $auditLogService,
+        protected SettingService $settingService,
         protected WalletService $walletService,
     ) {
     }
@@ -62,7 +64,7 @@ class CheckoutService
                 'delivery_zone_id' => $deliveryZone->id,
                 'address_id' => $payload['address_id'],
                 'status' => OrderStatus::Pending->value,
-                'currency_code' => config('app.currency_code', 'EGP'),
+                'currency_code' => $this->settingService->currencyCode(),
                 'subtotal' => $subtotal,
                 'addons_total' => 0,
                 'delivery_fee' => $deliveryZone->delivery_fee,
@@ -76,7 +78,7 @@ class CheckoutService
                     'discount_delivery' => $couponData['discount_delivery'],
                 ],
                 'notes' => strip_tags((string) ($payload['notes'] ?? '')),
-                'grace_period_ends_at' => now()->addMinutes((int) config('app.order_grace_period_minutes', 2)),
+                'grace_period_ends_at' => now()->addMinutes($this->settingService->orderGracePeriodMinutes()),
                 'placed_at' => now(),
             ]);
 

@@ -1,0 +1,26 @@
+<section class="surface-grid two-columns">
+  <div class="glass-panel integrations-card">
+    <span class="eyebrow">Uploads + CDN</span>
+    <input pInputText [ngModel]="directory()" (ngModelChange)="directory.set($event)" placeholder="Upload directory" />
+    <input type="file" (change)="upload($event)" />
+
+    @if (uploadResult(); as result) {
+      <pre>{{ result | json }}</pre>
+      <a [href]="result.url" target="_blank">Open uploaded asset</a>
+    }
+
+    <p-divider></p-divider>
+    <div class="domains-note">
+      <strong>Frontend</strong><span>{{ runtime.frontendBaseUrl }}</span>
+      <strong>API</strong><span>{{ runtime.apiBaseUrl }}</span>
+      <strong>CDN</strong><span>{{ runtime.cdnBaseUrl }}</span>
+    </div>
+  </div>
+
+  <div class="glass-panel integrations-card">
+    <span class="eyebrow">Audit Logs</span>
+    <div class="catalog-record" *ngFor="let log of auditLogs()">
+      <pre>{{ log | json }}</pre>
+    </div>
+  </div>
+</section>

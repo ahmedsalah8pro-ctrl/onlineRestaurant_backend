@@ -1,0 +1,125 @@
+.public-shell {
+  min-height: 100dvh;
+}
+
+.public-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: 0.75rem auto 0;
+  width: min(1320px, calc(100vw - 1rem));
+}
+
+.public-header__content {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+}
+
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand-lockup__mark {
+  width: 2.8rem;
+  height: 2.8rem;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
+  color: white;
+  font-weight: 800;
+}
+
+.brand-lockup__name {
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.brand-lockup__tagline {
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.public-nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.public-nav a {
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  color: #475569;
+  font-weight: 700;
+}
+
+.public-nav a.is-active {
+  background: rgba(178, 34, 34, 0.12);
+  color: var(--brand-primary);
+}
+
+.public-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cart-pill,
+.icon-link,
+.admin-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 2.6rem;
+  height: 2.6rem;
+  padding: 0 0.95rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+  font-weight: 700;
+}
+
+.public-main {
+  padding: 2rem 0 3rem;
+}
+
+.public-footer {
+  padding: 0 0 2rem;
+}
+
+.public-footer__content {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1.4rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.public-footer__links,
+.public-footer__support {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: #475569;
+}
+
+@media (max-width: 960px) {
+  .public-header__content,
+  .public-footer__content {
+    grid-template-columns: 1fr;
+  }
+
+  .public-nav {
+    justify-content: flex-start;
+  }
+
+  .public-actions {
+    flex-wrap: wrap;
+  }
+}

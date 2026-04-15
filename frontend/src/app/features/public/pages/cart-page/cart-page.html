@@ -1,0 +1,43 @@
+<section class="page-shell surface-grid">
+  <div class="glass-panel cart-panel">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">Cart</span>
+        <h1 class="section-title">Configuration-Aware Basket</h1>
+      </div>
+      <button pButton type="button" label="Clear Cart" severity="danger" (click)="clearCart()"></button>
+    </div>
+
+    <div class="cart-row" *ngFor="let item of storefront.cart()?.items">
+      <div>
+        <h3>{{ item.product_name }}</h3>
+        <p>{{ item.size || 'Default size' }}</p>
+      </div>
+      <div class="cart-row__controls">
+        <p-inputnumber [ngModel]="item.quantity" (ngModelChange)="updateQuantity(item.id, $event)" [min]="1"></p-inputnumber>
+        <strong>{{ storefront.formatMoney(item.line_subtotal) }}</strong>
+        <button pButton type="button" icon="pi pi-trash" severity="secondary" (click)="removeItem(item.id)"></button>
+      </div>
+    </div>
+
+    @if (!(storefront.cart()?.items?.length)) {
+      <p class="section-copy">Your cart is empty. Start from the menu.</p>
+    }
+  </div>
+
+  <div class="glass-panel cart-summary">
+    <span class="eyebrow">Summary</span>
+    <h2>{{ storefront.formatMoney(storefront.cart()?.subtotal) }}</h2>
+
+    <div class="coupon-box">
+      <input pInputText [ngModel]="couponCode()" (ngModelChange)="couponCode.set($event)" placeholder="Coupon code" />
+      <button pButton type="button" label="Preview" [loading]="loading()" (click)="previewCoupon()"></button>
+    </div>
+
+    @if (couponPreview()) {
+      <p-message severity="success" [text]="couponPreviewMessage()"></p-message>
+    }
+
+    <a pButton routerLink="/checkout" label="Proceed To Checkout" *ngIf="storefront.cart()?.items?.length"></a>
+  </div>
+</section>

@@ -1,6 +1,6 @@
 # Online Restaurant Backend
 
-Laravel 13 API-only backend for an Arabic/Egyptian online restaurant platform. This project is strictly backend-only and exposes versioned JSON APIs under `/api/v1`.
+Laravel 13 API-only backend for an Arabic/Egyptian online restaurant platform. This project is strictly backend-only and exposes versioned JSON APIs under `/api/v1` locally. In production you may publish the same API behind a reverse-proxy alias such as `/v1`.
 
 ## Stack
 
@@ -32,6 +32,25 @@ php artisan migrate:fresh --seed
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
+## Frontend / API / CDN Split
+
+Recommended production split for the current demo deployment:
+
+- Frontend: `https://restaurant-demo.ahmedsalah.dev`
+- API: `https://api-restaurant-demo.ahmedsalah.dev/v1`
+- CDN: `https://cdn-restaurant-demo.ahmedsalah.dev`
+
+Recommended production env values:
+
+```dotenv
+APP_URL=https://api-restaurant-demo.ahmedsalah.dev
+FRONTEND_URL=https://restaurant-demo.ahmedsalah.dev
+API_PUBLIC_PREFIX=/v1
+UPLOADS_CDN_URL=https://cdn-restaurant-demo.ahmedsalah.dev
+CORS_ALLOWED_ORIGINS=https://restaurant-demo.ahmedsalah.dev
+SANCTUM_STATEFUL_DOMAINS=restaurant-demo.ahmedsalah.dev,api-restaurant-demo.ahmedsalah.dev
+```
+
 ## Seeded Demo Accounts
 
 - `superadmin` / `Password1!`
@@ -56,7 +75,7 @@ php artisan serve --host=127.0.0.1 --port=8000
 ## Main API Groups
 
 - Public:
-  - `GET /api/v1/health`
+  - `GET /api/v1/health` or proxied `GET /v1/health`
   - `GET /api/v1/settings/public`
   - `GET /api/v1/branches`
   - `GET /api/v1/categories`

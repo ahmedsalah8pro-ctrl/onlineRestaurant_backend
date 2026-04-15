@@ -14,7 +14,7 @@ class UpdateSettingGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'values' => ['required', 'array'],
+            'values' => ['required', 'array', 'min:1'],
         ];
     }
 }

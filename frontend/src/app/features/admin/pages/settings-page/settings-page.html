@@ -1,0 +1,63 @@
+<section class="surface-grid">
+  <div class="glass-panel settings-card">
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">White Label Settings</span>
+        <h2>Schema-Driven Control</h2>
+      </div>
+      <button pButton type="button" label="Export Pack" (click)="exportAll()"></button>
+    </div>
+
+    <div class="surface-grid two-columns">
+      <textarea pTextarea rows="16" [ngModel]="exportText()" (ngModelChange)="exportText.set($event)" placeholder="Export payload"></textarea>
+      <div class="import-box">
+        <textarea pTextarea rows="16" [ngModel]="importText()" (ngModelChange)="importText.set($event)" placeholder="Paste settings import payload"></textarea>
+        <button pButton type="button" label="Import Pack" severity="secondary" (click)="importAll()"></button>
+      </div>
+    </div>
+  </div>
+
+  @if (schema(); as schemaData) {
+    <p-accordion [multiple]="true">
+      <p-accordion-panel *ngFor="let group of schemaData.groups | keyvalue" [value]="group.key">
+        <p-accordion-header>
+          <div class="accordion-header">
+            <strong>{{ theme.resolveText(group.value.label) || group.key }}</strong>
+            <span>{{ group.value.is_public ? 'Public' : 'Private' }}</span>
+          </div>
+        </p-accordion-header>
+        <p-accordion-content>
+          <div class="surface-grid two-columns">
+            <div class="glass-panel settings-card">
+              <h3>Field metadata</h3>
+              <div class="field-row" *ngFor="let field of group.value.fields | keyvalue">
+                <div>
+                  <strong>{{ field.key }}</strong>
+                  <p>{{ theme.resolveText(field.value.description) || 'No description' }}</p>
+                </div>
+                <div class="field-meta">
+                  <span>{{ field.value.type }}</span>
+                  <span>{{ field.value.public ? 'Public' : 'Private' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel settings-card">
+              <h3>JSON editor</h3>
+              <textarea
+                pTextarea
+                rows="18"
+                [ngModel]="editors()[group.key]"
+                (ngModelChange)="updateEditor(group.key, $event)"
+              ></textarea>
+              <div class="settings-actions">
+                <button pButton type="button" label="Save Group" (click)="saveGroup(group.key)"></button>
+                <button pButton type="button" label="Reset Group" severity="secondary" (click)="resetGroup(group.key)"></button>
+              </div>
+            </div>
+          </div>
+        </p-accordion-content>
+      </p-accordion-panel>
+    </p-accordion>
+  }
+</section>

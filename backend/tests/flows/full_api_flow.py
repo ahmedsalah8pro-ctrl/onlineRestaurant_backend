@@ -159,6 +159,8 @@ def run_flow(args: argparse.Namespace) -> None:
 
     public_settings = client.request("GET", "/api/v1/settings/public")
     assert_true("general" in public_settings["data"], "Public settings payload is incomplete.")
+    assert_true("branding" in public_settings["data"], "Public branding settings are missing.")
+    assert_true("notifications" not in public_settings["data"], "Sensitive notification settings leaked publicly.")
 
     branches = client.request("GET", "/api/v1/branches")
     categories = client.request("GET", "/api/v1/categories")
@@ -575,6 +577,47 @@ def run_flow(args: argparse.Namespace) -> None:
     assert_true(
         updated_settings["data"]["site_name"] == f"Flow Restaurant {unique_suffix}",
         "Settings update failed.",
+    )
+
+    settings_schema = client.request("GET", "/api/v1/admin/settings/schema", token=admin_token)
+    assert_true(
+        settings_schema["data"]["groups"]["branding"]["fields"]["logo_path"]["type"] == "string",
+        "Settings schema did not expose branding field metadata.",
+    )
+
+    branding_update = client.request(
+        "PATCH",
+        "/api/v1/admin/settings/branding",
+        token=admin_token,
+        json_body={"values": {"logo_path": "branding/flow/logo.png", "brand_palette": {"primary": "#123456"}}},
+    )
+    assert_true(
+        branding_update["data"]["brand_palette"]["secondary"] == "#111827",
+        "Nested branding updates should preserve other palette keys.",
+    )
+
+    settings_export = client.request("GET", "/api/v1/admin/settings/export", token=admin_token)
+    assert_true(
+        settings_export["data"]["groups"]["branding"]["logo_path"] == "branding/flow/logo.png",
+        "Settings export did not include updated branding values.",
+    )
+
+    settings_import = client.request(
+        "POST",
+        "/api/v1/admin/settings/import",
+        token=admin_token,
+        json_body={"groups": {"seo": {"canonical_host": "https://flow.example.com"}}},
+    )
+    assert_true(settings_import["data"]["group_count"] == 1, "Settings import did not report the expected group count.")
+
+    reset_branding = client.request("POST", "/api/v1/admin/settings/branding/reset", token=admin_token)
+    assert_true(reset_branding["data"]["logo_path"] == "branding/logo.png", "Branding reset did not restore defaults.")
+    reset_general = client.request("POST", "/api/v1/admin/settings/general/reset", token=admin_token)
+    assert_true(reset_general["data"]["site_name"] == "Online Restaurant", "General settings reset did not restore defaults.")
+    reset_seo = client.request("POST", "/api/v1/admin/settings/seo/reset", token=admin_token)
+    assert_true(
+        isinstance(reset_seo["data"]["canonical_host"], str) and reset_seo["data"]["canonical_host"].startswith("http"),
+        "SEO settings reset did not restore an expected canonical host.",
     )
 
     product_create = client.request(
