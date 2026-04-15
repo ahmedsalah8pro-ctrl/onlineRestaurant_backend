@@ -8,12 +8,16 @@ class BackendLandingTest extends TestCase
 {
     public function test_root_returns_backend_landing_payload(): void
     {
-        $this->getJson('/')
+        $response = $this->getJson('/');
+
+        $response
             ->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.backend_only', true)
             ->assertJsonPath('data.frontend', false)
             ->assertJsonPath('data.api_version', 'v1');
+
+        $this->assertFalse($response->headers->has('Set-Cookie'));
     }
 
     public function test_root_honors_forwarded_proto_and_host_when_trusted_proxy_headers_are_present(): void

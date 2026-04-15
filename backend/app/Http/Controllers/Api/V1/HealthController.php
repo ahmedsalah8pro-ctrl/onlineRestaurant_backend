@@ -87,7 +87,7 @@ class HealthController extends Controller
             'status' => $isWritable ? 'ok' : 'error',
             'disk' => $disk,
             'root' => $root,
-            'cdn_url' => $this->stringConfig("filesystems.disks.{$disk}.cdn_url"),
+            'cdn_url' => $this->stringConfig("filesystems.disks.{$disk}.url"),
         ];
     }
 
