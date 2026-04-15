@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { Address } from '../../../../core/models/api.models';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { StorefrontService } from '../../../../core/services/storefront';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
 @Component({
@@ -15,6 +16,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 export class CheckoutPage implements OnInit {
   protected readonly storefront = inject(StorefrontService);
   protected readonly publicApi = inject(PublicApiService);
+  protected readonly ui = inject(UiTextService);
   private readonly router = inject(Router);
 
   protected readonly addresses = signal<Address[]>([]);

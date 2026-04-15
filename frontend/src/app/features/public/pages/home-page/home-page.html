@@ -1,20 +1,19 @@
 <section class="page-shell surface-grid">
   <div class="home-hero glass-panel">
     <div class="home-hero__copy">
-      <span class="eyebrow">Egyptian Restaurant Platform</span>
+      <span class="eyebrow">{{ ui.t('home.heroEyebrow') }}</span>
       <h1 class="section-title">
         <span class="brand-gradient-text">{{ storefront.siteName() }}</span>
         <br />
         {{ theme.resolveText(storefront.settings()?.branding?.brand_tagline) }}
       </h1>
       <p class="section-copy">
-        واجهة بسيطة كبداية، لكنها موصولة بكل منطق الـ backend الحالي: branches, menu,
-        cart, checkout, wallet, orders, reviews, وتهيئة العلامة التجارية من الـ admin API.
+        {{ ui.t('public.footerAbout') }}
       </p>
 
       <div class="home-hero__actions">
-        <a pButton routerLink="/menu" label="Browse Menu"></a>
-        <a pButton routerLink="/admin" label="Open Admin" severity="secondary"></a>
+        <a pButton routerLink="/menu" [label]="ui.t('home.primaryAction')"></a>
+        <a pButton routerLink="/admin" [label]="ui.t('home.secondaryAction')" severity="secondary"></a>
       </div>
     </div>
 
@@ -28,11 +27,11 @@
   </div>
 
   <div class="surface-grid three-columns">
-    <article class="glass-panel capability-card" *ngFor="let capability of capabilityCards">
+    <article class="glass-panel capability-card" *ngFor="let capability of capabilityCards()">
       <i class="pi pi-sparkles"></i>
       <h3>{{ capability }}</h3>
       <p class="section-copy">
-        Managed through the same Laravel API contracts and ready for re-branding per restaurant.
+        {{ ui.t('admin.subtitle') }}
       </p>
     </article>
   </div>
@@ -41,10 +40,10 @@
     <div class="glass-panel section-panel">
       <div class="panel-head">
         <div>
-          <span class="eyebrow">Best Sellers</span>
-          <h2 class="section-title">Pinned And Dynamic Highlights</h2>
+          <span class="eyebrow">{{ ui.t('home.bestSellers') }}</span>
+          <h2 class="section-title">{{ ui.t('home.bestSellersTitle') }}</h2>
         </div>
-        <a routerLink="/menu">Full menu</a>
+        <a routerLink="/menu">{{ ui.t('home.fullMenu') }}</a>
       </div>
 
       <div class="surface-grid">
@@ -58,13 +57,13 @@
           <div class="best-seller__content">
             <div class="best-seller__meta">
               <span>{{ product.rating_summary.average }} ★</span>
-              <span>{{ product.rating_summary.count }} reviews</span>
+              <span>{{ product.rating_summary.count }}</span>
             </div>
             <h3>{{ product.name }}</h3>
-            <p>{{ product.short_description || 'Built from the current product catalog response.' }}</p>
+            <p>{{ product.short_description || ui.t('menu.noDescription') }}</p>
             <div class="best-seller__footer">
               <strong>{{ storefront.formatMoney(product.base_price) }}</strong>
-              <a [routerLink]="['/products', product.id]">Details</a>
+              <a [routerLink]="['/products', product.id]">{{ ui.t('menu.details') }}</a>
             </div>
           </div>
         </article>
@@ -74,20 +73,20 @@
     <div class="glass-panel section-panel">
       <div class="panel-head">
         <div>
-          <span class="eyebrow">Branches</span>
-          <h2 class="section-title">Delivery Coverage</h2>
+          <span class="eyebrow">{{ ui.t('home.branches') }}</span>
+          <h2 class="section-title">{{ ui.t('home.branches') }}</h2>
         </div>
       </div>
 
       <div class="branch-card" *ngFor="let branch of storefront.branches()">
         <div>
           <h3>{{ branch.name }}</h3>
-          <p>{{ branch.address || 'Configured from admin branch API.' }}</p>
+          <p>{{ branch.address || ui.t('admin.subtitle') }}</p>
         </div>
-        <p-tag [value]="branch.is_active ? 'Active' : 'Disabled'" [severity]="branch.is_active ? 'success' : 'danger'"></p-tag>
+        <p-tag [value]="branch.is_active ? ui.t('home.branchActive') : ui.t('home.branchDisabled')" [severity]="branch.is_active ? 'success' : 'warn'"></p-tag>
         <div class="branch-zones">
           <span *ngFor="let zone of branch.delivery_zones">
-            {{ zone.name }} · {{ storefront.formatMoney(zone.delivery_fee) }}
+            {{ zone.name }} • {{ storefront.formatMoney(zone.delivery_fee) }}
           </span>
         </div>
       </div>

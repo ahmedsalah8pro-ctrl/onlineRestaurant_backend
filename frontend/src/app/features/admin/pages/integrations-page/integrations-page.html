@@ -1,12 +1,18 @@
 <section class="surface-grid two-columns">
   <div class="glass-panel integrations-card">
-    <span class="eyebrow">Uploads + CDN</span>
+    <span class="eyebrow">{{ ui.t('admin.integrations.media') }}</span>
     <input pInputText [ngModel]="directory()" (ngModelChange)="directory.set($event)" placeholder="Upload directory" />
     <input type="file" (change)="upload($event)" />
 
     @if (uploadResult(); as result) {
-      <pre>{{ result | json }}</pre>
-      <a [href]="result.url" target="_blank">Open uploaded asset</a>
+      <div class="asset-card">
+        <div>
+          <strong>{{ result.filename }}</strong>
+          <p>{{ result.mime_type }}</p>
+          <small>{{ result.path }}</small>
+        </div>
+        <a [href]="result.url" target="_blank">Open</a>
+      </div>
     }
 
     <p-divider></p-divider>
@@ -18,9 +24,22 @@
   </div>
 
   <div class="glass-panel integrations-card">
-    <span class="eyebrow">Audit Logs</span>
-    <div class="catalog-record" *ngFor="let log of auditLogs()">
-      <pre>{{ log | json }}</pre>
-    </div>
+    <span class="eyebrow">{{ ui.t('admin.integrations.logs') }}</span>
+    <p-table [value]="auditLogs()" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>النوع</th>
+          <th>المستخدم</th>
+          <th>التاريخ</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-log>
+        <tr>
+          <td>{{ log['action'] || log['event'] }}</td>
+          <td>{{ log['user_name'] || log['causer_id'] || 'System' }}</td>
+          <td>{{ log['created_at'] | date: 'medium' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
   </div>
 </section>

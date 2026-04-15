@@ -1,16 +1,13 @@
 <section class="page-shell auth-grid">
   <div class="glass-panel auth-card">
-    <span class="eyebrow">Access</span>
-    <h1 class="section-title">Login Or Register</h1>
-    <p class="section-copy">
-      استخدم نفس الـ Sanctum token flow الخاص بالـ backend الحالي. الحسابات التجريبية بالأسفل
-      موصولة بقاعدة البيانات المزروعة Seeded data.
-    </p>
+    <span class="eyebrow">{{ ui.t('auth.eyebrow') }}</span>
+    <h1 class="section-title">{{ ui.t('auth.title') }}</h1>
+    <p class="section-copy">{{ ui.t('auth.copy') }}</p>
 
     <p-selectbutton
       [options]="[
-        { label: 'Login', value: 'login' },
-        { label: 'Register', value: 'register' }
+        { label: ui.t('auth.login'), value: 'login' },
+        { label: ui.t('auth.register'), value: 'register' }
       ]"
       [ngModel]="mode()"
       (ngModelChange)="mode.set($event)"
@@ -26,51 +23,41 @@
       <div class="form-grid">
         <p-floatlabel>
           <input pInputText id="identity" [(ngModel)]="loginModel.email_or_username" />
-          <label for="identity">Email or Username</label>
+          <label for="identity">{{ ui.t('auth.emailOrUsername') }}</label>
         </p-floatlabel>
 
         <p-floatlabel>
-          <p-password
-            [(ngModel)]="loginModel.password"
-            inputId="password"
-            [feedback]="false"
-            [toggleMask]="true"
-          />
-          <label for="password">Password</label>
+          <p-password [(ngModel)]="loginModel.password" inputId="password" [feedback]="false" [toggleMask]="true" />
+          <label for="password">{{ ui.t('auth.password') }}</label>
         </p-floatlabel>
 
-        <button pButton type="button" label="Login" [loading]="loading()" (click)="submitLogin()"></button>
+        <button pButton type="button" [label]="ui.t('auth.login')" [loading]="loading()" (click)="submitLogin()"></button>
       </div>
     } @else {
       <div class="form-grid">
         <p-floatlabel>
           <input pInputText id="register-name" [(ngModel)]="registerModel.name" />
-          <label for="register-name">Name</label>
+          <label for="register-name">{{ ui.t('account.name') }}</label>
         </p-floatlabel>
 
         <p-floatlabel>
           <input pInputText id="register-username" [(ngModel)]="registerModel.username" />
-          <label for="register-username">Username</label>
+          <label for="register-username">{{ ui.t('account.username') }}</label>
         </p-floatlabel>
 
         <p-floatlabel>
           <input pInputText id="register-email" [(ngModel)]="registerModel.email" />
-          <label for="register-email">Email</label>
+          <label for="register-email">{{ ui.t('account.email') }}</label>
         </p-floatlabel>
 
         <p-floatlabel>
           <input pInputText id="register-phone" [(ngModel)]="registerModel.primary_phone" />
-          <label for="register-phone">Primary Phone</label>
+          <label for="register-phone">{{ ui.t('account.phone') }}</label>
         </p-floatlabel>
 
         <p-floatlabel>
-          <p-password
-            [(ngModel)]="registerModel.password"
-            inputId="register-password"
-            [feedback]="false"
-            [toggleMask]="true"
-          />
-          <label for="register-password">Password</label>
+          <p-password [(ngModel)]="registerModel.password" inputId="register-password" [feedback]="false" [toggleMask]="true" />
+          <label for="register-password">{{ ui.t('auth.password') }}</label>
         </p-floatlabel>
 
         <p-floatlabel>
@@ -80,30 +67,24 @@
             [feedback]="false"
             [toggleMask]="true"
           />
-          <label for="register-password-confirmation">Confirm Password</label>
+          <label for="register-password-confirmation">{{ ui.t('auth.confirmPassword') }}</label>
         </p-floatlabel>
 
-        <button pButton type="button" label="Create Account" [loading]="loading()" (click)="submitRegister()"></button>
+        <button pButton type="button" [label]="ui.t('auth.createAccount')" [loading]="loading()" (click)="submitRegister()"></button>
       </div>
     }
   </div>
 
   <div class="glass-panel demo-card">
-    <span class="eyebrow">Demo Accounts</span>
-    <h2>Seeded Access</h2>
+    <span class="eyebrow">{{ ui.t('auth.demoAccounts') }}</span>
+    <h2>{{ ui.t('auth.demoAccounts') }}</h2>
     <div class="demo-row" *ngFor="let account of runtime.demoAccounts">
       <div>
         <strong>{{ account.label }}</strong>
         <p>{{ account.identity }}</p>
         <small>{{ account.password }}</small>
       </div>
-      <button
-        pButton
-        type="button"
-        label="Use"
-        severity="secondary"
-        (click)="useDemoAccount(account.identity, account.password)"
-      ></button>
+      <button pButton type="button" [label]="ui.t('auth.use')" severity="secondary" (click)="useDemoAccount(account.identity, account.password)"></button>
     </div>
   </div>
 </section>

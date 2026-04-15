@@ -1,7 +1,9 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth';
+import { RuntimeConfigService } from '../../../../core/services/runtime-config';
 import { StorefrontService } from '../../../../core/services/storefront';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
 @Component({
@@ -13,15 +15,38 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 export class AdminShell implements OnInit {
   protected readonly auth = inject(AuthService);
   protected readonly storefront = inject(StorefrontService);
+  protected readonly ui = inject(UiTextService);
+  protected readonly runtime = inject(RuntimeConfigService);
 
-  protected readonly navItems = [
-    { label: 'Dashboard', path: '/admin' },
-    { label: 'Catalog', path: '/admin/catalog' },
-    { label: 'Orders', path: '/admin/orders' },
-    { label: 'Settings', path: '/admin/settings' },
-    { label: 'Access', path: '/admin/access' },
-    { label: 'Content', path: '/admin/content' },
-    { label: 'Integrations', path: '/admin/integrations' },
+  protected readonly navGroups = [
+    {
+      labelKey: 'admin.section.dashboard',
+      items: [{ labelKey: 'admin.section.dashboard', path: '/admin' }],
+    },
+    {
+      labelKey: 'admin.section.orders',
+      items: [{ labelKey: 'admin.section.orders', path: '/admin/orders' }],
+    },
+    {
+      labelKey: 'admin.section.catalog',
+      items: [{ labelKey: 'admin.section.catalog', path: '/admin/catalog' }],
+    },
+    {
+      labelKey: 'admin.section.customers',
+      items: [{ labelKey: 'admin.section.customers', path: '/admin/access' }],
+    },
+    {
+      labelKey: 'admin.section.branding',
+      items: [{ labelKey: 'admin.section.branding', path: '/admin/settings' }],
+    },
+    {
+      labelKey: 'admin.section.content',
+      items: [{ labelKey: 'admin.section.content', path: '/admin/content' }],
+    },
+    {
+      labelKey: 'admin.section.media',
+      items: [{ labelKey: 'admin.section.media', path: '/admin/integrations' }],
+    },
   ];
 
   protected readonly adminName = computed(() => this.auth.user()?.name ?? 'Admin');

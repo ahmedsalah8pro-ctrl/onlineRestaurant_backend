@@ -4,7 +4,6 @@
   gap: 1rem;
 }
 
-.accordion-header,
 .field-row,
 .field-meta,
 .settings-actions {
@@ -12,6 +11,22 @@
   justify-content: space-between;
   gap: 1rem;
   align-items: start;
+}
+
+.settings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.field-stack {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field-stack span {
+  color: #cbd5e1;
+  font-weight: 700;
 }
 
 .field-row {
@@ -28,4 +43,46 @@
 .import-box {
   display: grid;
   gap: 0.75rem;
+}
+
+.palette-grid,
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.asset-card,
+.font-library-row {
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.toggle-row {
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .palette-grid,
+  .asset-grid,
+  .toggle-grid {
+    grid-template-columns: 1fr;
+  }
 }

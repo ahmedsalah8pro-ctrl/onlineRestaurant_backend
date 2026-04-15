@@ -3,6 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { UploadResult } from '../../../../core/models/api.models';
 import { AdminApiService } from '../../../../core/services/admin-api';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
 @Component({
@@ -14,6 +15,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 export class IntegrationsPage implements OnInit {
   protected readonly adminApi = inject(AdminApiService);
   protected readonly runtime = inject(RuntimeConfigService);
+  protected readonly ui = inject(UiTextService);
   protected readonly uploadResult = signal<UploadResult | null>(null);
   protected readonly auditLogs = signal<Array<Record<string, unknown>>>([]);
   protected readonly directory = signal('branding');

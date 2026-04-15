@@ -8,7 +8,7 @@
 
   <div class="surface-grid two-columns">
     <div class="glass-panel dashboard-card">
-      <span class="eyebrow">Analytics</span>
+      <span class="eyebrow">{{ ui.t('admin.orders.title') }}</span>
       <highcharts-chart
         [options]="chartOptions"
         style="width: 100%; height: 420px; display: block;"
@@ -16,13 +16,13 @@
     </div>
 
     <div class="glass-panel dashboard-card">
-      <span class="eyebrow">White Label Scope</span>
-      <h2>Admin API Controls</h2>
+      <span class="eyebrow">{{ ui.t('admin.dashboard.recentFocus') }}</span>
+      <h2>{{ ui.t('admin.dashboard.recentFocus') }}</h2>
       <ul class="dashboard-list">
-        <li>Brand identity and theme JSON</li>
-        <li>Branch and delivery zone structure</li>
-        <li>Menu catalog, pricing, sizes, and add-ons</li>
-        <li>Coupons, gift cards, uploads, and dynamic pages</li>
+        <li>{{ ui.t('admin.dashboard.focusA') }}</li>
+        <li>{{ ui.t('admin.dashboard.focusB') }}</li>
+        <li>{{ ui.t('admin.dashboard.focusC') }}</li>
+        <li>{{ ui.t('admin.dashboard.focusD') }}</li>
       </ul>
     </div>
   </div>

@@ -2,62 +2,323 @@
   <div class="glass-panel settings-card">
     <div class="panel-head">
       <div>
-        <span class="eyebrow">White Label Settings</span>
-        <h2>Schema-Driven Control</h2>
+        <span class="eyebrow">{{ ui.t('admin.settings.title') }}</span>
+        <h2>{{ ui.t('admin.settings.title') }}</h2>
       </div>
-      <button pButton type="button" label="Export Pack" (click)="exportAll()"></button>
     </div>
 
-    <div class="surface-grid two-columns">
-      <textarea pTextarea rows="16" [ngModel]="exportText()" (ngModelChange)="exportText.set($event)" placeholder="Export payload"></textarea>
-      <div class="import-box">
-        <textarea pTextarea rows="16" [ngModel]="importText()" (ngModelChange)="importText.set($event)" placeholder="Paste settings import payload"></textarea>
-        <button pButton type="button" label="Import Pack" severity="secondary" (click)="importAll()"></button>
-      </div>
+    <div class="settings-tabs">
+      <button
+        pButton
+        type="button"
+        *ngFor="let tab of tabs()"
+        [label]="tab.label"
+        [severity]="activeTab() === tab.key ? undefined : 'secondary'"
+        (click)="activeTab.set(tab.key)"
+      ></button>
     </div>
   </div>
 
-  @if (schema(); as schemaData) {
-    <p-accordion [multiple]="true">
-      <p-accordion-panel *ngFor="let group of schemaData.groups | keyvalue" [value]="group.key">
-        <p-accordion-header>
-          <div class="accordion-header">
-            <strong>{{ theme.resolveText(group.value.label) || group.key }}</strong>
-            <span>{{ group.value.is_public ? 'Public' : 'Private' }}</span>
-          </div>
-        </p-accordion-header>
-        <p-accordion-content>
-          <div class="surface-grid two-columns">
-            <div class="glass-panel settings-card">
-              <h3>Field metadata</h3>
-              <div class="field-row" *ngFor="let field of group.value.fields | keyvalue">
-                <div>
-                  <strong>{{ field.key }}</strong>
-                  <p>{{ theme.resolveText(field.value.description) || 'No description' }}</p>
-                </div>
-                <div class="field-meta">
-                  <span>{{ field.value.type }}</span>
-                  <span>{{ field.value.public ? 'Public' : 'Private' }}</span>
-                </div>
-              </div>
-            </div>
+  @if (activeTab() === 'general') {
+    <div class="glass-panel settings-card">
+      <div class="form-grid two-columns">
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.siteName') }}</span>
+          <input pInputText [ngModel]="values('general')['site_name']" (ngModelChange)="updateValue('general', 'site_name', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.supportPhone') }}</span>
+          <input pInputText [ngModel]="values('general')['support_phone']" (ngModelChange)="updateValue('general', 'support_phone', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.supportEmail') }}</span>
+          <input pInputText [ngModel]="values('general')['support_email']" (ngModelChange)="updateValue('general', 'support_email', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.defaultLocale') }}</span>
+          <p-select
+            [options]="[{ label: 'العربية', value: 'ar' }, { label: 'English', value: 'en' }]"
+            [ngModel]="values('localization')['default_locale']"
+            (ngModelChange)="updateValue('localization', 'default_locale', $event)"
+            optionLabel="label"
+            optionValue="value"
+          />
+        </label>
+      </div>
+      <div class="settings-actions">
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="saveGroup('general')"></button>
+      </div>
+    </div>
+  }
 
-            <div class="glass-panel settings-card">
-              <h3>JSON editor</h3>
-              <textarea
-                pTextarea
-                rows="18"
-                [ngModel]="editors()[group.key]"
-                (ngModelChange)="updateEditor(group.key, $event)"
-              ></textarea>
-              <div class="settings-actions">
-                <button pButton type="button" label="Save Group" (click)="saveGroup(group.key)"></button>
-                <button pButton type="button" label="Reset Group" severity="secondary" (click)="resetGroup(group.key)"></button>
-              </div>
-            </div>
+  @if (activeTab() === 'branding') {
+    <div class="glass-panel settings-card">
+      <div class="form-grid two-columns">
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.tagline') }} AR</span>
+          <input pInputText [ngModel]="taglineValue('ar')" (ngModelChange)="updateTagline('ar', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.tagline') }} EN</span>
+          <input pInputText [ngModel]="taglineValue('en')" (ngModelChange)="updateTagline('en', $event)" />
+        </label>
+      </div>
+
+      <div class="asset-grid">
+        <div class="asset-card">
+          <strong>{{ ui.t('admin.settings.logo') }}</strong>
+          <input type="file" (change)="uploadAsset($event, 'branding', 'logo_path', 'branding')" />
+          <small>{{ values('branding')['logo_path'] }}</small>
+        </div>
+        <div class="asset-card">
+          <strong>{{ ui.t('admin.settings.squareLogo') }}</strong>
+          <input type="file" (change)="uploadAsset($event, 'branding', 'square_logo_path', 'branding')" />
+          <small>{{ values('branding')['square_logo_path'] }}</small>
+        </div>
+        <div class="asset-card">
+          <strong>{{ ui.t('admin.settings.favicon') }}</strong>
+          <input type="file" (change)="uploadAsset($event, 'branding', 'favicon_path', 'branding')" />
+          <small>{{ values('branding')['favicon_path'] }}</small>
+        </div>
+      </div>
+
+      <div class="palette-grid">
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.primaryColor') }}</span>
+          <input type="color" [ngModel]="paletteValue('primary')" (ngModelChange)="updatePalette('primary', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.secondaryColor') }}</span>
+          <input type="color" [ngModel]="paletteValue('secondary')" (ngModelChange)="updatePalette('secondary', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.accentColor') }}</span>
+          <input type="color" [ngModel]="paletteValue('accent')" (ngModelChange)="updatePalette('accent', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.surfaceColor') }}</span>
+          <input type="color" [ngModel]="paletteValue('surface')" (ngModelChange)="updatePalette('surface', $event)" />
+        </label>
+      </div>
+
+      <div class="settings-actions">
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="saveGroup('branding')"></button>
+        <button pButton type="button" [label]="ui.t('admin.settings.reset')" severity="secondary" (click)="resetGroup('branding')"></button>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'typography') {
+    <div class="surface-grid two-columns">
+      <div class="glass-panel settings-card">
+        <h3>{{ ui.t('admin.settings.fontLibrary') }}</h3>
+        <div class="font-library-row" *ngFor="let font of fontLibrary(); let i = index">
+          <div>
+            <strong>{{ font.name || font.font_family }}</strong>
+            <p>{{ ui.fontTypeLabel(font.font_type || 'both') }} • {{ ui.fontScopeLabel(font.scope || 'shared') }}</p>
+            <small>{{ font.file_path }}</small>
           </div>
-        </p-accordion-content>
-      </p-accordion-panel>
-    </p-accordion>
+          <button pButton type="button" [label]="ui.t('admin.catalog.delete')" severity="danger" (click)="removeFont(i)"></button>
+        </div>
+
+        <div class="form-grid two-columns">
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.fontFamily') }}</span>
+            <input pInputText [ngModel]="fontDraft().font_family" (ngModelChange)="fontDraft.set({ ...fontDraft(), font_family: $event })" />
+          </label>
+          <label class="field-stack">
+            <span>Name</span>
+            <input pInputText [ngModel]="fontDraft().name" (ngModelChange)="fontDraft.set({ ...fontDraft(), name: $event })" />
+          </label>
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.fontUsage') }}</span>
+            <p-select
+              [options]="[
+                { label: ui.fontTypeLabel('ar'), value: 'ar' },
+                { label: ui.fontTypeLabel('en'), value: 'en' },
+                { label: ui.fontTypeLabel('both'), value: 'both' }
+              ]"
+              [ngModel]="fontDraft().font_type"
+              (ngModelChange)="fontDraft.set({ ...fontDraft(), font_type: $event })"
+              optionLabel="label"
+              optionValue="value"
+            />
+          </label>
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.fontScope') }}</span>
+            <p-select
+              [options]="[
+                { label: ui.fontScopeLabel('public'), value: 'public' },
+                { label: ui.fontScopeLabel('admin'), value: 'admin' },
+                { label: ui.fontScopeLabel('shared'), value: 'shared' }
+              ]"
+              [ngModel]="fontDraft().scope"
+              (ngModelChange)="fontDraft.set({ ...fontDraft(), scope: $event })"
+              optionLabel="label"
+              optionValue="value"
+            />
+          </label>
+        </div>
+        <input type="file" (change)="uploadFontFile($event)" />
+        <div class="settings-actions">
+          <button pButton type="button" [label]="ui.t('admin.settings.uploadFont')" (click)="addFont()"></button>
+          <button pButton type="button" [label]="ui.t('admin.settings.save')" severity="secondary" (click)="saveGroup('typography')"></button>
+        </div>
+      </div>
+
+      <div class="glass-panel settings-card">
+        <h3>{{ ui.t('admin.settings.typography') }}</h3>
+        <div class="form-grid">
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.publicArBody') }}</span>
+            <input pInputText [ngModel]="values('typography')['public_ar_body_font']" (ngModelChange)="updateValue('typography', 'public_ar_body_font', $event)" />
+          </label>
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.publicEnBody') }}</span>
+            <input pInputText [ngModel]="values('typography')['public_en_body_font']" (ngModelChange)="updateValue('typography', 'public_en_body_font', $event)" />
+          </label>
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.publicArHeading') }}</span>
+            <input pInputText [ngModel]="values('typography')['public_ar_heading_font']" (ngModelChange)="updateValue('typography', 'public_ar_heading_font', $event)" />
+          </label>
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.publicEnHeading') }}</span>
+            <input pInputText [ngModel]="values('typography')['public_en_heading_font']" (ngModelChange)="updateValue('typography', 'public_en_heading_font', $event)" />
+          </label>
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.adminArBody') }}</span>
+            <input pInputText [ngModel]="values('typography')['admin_ar_body_font']" (ngModelChange)="updateValue('typography', 'admin_ar_body_font', $event)" />
+          </label>
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.adminEnBody') }}</span>
+            <input pInputText [ngModel]="values('typography')['admin_en_body_font']" (ngModelChange)="updateValue('typography', 'admin_en_body_font', $event)" />
+          </label>
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.adminArHeading') }}</span>
+            <input pInputText [ngModel]="values('typography')['admin_ar_heading_font']" (ngModelChange)="updateValue('typography', 'admin_ar_heading_font', $event)" />
+          </label>
+          <label class="field-stack">
+            <span>{{ ui.t('admin.settings.adminEnHeading') }}</span>
+            <input pInputText [ngModel]="values('typography')['admin_en_heading_font']" (ngModelChange)="updateValue('typography', 'admin_en_heading_font', $event)" />
+          </label>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'localization') {
+    <div class="glass-panel settings-card">
+      <div class="form-grid two-columns">
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.defaultLocale') }}</span>
+          <p-select
+            [options]="[{ label: 'العربية', value: 'ar' }, { label: 'English', value: 'en' }]"
+            [ngModel]="values('localization')['default_locale']"
+            (ngModelChange)="updateValue('localization', 'default_locale', $event)"
+            optionLabel="label"
+            optionValue="value"
+          />
+        </label>
+        <label class="field-stack">
+          <span>Timezone</span>
+          <input pInputText [ngModel]="values('localization')['default_timezone']" (ngModelChange)="updateValue('localization', 'default_timezone', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.currencyCode') }}</span>
+          <input pInputText [ngModel]="values('currency')['code']" (ngModelChange)="updateValue('currency', 'code', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.currencySymbol') }}</span>
+          <input pInputText [ngModel]="values('currency')['symbol']" (ngModelChange)="updateValue('currency', 'symbol', $event)" />
+        </label>
+      </div>
+      <div class="settings-actions">
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="saveGroup('localization')"></button>
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" severity="secondary" (click)="saveGroup('currency')"></button>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'commerce') {
+    <div class="glass-panel settings-card">
+      <div class="form-grid two-columns">
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.gracePeriod') }}</span>
+          <p-inputnumber [ngModel]="values('ordering')['grace_period_minutes']" (ngModelChange)="updateValue('ordering', 'grace_period_minutes', $event)"></p-inputnumber>
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.publicBaseUrl') }}</span>
+          <input pInputText [ngModel]="values('uploads')['public_base_url']" (ngModelChange)="updateValue('uploads', 'public_base_url', $event)" />
+        </label>
+      </div>
+      <div class="toggle-grid">
+        <div class="toggle-row"><span>Wallet</span><p-toggleswitch [ngModel]="values('features')['wallet_enabled']" (ngModelChange)="updateValue('features', 'wallet_enabled', $event)"></p-toggleswitch></div>
+        <div class="toggle-row"><span>Gift Cards</span><p-toggleswitch [ngModel]="values('features')['gift_cards_enabled']" (ngModelChange)="updateValue('features', 'gift_cards_enabled', $event)"></p-toggleswitch></div>
+        <div class="toggle-row"><span>Coupons</span><p-toggleswitch [ngModel]="values('features')['coupons_enabled']" (ngModelChange)="updateValue('features', 'coupons_enabled', $event)"></p-toggleswitch></div>
+        <div class="toggle-row"><span>Reviews</span><p-toggleswitch [ngModel]="values('features')['reviews_enabled']" (ngModelChange)="updateValue('features', 'reviews_enabled', $event)"></p-toggleswitch></div>
+      </div>
+      <div class="settings-actions">
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="saveGroup('ordering')"></button>
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" severity="secondary" (click)="saveGroup('features')"></button>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'notifications') {
+    <div class="glass-panel settings-card">
+      <div class="form-grid two-columns">
+        <div class="toggle-row"><span>Email</span><p-toggleswitch [ngModel]="values('notifications')['email_enabled']" (ngModelChange)="updateValue('notifications', 'email_enabled', $event)"></p-toggleswitch></div>
+        <div class="toggle-row"><span>Broadcast</span><p-toggleswitch [ngModel]="values('notifications')['broadcast_enabled']" (ngModelChange)="updateValue('notifications', 'broadcast_enabled', $event)"></p-toggleswitch></div>
+        <label class="field-stack">
+          <span>SMTP Host</span>
+          <input pInputText [ngModel]="values('notifications')['smtp_host']" (ngModelChange)="updateValue('notifications', 'smtp_host', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>SMTP Port</span>
+          <p-inputnumber [ngModel]="values('notifications')['smtp_port']" (ngModelChange)="updateValue('notifications', 'smtp_port', $event)"></p-inputnumber>
+        </label>
+      </div>
+      <div class="settings-actions">
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="saveGroup('notifications')"></button>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'uploads') {
+    <div class="glass-panel settings-card">
+      <div class="form-grid two-columns">
+        <label class="field-stack">
+          <span>Path Prefix</span>
+          <input pInputText [ngModel]="values('uploads')['path_prefix']" (ngModelChange)="updateValue('uploads', 'path_prefix', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>{{ ui.t('admin.settings.publicBaseUrl') }}</span>
+          <input pInputText [ngModel]="values('uploads')['public_base_url']" (ngModelChange)="updateValue('uploads', 'public_base_url', $event)" />
+        </label>
+      </div>
+      <div class="settings-actions">
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="saveGroup('uploads')"></button>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'advanced') {
+    <div class="glass-panel settings-card">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">{{ ui.t('admin.settings.advanced') }}</span>
+          <h3>{{ ui.t('admin.settings.advanced') }}</h3>
+        </div>
+        <button pButton type="button" [label]="ui.t('admin.settings.export')" (click)="exportAll()"></button>
+      </div>
+
+      <div class="surface-grid two-columns">
+        <textarea pTextarea rows="16" [ngModel]="exportText()" (ngModelChange)="exportText.set($event)" placeholder="Export payload"></textarea>
+        <div class="import-box">
+          <textarea pTextarea rows="16" [ngModel]="importText()" (ngModelChange)="importText.set($event)" placeholder="Paste settings import payload"></textarea>
+          <button pButton type="button" [label]="ui.t('admin.settings.import')" severity="secondary" (click)="importAll()"></button>
+        </div>
+      </div>
+    </div>
   }
 </section>

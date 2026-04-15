@@ -6,6 +6,7 @@ import { AuthService } from '../../../../core/services/auth';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
 import { StorefrontService } from '../../../../core/services/storefront';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
 @Component({
@@ -20,6 +21,7 @@ export class ProductDetailPage implements OnInit {
   protected readonly auth = inject(AuthService);
   protected readonly storefront = inject(StorefrontService);
   protected readonly runtime = inject(RuntimeConfigService);
+  protected readonly ui = inject(UiTextService);
 
   protected readonly product = signal<ProductDetail | null>(null);
   protected readonly reviews = signal<Review[]>([]);

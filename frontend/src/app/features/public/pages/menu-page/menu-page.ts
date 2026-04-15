@@ -5,6 +5,7 @@ import { ProductListItem } from '../../../../core/models/api.models';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
 import { StorefrontService } from '../../../../core/services/storefront';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
 @Component({
@@ -17,6 +18,7 @@ export class MenuPage implements OnInit {
   protected readonly storefront = inject(StorefrontService);
   protected readonly publicApi = inject(PublicApiService);
   protected readonly runtime = inject(RuntimeConfigService);
+  protected readonly ui = inject(UiTextService);
 
   protected readonly products = signal<ProductListItem[]>([]);
   protected readonly loading = signal(false);
@@ -31,19 +33,14 @@ export class MenuPage implements OnInit {
     sort: 'default',
   };
 
-  protected readonly sortOptions = [
-    { label: 'Default', value: 'default' },
-    { label: 'Price ↑', value: 'price_asc' },
-    { label: 'Price ↓', value: 'price_desc' },
-    { label: 'Rating', value: 'rating_desc' },
-    { label: 'Best Seller', value: 'best_seller' },
-  ];
+  protected sortOptions = this.buildSortOptions();
 
   async ngOnInit(): Promise<void> {
     if (!this.storefront.settings()) {
       await this.storefront.bootstrap();
     }
 
+    this.sortOptions = this.buildSortOptions();
     await this.loadProducts();
   }
 
@@ -68,5 +65,15 @@ export class MenuPage implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private buildSortOptions(): Array<{ label: string; value: string }> {
+    return [
+      { label: this.ui.sortLabel('default'), value: 'default' },
+      { label: this.ui.sortLabel('price_asc'), value: 'price_asc' },
+      { label: this.ui.sortLabel('price_desc'), value: 'price_desc' },
+      { label: this.ui.sortLabel('rating_desc'), value: 'rating_desc' },
+      { label: this.ui.sortLabel('best_seller'), value: 'best_seller' },
+    ];
   }
 }

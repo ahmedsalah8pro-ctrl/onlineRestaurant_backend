@@ -1,12 +1,21 @@
 <div class="public-shell">
+  <p-toast position="top-center"></p-toast>
+  <p-confirmdialog></p-confirmdialog>
+
   <header class="public-header glass-panel">
     <div class="page-shell public-header__content">
       <a class="brand-lockup" routerLink="/">
-        <div class="brand-lockup__mark">{{ siteName().slice(0, 1) }}</div>
+        <div class="brand-lockup__mark">
+          @if (logoUrl()) {
+            <img [src]="logoUrl()" [alt]="siteName()" />
+          } @else {
+            {{ siteName().slice(0, 1) }}
+          }
+        </div>
         <div>
           <div class="brand-lockup__name">{{ siteName() }}</div>
           <div class="brand-lockup__tagline">
-            {{ theme.resolveText(storefront.settings()?.branding?.brand_tagline) || 'Backend-first commerce for multi-branch restaurants.' }}
+            {{ theme.resolveText(storefront.settings()?.branding?.brand_tagline) || ui.t('public.taglineFallback') }}
           </div>
         </div>
       </a>
@@ -19,7 +28,7 @@
               routerLinkActive="is-active"
               [routerLinkActiveOptions]="{ exact: item.path === '/' }"
             >
-              {{ item.label }}
+              {{ ui.t(item.key) }}
             </a>
           }
         }
@@ -43,15 +52,15 @@
         </a>
 
         @if (auth.isAuthenticated()) {
-          <a class="icon-link" routerLink="/account">
+          <a class="icon-link" routerLink="/account" [attr.aria-label]="ui.t('nav.account')">
             <i class="pi pi-user"></i>
           </a>
           @if (auth.isAdmin()) {
-            <a class="admin-link" routerLink="/admin">Admin</a>
+            <a class="admin-link" routerLink="/admin">{{ ui.t('nav.admin') }}</a>
           }
-          <button pButton type="button" label="Logout" severity="secondary" (click)="logout()"></button>
+          <button pButton type="button" [label]="ui.t('nav.logout')" severity="secondary" (click)="logout()"></button>
         } @else {
-          <a class="admin-link" routerLink="/auth">Login</a>
+          <a class="admin-link" routerLink="/auth">{{ ui.t('nav.login') }}</a>
         }
       </div>
     </div>
@@ -66,14 +75,14 @@
       <div>
         <div class="brand-lockup__name">{{ siteName() }}</div>
         <p class="section-copy">
-          API-first storefront ready for future web, mobile, and white-label brands.
+          {{ ui.t('public.footerAbout') }}
         </p>
       </div>
 
       <div class="public-footer__links">
-        <a routerLink="/pages/terms-of-service">TOS</a>
-        <a routerLink="/menu">Menu</a>
-        <a *ngIf="auth.isAdmin()" routerLink="/admin/settings">Brand Control</a>
+        <a routerLink="/pages/terms-of-service">{{ ui.t('public.terms') }}</a>
+        <a routerLink="/menu">{{ ui.t('nav.menu') }}</a>
+        <a *ngIf="auth.isAdmin()" routerLink="/admin/settings">{{ ui.t('public.brandControl') }}</a>
       </div>
 
       <div class="public-footer__support">

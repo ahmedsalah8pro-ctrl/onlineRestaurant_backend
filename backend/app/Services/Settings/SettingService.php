@@ -238,6 +238,13 @@ class SettingService
         return is_numeric($value) ? (int) $value : 51200;
     }
 
+    public function uploadFontMaxKilobytes(): int
+    {
+        $value = $this->getValue('uploads', 'font_max_kb', 10240);
+
+        return is_numeric($value) ? (int) $value : 10240;
+    }
+
     /**
      * @return array<int, string>
      */
@@ -252,6 +259,22 @@ class SettingService
     public function allowedUploadVideoMimes(): array
     {
         return $this->stringListValue('uploads', 'allowed_video_mimes', ['video/mp4', 'video/webm']);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function allowedUploadFontMimes(): array
+    {
+        return $this->stringListValue('uploads', 'allowed_font_mimes', [
+            'font/woff',
+            'font/woff2',
+            'font/ttf',
+            'application/font-sfnt',
+            'application/x-font-ttf',
+            'application/x-font-otf',
+            'font/otf',
+        ]);
     }
 
     /**

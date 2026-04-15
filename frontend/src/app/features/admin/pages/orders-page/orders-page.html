@@ -1,43 +1,71 @@
 <section class="glass-panel orders-admin-card">
-  <span class="eyebrow">Orders Manager</span>
-  <div class="order-row" *ngFor="let order of orders()">
-    <div>
-      <strong>#{{ order.id }}</strong>
-      <p>{{ order.status }} · {{ order.placed_at | date: 'medium' }}</p>
-    </div>
-    <div class="order-row__meta">
-      <strong>{{ storefront.formatMoney(order.total) }}</strong>
-      <button pButton type="button" label="Manage" severity="secondary" (click)="openOrder(order.id)"></button>
-    </div>
-  </div>
+  <span class="eyebrow">{{ ui.t('admin.orders.title') }}</span>
+
+  <p-table [value]="orders()" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>#</th>
+        <th>{{ ui.t('admin.orders.status') }}</th>
+        <th>الوقت</th>
+        <th>الإجمالي</th>
+        <th>إجراءات</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-order>
+      <tr>
+        <td>#{{ order.id }}</td>
+        <td>{{ ui.orderStatus(order.status) }}</td>
+        <td>{{ order.placed_at | date: 'medium' }}</td>
+        <td>{{ storefront.formatMoney(order.total) }}</td>
+        <td><button pButton type="button" [label]="ui.t('admin.orders.manage')" severity="secondary" (click)="openOrder(order.id)"></button></td>
+      </tr>
+    </ng-template>
+  </p-table>
 
   <p-dialog
-    header="Admin Order Manager"
+    header="إدارة الطلب"
     [visible]="detailVisible()"
     [modal]="true"
-    [style]="{ width: 'min(1000px, 96vw)' }"
+    [style]="{ width: 'min(1100px, 96vw)' }"
     (visibleChange)="detailVisible.set($event)"
   >
     @if (selectedOrder(); as order) {
       <div class="surface-grid two-columns">
         <div class="glass-panel order-panel">
-          <h3>Status workflow</h3>
+          <h3>{{ ui.t('admin.orders.status') }}</h3>
           <p-select [options]="statusOptions" [(ngModel)]="statusForm.status"></p-select>
-          <textarea pTextarea rows="4" [(ngModel)]="statusForm.notes" placeholder="Status notes"></textarea>
-          <button pButton type="button" label="Update Status" (click)="updateStatus()"></button>
+          <textarea pTextarea rows="4" [(ngModel)]="statusForm.notes" [placeholder]="ui.t('admin.orders.notes')"></textarea>
+          <button pButton type="button" [label]="ui.t('admin.orders.updateStatus')" (click)="updateStatus()"></button>
         </div>
 
         <div class="glass-panel order-panel">
-          <h3>Delivery assignment</h3>
-          <input pInputText [(ngModel)]="deliveryForm.delivery_person_name" placeholder="Delivery person name" />
-          <input pInputText [(ngModel)]="deliveryForm.delivery_person_phone" placeholder="Delivery person phone" />
-          <button pButton type="button" label="Assign Delivery" severity="secondary" (click)="assignDelivery()"></button>
+          <h3>{{ ui.t('admin.orders.delivery') }}</h3>
+          <input pInputText [(ngModel)]="deliveryForm.delivery_person_name" [placeholder]="ui.t('admin.orders.driverName')" />
+          <input pInputText [(ngModel)]="deliveryForm.delivery_person_phone" [placeholder]="ui.t('admin.orders.driverPhone')" />
+          <button pButton type="button" [label]="ui.t('admin.orders.assign')" severity="secondary" (click)="assignDelivery()"></button>
         </div>
       </div>
 
-      <div class="glass-panel order-panel">
-        <h3>Order payload</h3>
-        <pre>{{ selectedOrder() | json }}</pre>
+      <div class="surface-grid two-columns">
+        <div class="glass-panel order-panel">
+          <h3>ملخص الطلب</h3>
+          <div class="detail-list">
+            <div><span>رقم الطلب</span><strong>#{{ order.id }}</strong></div>
+            <div><span>الحالة</span><strong>{{ ui.orderStatus(order.status) }}</strong></div>
+            <div><span>الإجمالي</span><strong>{{ storefront.formatMoney(order.total) }}</strong></div>
+            <div><span>الفرع</span><strong>{{ order.branch?.name || '—' }}</strong></div>
+            <div><span>المنطقة</span><strong>{{ order.delivery_zone?.name || '—' }}</strong></div>
+            <div><span>الملاحظات</span><strong>{{ order.notes || '—' }}</strong></div>
+          </div>
+        </div>
+
+        <div class="glass-panel order-panel">
+          <h3>العناصر</h3>
+          <div class="detail-list" *ngFor="let item of order.items">
+            <div><span>{{ item.product_snapshot['name'] || item.product_snapshot['title'] || 'Product' }}</span><strong>x{{ item.quantity }}</strong></div>
+            <div><span>السعر</span><strong>{{ storefront.formatMoney(item.line_subtotal) }}</strong></div>
+          </div>
+        </div>
       </div>
     }
   </p-dialog>

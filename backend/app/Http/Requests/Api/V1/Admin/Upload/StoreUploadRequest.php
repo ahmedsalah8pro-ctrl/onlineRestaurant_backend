@@ -21,13 +21,18 @@ class StoreUploadRequest extends FormRequest
         $allowedMimes = array_merge(
             $settings->allowedUploadImageMimes(),
             $settings->allowedUploadVideoMimes(),
+            $settings->allowedUploadFontMimes(),
         );
 
         return [
             'file' => [
                 'required',
                 'file',
-                'max:'.max($settings->uploadImageMaxKilobytes(), $settings->uploadVideoMaxKilobytes()),
+                'max:'.max(
+                    $settings->uploadImageMaxKilobytes(),
+                    $settings->uploadVideoMaxKilobytes(),
+                    $settings->uploadFontMaxKilobytes(),
+                ),
                 'mimetypes:'.implode(',', $allowedMimes),
             ],
             'directory' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z0-9_\\/-]+$/'],
@@ -50,6 +55,7 @@ class StoreUploadRequest extends FormRequest
             $sizeInKilobytes = (int) ceil(((int) $file->getSize()) / 1024);
             $imageMimes = $settings->allowedUploadImageMimes();
             $videoMimes = $settings->allowedUploadVideoMimes();
+            $fontMimes = $settings->allowedUploadFontMimes();
 
             if (in_array($mime, $imageMimes, true) && $sizeInKilobytes > $settings->uploadImageMaxKilobytes()) {
                 $validator->errors()->add('file', 'The uploaded image exceeds the configured image size limit.');
@@ -57,6 +63,10 @@ class StoreUploadRequest extends FormRequest
 
             if (in_array($mime, $videoMimes, true) && $sizeInKilobytes > $settings->uploadVideoMaxKilobytes()) {
                 $validator->errors()->add('file', 'The uploaded video exceeds the configured video size limit.');
+            }
+
+            if (in_array($mime, $fontMimes, true) && $sizeInKilobytes > $settings->uploadFontMaxKilobytes()) {
+                $validator->errors()->add('file', 'The uploaded font exceeds the configured font size limit.');
             }
         });
     }

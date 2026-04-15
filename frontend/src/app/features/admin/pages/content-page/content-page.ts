@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AdminApiService } from '../../../../core/services/admin-api';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 import { DEFAULT_CATALOG_PAYLOADS } from '../../../../shared/demo-payloads';
 
@@ -12,6 +13,7 @@ import { DEFAULT_CATALOG_PAYLOADS } from '../../../../shared/demo-payloads';
 })
 export class ContentPage implements OnInit {
   protected readonly adminApi = inject(AdminApiService);
+  protected readonly ui = inject(UiTextService);
   protected readonly pages = signal<Array<Record<string, unknown>>>([]);
   protected readonly reviews = signal<Array<Record<string, unknown>>>([]);
   protected readonly pageDialogVisible = signal(false);

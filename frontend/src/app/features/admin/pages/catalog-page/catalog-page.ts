@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AdminApiService } from '../../../../core/services/admin-api';
+import { ThemeService } from '../../../../core/services/theme';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 import { DEFAULT_CATALOG_PAYLOADS } from '../../../../shared/demo-payloads';
 
@@ -12,8 +14,18 @@ import { DEFAULT_CATALOG_PAYLOADS } from '../../../../shared/demo-payloads';
 })
 export class CatalogPage implements OnInit {
   protected readonly adminApi = inject(AdminApiService);
+  protected readonly ui = inject(UiTextService);
+  protected readonly theme = inject(ThemeService);
 
-  protected readonly sections = ['products', 'categories', 'tags', 'branches', 'delivery-zones', 'coupons', 'gift-cards'];
+  protected readonly sections = [
+    { key: 'products', label: 'المنتجات' },
+    { key: 'categories', label: 'الأقسام' },
+    { key: 'tags', label: 'الوسوم' },
+    { key: 'branches', label: 'الفروع' },
+    { key: 'delivery-zones', label: 'مناطق التوصيل' },
+    { key: 'coupons', label: 'الكوبونات' },
+    { key: 'gift-cards', label: 'بطاقات الهدايا' },
+  ];
   protected readonly activeSection = signal('products');
   protected readonly records = signal<Record<string, Array<Record<string, unknown>>>>({});
   protected readonly dialogVisible = signal(false);
@@ -31,6 +43,10 @@ export class CatalogPage implements OnInit {
       [section]: data,
     });
     this.activeSection.set(section);
+  }
+
+  protected activeLabel(): string {
+    return this.sections.find((section) => section.key === this.activeSection())?.label ?? this.activeSection();
   }
 
   protected openCreate(section: string): void {
@@ -67,11 +83,32 @@ export class CatalogPage implements OnInit {
     await this.loadSection(section);
   }
 
-  protected pretty(record: Record<string, unknown>): string {
-    return JSON.stringify(record, null, 2);
-  }
-
   protected recordId(record: Record<string, unknown>): number {
     return Number(record['id']);
+  }
+
+  protected displayName(record: Record<string, unknown>): string {
+    const translated = record['translations'];
+    if (translated && typeof translated === 'object') {
+      return this.theme.resolveText(translated as never);
+    }
+
+    if (typeof record['name'] === 'string') {
+      return String(record['name']);
+    }
+
+    if (typeof record['title'] === 'string') {
+      return String(record['title']);
+    }
+
+    return `#${this.recordId(record)}`;
+  }
+
+  protected displayMeta(record: Record<string, unknown>): string {
+    const parts = [record['slug'], record['code'], record['phone'], record['delivery_fee']]
+      .filter((value) => value !== null && value !== undefined && value !== '')
+      .map((value) => String(value));
+
+    return parts.join(' • ');
   }
 }

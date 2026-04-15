@@ -30,6 +30,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ChipModule } from 'primeng/chip';
 import { MessageModule } from 'primeng/message';
 import { TimelineModule } from 'primeng/timeline';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { HighchartsChartComponent } from 'highcharts-angular';
 
 @NgModule({
@@ -66,6 +68,8 @@ import { HighchartsChartComponent } from 'highcharts-angular';
     ChipModule,
     MessageModule,
     TimelineModule,
+    ToastModule,
+    ConfirmDialogModule,
     HighchartsChartComponent,
   ],
   exports: [
@@ -101,6 +105,8 @@ import { HighchartsChartComponent } from 'highcharts-angular';
     ChipModule,
     MessageModule,
     TimelineModule,
+    ToastModule,
+    ConfirmDialogModule,
     HighchartsChartComponent,
   ],
 })

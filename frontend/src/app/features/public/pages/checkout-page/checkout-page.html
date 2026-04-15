@@ -1,7 +1,7 @@
 <section class="page-shell checkout-grid">
   <div class="glass-panel checkout-card">
-    <span class="eyebrow">Checkout</span>
-    <h1 class="section-title">Branch + Zone + Address Validation</h1>
+    <span class="eyebrow">{{ ui.t('checkout.eyebrow') }}</span>
+    <h1 class="section-title">{{ ui.t('checkout.title') }}</h1>
 
     <div class="form-grid">
       <p-select
@@ -9,7 +9,7 @@
         [(ngModel)]="form.branch_id"
         optionLabel="name"
         optionValue="id"
-        placeholder="Branch"
+        [placeholder]="ui.t('menu.branch')"
         (ngModelChange)="form.delivery_zone_id = zones()[0]?.id ?? null"
       />
 
@@ -18,7 +18,7 @@
         [(ngModel)]="form.delivery_zone_id"
         optionLabel="name"
         optionValue="id"
-        placeholder="Delivery Zone"
+        [placeholder]="ui.t('checkout.deliveryZone')"
       />
 
       <p-select
@@ -26,14 +26,14 @@
         [(ngModel)]="form.address_id"
         optionLabel="label"
         optionValue="id"
-        placeholder="Address"
+        [placeholder]="ui.t('checkout.address')"
       />
 
-      <textarea pTextarea rows="4" [(ngModel)]="form.notes" placeholder="Order notes"></textarea>
+      <textarea pTextarea rows="4" [(ngModel)]="form.notes" [placeholder]="ui.t('checkout.notes')"></textarea>
 
       <div class="coupon-box">
-        <input pInputText [(ngModel)]="form.coupon_code" placeholder="Coupon code" />
-        <button pButton type="button" label="Preview" severity="secondary" (click)="previewCoupon()"></button>
+        <input pInputText [(ngModel)]="form.coupon_code" [placeholder]="ui.t('checkout.coupon')" />
+        <button pButton type="button" [label]="ui.t('checkout.preview')" severity="secondary" (click)="previewCoupon()"></button>
       </div>
 
       <p-inputnumber [(ngModel)]="form.wallet_amount" [max]="walletBalance()" [min]="0" [showButtons]="true"></p-inputnumber>
@@ -49,20 +49,20 @@
         optionValue="value"
       />
 
-      <button pButton type="button" label="Place Order" [loading]="loading()" (click)="submitOrder()"></button>
+      <button pButton type="button" [label]="ui.t('checkout.placeOrder')" [loading]="loading()" (click)="submitOrder()"></button>
     </div>
   </div>
 
   <div class="glass-panel checkout-card">
-    <span class="eyebrow">Address Quick Add</span>
+    <span class="eyebrow">{{ ui.t('checkout.quickAddress') }}</span>
     <div class="form-grid">
-      <input pInputText [(ngModel)]="newAddress.label" placeholder="Label" />
-      <input pInputText [(ngModel)]="newAddress.recipient_name" placeholder="Recipient name" />
-      <input pInputText [(ngModel)]="newAddress.phone" placeholder="Phone" />
-      <input pInputText [(ngModel)]="newAddress.city" placeholder="City" />
-      <input pInputText [(ngModel)]="newAddress.area" placeholder="Area" />
-      <input pInputText [(ngModel)]="newAddress.street" placeholder="Street" />
-      <button pButton type="button" label="Save Address" severity="secondary" (click)="createAddress()"></button>
+      <input pInputText [(ngModel)]="newAddress.label" [placeholder]="ui.t('checkout.address')" />
+      <input pInputText [(ngModel)]="newAddress.recipient_name" [placeholder]="ui.t('checkout.recipient')" />
+      <input pInputText [(ngModel)]="newAddress.phone" [placeholder]="ui.t('account.phone')" />
+      <input pInputText [(ngModel)]="newAddress.city" [placeholder]="ui.t('checkout.city')" />
+      <input pInputText [(ngModel)]="newAddress.area" [placeholder]="ui.t('checkout.area')" />
+      <input pInputText [(ngModel)]="newAddress.street" [placeholder]="ui.t('checkout.street')" />
+      <button pButton type="button" [label]="ui.t('checkout.saveAddress')" severity="secondary" (click)="createAddress()"></button>
     </div>
 
     @if (couponPreview()) {
@@ -70,9 +70,9 @@
     }
 
     <div class="checkout-summary">
-      <div><span>Cart subtotal</span><strong>{{ storefront.formatMoney(storefront.cart()?.subtotal) }}</strong></div>
-      <div><span>Wallet balance</span><strong>{{ storefront.formatMoney(walletBalance()) }}</strong></div>
-      <div><span>Delivery fee</span><strong>{{ storefront.formatMoney(selectedDeliveryFee()) }}</strong></div>
+      <div><span>{{ ui.t('checkout.subtotal') }}</span><strong>{{ storefront.formatMoney(storefront.cart()?.subtotal) }}</strong></div>
+      <div><span>{{ ui.t('checkout.walletBalance') }}</span><strong>{{ storefront.formatMoney(walletBalance()) }}</strong></div>
+      <div><span>{{ ui.t('checkout.deliveryFee') }}</span><strong>{{ storefront.formatMoney(selectedDeliveryFee()) }}</strong></div>
     </div>
   </div>
 </section>

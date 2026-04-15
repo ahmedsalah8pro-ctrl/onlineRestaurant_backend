@@ -84,12 +84,33 @@ export interface PublicSettings {
       tokens?: Record<string, string>;
     };
   };
+  typography?: {
+    public_ar_body_font?: string;
+    public_en_body_font?: string;
+    public_ar_heading_font?: string;
+    public_en_heading_font?: string;
+    admin_ar_body_font?: string;
+    admin_en_body_font?: string;
+    admin_ar_heading_font?: string;
+    admin_en_heading_font?: string;
+    font_library?: FontLibraryItem[];
+  };
   seo?: {
     default_meta_title?: TranslatedText;
     default_meta_description?: TranslatedText;
     default_og_image_path?: string | null;
     canonical_host?: string | null;
   };
+}
+
+export interface FontLibraryItem {
+  name?: string;
+  font_family: string;
+  file_path?: string | null;
+  font_type?: 'ar' | 'en' | 'both';
+  scope?: 'public' | 'admin' | 'shared';
+  font_weight?: string | null;
+  font_style?: string | null;
 }
 
 export interface BrandPalette {

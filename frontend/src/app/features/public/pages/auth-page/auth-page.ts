@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
 @Component({
@@ -13,6 +14,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 export class AuthPage {
   protected readonly auth = inject(AuthService);
   protected readonly runtime = inject(RuntimeConfigService);
+  protected readonly ui = inject(UiTextService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 

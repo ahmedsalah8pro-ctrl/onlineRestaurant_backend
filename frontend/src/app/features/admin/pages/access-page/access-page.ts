@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AdminRoleIndex } from '../../../../core/models/api.models';
 import { AdminApiService } from '../../../../core/services/admin-api';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
 @Component({
@@ -12,6 +13,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 })
 export class AccessPage implements OnInit {
   protected readonly adminApi = inject(AdminApiService);
+  protected readonly ui = inject(UiTextService);
   protected readonly index = signal<AdminRoleIndex | null>(null);
   protected readonly form = {
     id: null as number | null,

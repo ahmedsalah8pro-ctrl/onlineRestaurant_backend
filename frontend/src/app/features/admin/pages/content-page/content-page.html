@@ -2,33 +2,65 @@
   <div class="glass-panel content-card">
     <div class="panel-head">
       <div>
-        <span class="eyebrow">Dynamic Pages</span>
-        <h2>CMS-like API pages</h2>
+        <span class="eyebrow">{{ ui.t('admin.content.pages') }}</span>
+        <h2>{{ ui.t('admin.content.pages') }}</h2>
       </div>
-      <button pButton type="button" label="Create Page" (click)="editPage()"></button>
+      <button pButton type="button" [label]="ui.t('admin.catalog.create')" (click)="editPage()"></button>
     </div>
 
-    <div class="catalog-record" *ngFor="let page of pages()">
-      <pre>{{ page | json }}</pre>
-      <div class="settings-actions">
-        <button pButton type="button" label="Edit" severity="secondary" (click)="editPage(page)"></button>
-      </div>
-    </div>
+    <p-table [value]="pages()" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>#</th>
+          <th>العنوان</th>
+          <th>Slug</th>
+          <th>الحالة</th>
+          <th>إجراءات</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-page>
+        <tr>
+          <td>{{ page['id'] }}</td>
+          <td>{{ page['title'] }}</td>
+          <td>{{ page['slug'] }}</td>
+          <td><p-tag [value]="page['is_active'] ? 'مفعل' : 'غير مفعل'" [severity]="page['is_active'] ? 'success' : 'warn'"></p-tag></td>
+          <td>
+            <button pButton type="button" [label]="ui.t('admin.catalog.edit')" severity="secondary" (click)="editPage(page)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
   </div>
 
   <div class="glass-panel content-card">
-    <span class="eyebrow">Reviews Moderation</span>
-    <div class="catalog-record" *ngFor="let review of reviews()">
-      <pre>{{ review | json }}</pre>
-      <div class="settings-actions">
-        <button pButton type="button" label="Show" severity="secondary" (click)="toggleReview(review, true)"></button>
-        <button pButton type="button" label="Hide" severity="danger" (click)="toggleReview(review, false)"></button>
-      </div>
-    </div>
+    <span class="eyebrow">{{ ui.t('admin.content.reviews') }}</span>
+    <p-table [value]="reviews()" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>#</th>
+          <th>التقييم</th>
+          <th>التعليق</th>
+          <th>الظهور</th>
+          <th>إجراءات</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-review>
+        <tr>
+          <td>{{ review['id'] }}</td>
+          <td>{{ review['rating'] }}</td>
+          <td>{{ review['comment'] }}</td>
+          <td><p-tag [value]="review['is_visible'] ? 'ظاهر' : 'مخفي'" [severity]="review['is_visible'] ? 'success' : 'warn'"></p-tag></td>
+          <td class="settings-actions">
+            <button pButton type="button" label="إظهار" severity="secondary" (click)="toggleReview(review, true)"></button>
+            <button pButton type="button" label="إخفاء" severity="danger" (click)="toggleReview(review, false)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
   </div>
 
   <p-dialog
-    header="Dynamic Page Payload"
+    header="تحرير صفحة ديناميكية"
     [visible]="pageDialogVisible()"
     [modal]="true"
     [style]="{ width: 'min(980px, 95vw)' }"
@@ -36,7 +68,7 @@
   >
     <textarea pTextarea rows="24" [ngModel]="pagePayloadText()" (ngModelChange)="pagePayloadText.set($event)"></textarea>
     <div class="settings-actions">
-      <button pButton type="button" label="Save Page" (click)="savePage()"></button>
+      <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="savePage()"></button>
     </div>
   </p-dialog>
 </section>

@@ -3,6 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { OrderDetail, OrderSummary } from '../../../../core/models/api.models';
 import { AdminApiService } from '../../../../core/services/admin-api';
 import { StorefrontService } from '../../../../core/services/storefront';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
 @Component({
@@ -14,6 +15,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 export class OrdersPage implements OnInit {
   protected readonly adminApi = inject(AdminApiService);
   protected readonly storefront = inject(StorefrontService);
+  protected readonly ui = inject(UiTextService);
 
   protected readonly orders = signal<OrderSummary[]>([]);
   protected readonly selectedOrder = signal<OrderDetail | null>(null);

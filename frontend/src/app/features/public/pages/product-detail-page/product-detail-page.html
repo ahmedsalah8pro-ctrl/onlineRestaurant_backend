@@ -11,38 +11,31 @@
           [alt]="current.name"
         />
         <div class="detail-gallery">
-          <a
-            class="detail-gallery__item"
-            *ngFor="let media of current.media"
-            [href]="media.url || media.external_url"
-            target="_blank"
-          >
+          <a class="detail-gallery__item" *ngFor="let media of current.media" [href]="media.url || media.external_url" target="_blank">
             {{ media.media_type }}
           </a>
         </div>
       </div>
 
       <div class="glass-panel detail-panel">
-        <span class="eyebrow">Product API</span>
+        <span class="eyebrow">{{ ui.t('product.eyebrow') }}</span>
         <h1 class="section-title">{{ current.name }}</h1>
-        <p class="section-copy">
-          {{ current.description || 'Detailed product response with media, sizes, and add-on groups.' }}
-        </p>
+        <p class="section-copy">{{ current.description || ui.t('product.copy') }}</p>
 
         <div class="detail-meta">
           <span>{{ storefront.formatMoney(current.base_price) }}</span>
           <span>{{ averageRating() | number: '1.1-1' }} ★</span>
-          <span>{{ current.tags.length }} tags</span>
+          <span>{{ current.tags.length }}</span>
         </div>
 
         <div class="surface-grid" *ngIf="current.sizes.length > 0">
-          <h3>Sizes</h3>
+          <h3>{{ ui.t('product.sizes') }}</h3>
           <div class="chip-row">
             <button
               pButton
               type="button"
               *ngFor="let size of current.sizes"
-              [label]="size.name + ' · ' + storefront.formatMoney(size.price)"
+              [label]="size.name + ' • ' + storefront.formatMoney(size.price)"
               [severity]="selectedSizeId() === size.id ? undefined : 'secondary'"
               (click)="selectedSizeId.set(size.id)"
             ></button>
@@ -72,13 +65,13 @@
             (ngModelChange)="selectedBranchId.set($event)"
             optionLabel="name"
             optionValue="id"
-            placeholder="Branch"
+            [placeholder]="ui.t('product.branch')"
           />
 
           <button
             pButton
             type="button"
-            [label]="'Add To Cart · ' + storefront.formatMoney(totalPrice())"
+            [label]="ui.t('product.addToCart') + ' • ' + storefront.formatMoney(totalPrice())"
             [loading]="addToCartLoading()"
             (click)="addToCart()"
           ></button>
@@ -89,35 +82,29 @@
     <div class="glass-panel detail-reviews">
       <div class="panel-head">
         <div>
-          <span class="eyebrow">Reviews</span>
-          <h2 class="section-title">Verified Purchase Feedback</h2>
+          <span class="eyebrow">{{ ui.t('product.reviews') }}</span>
+          <h2 class="section-title">{{ ui.t('product.reviewTitle') }}</h2>
         </div>
       </div>
 
       <div class="review-form" *ngIf="auth.isAuthenticated()">
-        <p-select [options]="[1, 2, 3, 4, 5]" [(ngModel)]="reviewModel.rating" placeholder="Rating"></p-select>
-        <textarea pTextarea rows="4" [(ngModel)]="reviewModel.comment" placeholder="Write a review"></textarea>
+        <p-select [options]="[1, 2, 3, 4, 5]" [(ngModel)]="reviewModel.rating" [placeholder]="ui.t('product.rating')"></p-select>
+        <textarea pTextarea rows="4" [(ngModel)]="reviewModel.comment" [placeholder]="ui.t('product.writeReview')"></textarea>
         <div class="review-form__actions">
           <label class="review-form__toggle">
             <p-toggleswitch [(ngModel)]="reviewModel.is_anonymous"></p-toggleswitch>
-            <span>Anonymous</span>
+            <span>{{ ui.t('product.anonymous') }}</span>
           </label>
-          <button
-            pButton
-            type="button"
-            label="Submit Review"
-            [loading]="reviewLoading()"
-            (click)="submitReview()"
-          ></button>
+          <button pButton type="button" [label]="ui.t('product.submitReview')" [loading]="reviewLoading()" (click)="submitReview()"></button>
         </div>
       </div>
 
       <article class="review-card" *ngFor="let review of reviews()">
         <div class="review-card__head">
-          <strong>{{ review.is_anonymous ? 'Anonymous' : review.user?.name || 'Customer' }}</strong>
+          <strong>{{ review.is_anonymous ? ui.t('product.anonymous') : review.user?.name || ui.t('product.customer') }}</strong>
           <span>{{ review.rating }} ★</span>
         </div>
-        <p>{{ review.comment || 'No comment provided.' }}</p>
+        <p>{{ review.comment || ui.t('product.noComment') }}</p>
       </article>
     </div>
   </section>

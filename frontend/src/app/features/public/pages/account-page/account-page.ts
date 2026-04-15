@@ -1,8 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 import { Address, NotificationItem, UserProfile } from '../../../../core/models/api.models';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
+import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
 @Component({
@@ -14,6 +16,9 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 export class AccountPage implements OnInit {
   protected readonly publicApi = inject(PublicApiService);
   protected readonly runtime = inject(RuntimeConfigService);
+  protected readonly ui = inject(UiTextService);
+  private readonly confirmation = inject(ConfirmationService);
+  private readonly message = inject(MessageService);
 
   protected readonly profile = signal<UserProfile | null>(null);
   protected readonly addresses = signal<Address[]>([]);
@@ -64,6 +69,7 @@ export class AccountPage implements OnInit {
     try {
       await firstValueFrom(this.publicApi.updateProfile(this.profileDraft));
       await this.loadPage();
+      this.message.add({ severity: 'success', summary: this.ui.t('account.profile'), detail: this.ui.t('account.profileSaved') });
     } finally {
       this.loading.set(false);
     }
@@ -75,6 +81,7 @@ export class AccountPage implements OnInit {
     try {
       await firstValueFrom(this.publicApi.updatePrivacy(this.profileDraft));
       await this.loadPage();
+      this.message.add({ severity: 'success', summary: this.ui.t('account.privacy'), detail: this.ui.t('account.privacySaved') });
     } finally {
       this.loading.set(false);
     }
@@ -85,13 +92,27 @@ export class AccountPage implements OnInit {
     this.addresses.set(await firstValueFrom(this.publicApi.getAddresses()));
   }
 
+  protected confirmDeleteAddress(addressId: number): void {
+    this.confirmation.confirm({
+      header: this.ui.t('account.deleteAddressTitle'),
+      message: this.ui.t('account.deleteAddressMessage'),
+      acceptLabel: this.ui.t('account.delete'),
+      rejectLabel: this.ui.t('account.setDefault'),
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text',
+      accept: () => void this.deleteAddress(addressId),
+    });
+  }
+
   protected async deleteAddress(addressId: number): Promise<void> {
     await firstValueFrom(this.publicApi.deleteAddress(addressId));
     this.addresses.set(await firstValueFrom(this.publicApi.getAddresses()));
+    this.message.add({ severity: 'success', summary: this.ui.t('account.addresses'), detail: this.ui.t('account.addressDeleted') });
   }
 
   protected async markAllRead(): Promise<void> {
     await firstValueFrom(this.publicApi.markAllNotificationsRead());
     this.notifications.set([]);
+    this.message.add({ severity: 'success', summary: this.ui.t('account.notifications'), detail: this.ui.t('account.notificationsRead') });
   }
 }

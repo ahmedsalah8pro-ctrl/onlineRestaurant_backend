@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject, signal } from '@angular/core';
-import { PublicSettings, TranslatedText } from '../models/api.models';
+import { FontLibraryItem, PublicSettings, TranslatedText } from '../models/api.models';
 import { RuntimeConfigService } from './runtime-config';
 
 @Injectable({
@@ -10,6 +10,7 @@ export class ThemeService {
   private readonly document = inject(DOCUMENT);
   private readonly runtime = inject(RuntimeConfigService);
   private readonly localeKey = 'restaurant-demo.locale';
+  private readonly fontStyleElementId = 'restaurant-demo-font-library';
 
   readonly locale = signal<'ar' | 'en'>(this.readLocale());
 
@@ -45,6 +46,7 @@ export class ThemeService {
     this.setCssVariable(root, '--brand-accent', palette.accent ?? '#F59E0B');
     this.setCssVariable(root, '--brand-surface', palette.surface ?? tokens['surface'] ?? '#FFF7ED');
     this.setCssVariable(root, '--brand-radius', tokens['radius'] ?? '16px');
+    this.applyTypography(settings.typography?.font_library ?? [], settings.typography ?? {});
 
     const defaultLocale = (settings.localization?.default_locale as 'ar' | 'en' | undefined) ?? this.locale();
     this.setLocale(defaultLocale);
@@ -76,6 +78,50 @@ export class ThemeService {
     this.document.documentElement.lang = locale;
     this.document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
     this.document.body.setAttribute('data-locale', locale);
+  }
+
+  private applyTypography(fontLibrary: FontLibraryItem[], typography: Record<string, unknown>): void {
+    const root = this.document.documentElement;
+    const isArabic = this.locale() === 'ar';
+
+    const publicBody = isArabic
+      ? String(typography['public_ar_body_font'] ?? 'Cairo')
+      : String(typography['public_en_body_font'] ?? 'Inter');
+    const publicHeading = isArabic
+      ? String(typography['public_ar_heading_font'] ?? publicBody)
+      : String(typography['public_en_heading_font'] ?? publicBody);
+    const adminBody = isArabic
+      ? String(typography['admin_ar_body_font'] ?? publicBody)
+      : String(typography['admin_en_body_font'] ?? publicBody);
+    const adminHeading = isArabic
+      ? String(typography['admin_ar_heading_font'] ?? adminBody)
+      : String(typography['admin_en_heading_font'] ?? adminBody);
+
+    this.setCssVariable(root, '--public-body-font', `'${publicBody}', sans-serif`);
+    this.setCssVariable(root, '--public-heading-font', `'${publicHeading}', sans-serif`);
+    this.setCssVariable(root, '--admin-body-font', `'${adminBody}', sans-serif`);
+    this.setCssVariable(root, '--admin-heading-font', `'${adminHeading}', sans-serif`);
+
+    const rules = fontLibrary
+      .filter((font) => font.file_path && font.font_family)
+      .map((font) => {
+        const url = this.runtime.resolveAsset(font.file_path ?? '');
+        const weight = font.font_weight || '400';
+        const style = font.font_style || 'normal';
+
+        return `@font-face{font-family:'${font.font_family}';src:url('${url}') format('woff2');font-display:swap;font-style:${style};font-weight:${weight};}`;
+      })
+      .join('');
+
+    let styleNode = this.document.getElementById(this.fontStyleElementId) as HTMLStyleElement | null;
+
+    if (!styleNode) {
+      styleNode = this.document.createElement('style');
+      styleNode.id = this.fontStyleElementId;
+      this.document.head.appendChild(styleNode);
+    }
+
+    styleNode.textContent = rules;
   }
 
   private setCssVariable(target: HTMLElement, variable: string, value: string): void {
