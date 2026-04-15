@@ -1,6 +1,9 @@
+/* =============================================
+   Admin Shell Layout
+   ============================================= */
 .admin-layout {
   min-height: 100dvh;
-  padding-inline-end: 320px;
+  padding-inline-end: 280px;
   overflow-x: clip;
   background:
     radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 24%),
@@ -12,6 +15,9 @@
   padding-inline-end: 0;
 }
 
+/* =============================================
+   Sidebar — Desktop
+   ============================================= */
 .admin-sidebar {
   height: 100%;
 }
@@ -29,7 +35,7 @@
   position: fixed;
   inset-block: 0;
   inset-inline-end: 0;
-  width: 320px;
+  width: 280px;
   border-inline-start: 1px solid rgba(148, 163, 184, 0.15);
   background: rgba(8, 17, 31, 0.92);
   backdrop-filter: blur(18px);
@@ -43,60 +49,152 @@
   pointer-events: none;
 }
 
+/* =============================================
+   Sidebar Toggle (bottom of sidebar)
+   ============================================= */
+.sidebar-toggle {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 12px;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 180ms ease, color 180ms ease;
+  margin-top: auto;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(30, 41, 59, 0.7);
+  color: #94a3b8;
+}
+
+.sidebar-toggle .pi {
+  font-size: 0.9rem;
+}
+
+/* =============================================
+   Brand section
+   ============================================= */
 .admin-brand h2,
 .admin-topbar h1 {
   margin: 0.35rem 0 0;
   font-family: var(--admin-heading-font);
+  font-size: 1.1rem;
+  color: #f8fafc;
 }
 
 .admin-brand p {
   margin: 0.4rem 0 0;
   color: #94a3b8;
+  font-size: 0.88rem;
 }
 
+/* =============================================
+   Nav links
+   ============================================= */
 .admin-nav {
   display: grid;
   gap: 1rem;
   overflow: auto;
+  flex: 1;
 }
 
 .admin-nav-group {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.4rem;
 }
 
 .admin-nav a {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0.85rem 1rem;
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  background: rgba(15, 23, 42, 0.34);
-  color: #cbd5e1;
-  font-weight: 700;
-  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(15, 23, 42, 0.3);
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: all 180ms ease;
+  text-decoration: none;
 }
 
 .admin-nav a:hover {
-  transform: translateX(-3px);
-  border-color: rgba(56, 189, 248, 0.28);
+  background: rgba(30, 41, 59, 0.6);
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.22);
 }
 
 .admin-nav a.is-active {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(14, 165, 233, 0.2));
-  color: white;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(14, 165, 233, 0.18));
+  color: #6ee7b7;
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
+/* =============================================
+   Sidebar footer
+   ============================================= */
+.admin-sidebar__footer {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.admin-sidebar__footer a {
+  display: block;
+  text-align: center;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(15, 23, 42, 0.35);
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 180ms ease;
+}
+
+.admin-sidebar__footer a:hover {
+  background: rgba(30, 41, 59, 0.5);
+  color: #e2e8f0;
+}
+
+.admin-sidebar__footer .p-button {
+  width: 100%;
+  justify-content: center;
+}
+
+.admin-domains {
+  display: grid;
+  gap: 0.3rem;
+  color: #475569;
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+/* =============================================
+   Main content area
+   ============================================= */
 .admin-main {
   min-height: 100dvh;
-  padding: 1rem 1rem 1.5rem;
-  display: grid;
+  padding: 1rem 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   min-width: 0;
   transition: padding-inline-end 220ms ease;
 }
 
+/* =============================================
+   Topbar
+   ============================================= */
 .admin-topbar {
   position: sticky;
   top: 1rem;
@@ -105,49 +203,136 @@
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
+  background: rgba(8, 17, 31, 0.88) !important;
+  border-color: rgba(148, 163, 184, 0.15) !important;
 }
 
 .admin-topbar__heading {
   display: flex;
-  gap: 1rem;
+  gap: 0.85rem;
   align-items: center;
   min-width: 0;
 }
 
-.admin-topbar__heading > div {
+.admin-topbar__title {
   min-width: 0;
 }
 
-.admin-topbar__menu.p-button {
-  display: inline-flex !important;
-  width: 3rem;
-  height: 3rem;
+.admin-topbar__title h1 {
+  font-size: 1.05rem;
+  margin: 0.2rem 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #f1f5f9;
 }
 
+.admin-topbar__title p {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+/* Hamburger menu button */
+.admin-topbar__menu-btn {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.55);
+  color: #94a3b8;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 180ms ease;
+}
+
+.admin-topbar__menu-btn:hover {
+  background: rgba(30, 41, 59, 0.8);
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.admin-topbar__menu-btn .pi {
+  font-size: 1rem;
+}
+
+/* Topbar action buttons */
 .admin-topbar__actions {
   display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
+  gap: 0.5rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
+.admin-topbar__action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.5);
+  color: #94a3b8;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 180ms ease;
+  white-space: nowrap;
+}
+
+.admin-topbar__action-btn:hover {
+  background: rgba(30, 41, 59, 0.8);
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.admin-topbar__action-btn--danger {
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.admin-topbar__action-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.admin-topbar__action-btn .pi {
+  font-size: 0.85rem;
+}
+
+/* User pill */
 .admin-user-pill {
   display: inline-flex;
   align-items: center;
-  min-height: 2.7rem;
-  padding: 0 1rem;
+  gap: 0.45rem;
+  min-height: 2.4rem;
+  padding: 0 0.9rem;
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.14);
   background: rgba(15, 23, 42, 0.46);
-  color: #e2e8f0;
-  font-weight: 700;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.88rem;
 }
 
+.admin-user-pill .pi {
+  font-size: 0.85rem;
+  color: #6ee7b7;
+}
+
+/* =============================================
+   Content area
+   ============================================= */
 .admin-content {
+  flex: 1;
   display: grid;
   gap: 1rem;
-  min-height: calc(100dvh - 130px);
   min-width: 0;
   overflow-x: clip;
 }
@@ -156,50 +341,56 @@
   min-width: 0;
 }
 
-.admin-sidebar__footer {
+/* =============================================
+   Admin footer — sticky centered
+   ============================================= */
+.admin-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
   margin-top: auto;
-  display: grid;
-  gap: 0.75rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(148, 163, 184, 0.14);
 }
 
-.admin-sidebar__footer .p-button,
-.admin-sidebar__footer a {
-  width: 100%;
-}
-
-.admin-domains {
-  display: grid;
-  gap: 0.35rem;
-  color: #94a3b8;
+.admin-footer__center {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   font-size: 0.82rem;
-  overflow-wrap: anywhere;
+  color: #475569;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
 }
 
+.admin-footer__center strong {
+  color: #6ee7b7;
+  font-weight: 700;
+}
+
+.admin-footer__sep {
+  color: #334155;
+}
+
+.admin-footer__url {
+  color: #334155;
+  font-family: monospace;
+  font-size: 0.78rem;
+}
+
+/* =============================================
+   Drawer (mobile menu)
+   ============================================= */
 :host ::ng-deep .admin-drawer {
-  width: min(88vw, 320px);
+  width: min(88vw, 300px);
   background: #08111f;
   color: #f8fafc;
 }
 
-.admin-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  padding: 1rem 1.25rem;
-}
-
-.admin-footer__meta {
-  display: grid;
-  gap: 0.25rem;
-  font-size: 0.82rem;
-  color: #94a3b8;
-  text-align: end;
-  overflow-wrap: anywhere;
-}
-
+/* =============================================
+   Responsive
+   ============================================= */
 @media (max-width: 1100px) {
   .admin-layout {
     padding-inline-end: 0;
@@ -209,26 +400,29 @@
     display: none;
   }
 
-  .admin-topbar__menu {
-    display: inline-flex;
-  }
-
   .admin-topbar {
-    flex-direction: column;
-    align-items: stretch;
+    flex-wrap: wrap;
+    align-items: flex-start;
   }
 
   .admin-topbar__actions {
     width: 100%;
-    justify-content: stretch;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
   }
 
-  .admin-topbar__actions > * {
-    flex: 1 1 180px;
+  .admin-topbar__action-btn,
+  .admin-user-pill {
+    flex: 1 1 auto;
+    justify-content: center;
   }
+}
 
-  .admin-footer {
-    flex-direction: column;
-    align-items: stretch;
+@media (max-width: 600px) {
+  .admin-topbar__action-btn span:not(.pi) {
+    display: none;
+  }
+  .admin-topbar__action-btn {
+    padding: 0.55rem 0.75rem;
   }
 }

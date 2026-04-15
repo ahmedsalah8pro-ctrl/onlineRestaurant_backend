@@ -48,9 +48,32 @@
 
 .menu-card__quick-add {
   position: absolute;
-  top: 1rem;
-  inset-inline-start: 1rem;
+  top: 0.75rem;
+  inset-inline-start: 0.75rem;
   z-index: 2;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--brand-primary), #8b1a1a);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(178, 34, 34, 0.35);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  padding: 0;
+}
+
+.menu-card__quick-add .pi {
+  font-size: 0.9rem;
+  font-family: 'primeicons';
+}
+
+.menu-card__quick-add:hover {
+  transform: scale(1.12);
+  box-shadow: 0 6px 18px rgba(178, 34, 34, 0.45);
 }
 
 .menu-card__body {
@@ -123,8 +146,9 @@
 
 .preview-modal__actions .p-button,
 .preview-modal__actions a {
-  flex: 1 1 220px;
+  flex: 1 1 180px;
   justify-content: center;
+  text-align: center;
 }
 
 .loading-state {

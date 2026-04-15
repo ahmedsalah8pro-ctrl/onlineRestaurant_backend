@@ -1,4 +1,5 @@
 <section class="surface-grid">
+  <!-- Tab bar -->
   <div class="catalog-tabs glass-panel">
     <button
       pButton
@@ -10,6 +11,7 @@
     ></button>
   </div>
 
+  <!-- Records table -->
   <div class="glass-panel catalog-card">
     <div class="panel-head">
       <div>
@@ -46,20 +48,137 @@
     </p-table>
   </div>
 
+  <!-- Edit/Create Dialog — structured visual form -->
   <p-dialog
-    [header]="ui.t('admin.catalog.advanced')"
+    [header]="dialogTitle()"
     [visible]="dialogVisible()"
     [modal]="true"
     appendTo="body"
     [draggable]="false"
     [dismissableMask]="true"
     styleClass="admin-dialog"
-    [style]="{ width: 'min(980px, 95vw)' }"
+    [style]="{ width: 'min(860px, 95vw)' }"
     (visibleChange)="dialogVisible.set($event)"
   >
-    <textarea pTextarea rows="24" [ngModel]="payloadText()" (ngModelChange)="payloadText.set($event)"></textarea>
-    <div class="settings-actions">
+    <div class="catalog-form" *ngIf="dialogVisible()">
+      <!-- Common name fields -->
+      <div class="form-grid two-columns" *ngIf="hasField('name')">
+        <label class="field-stack">
+          <span>الاسم (عربي)</span>
+          <input pInputText [ngModel]="getNestedValue('name', 'ar')" (ngModelChange)="setNestedValue('name', 'ar', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>Name (English)</span>
+          <input pInputText [ngModel]="getNestedValue('name', 'en')" (ngModelChange)="setNestedValue('name', 'en', $event)" />
+        </label>
+      </div>
+
+      <!-- Product-specific: title (for pages) -->
+      <div class="form-grid two-columns" *ngIf="hasField('title')">
+        <label class="field-stack">
+          <span>العنوان (عربي)</span>
+          <input pInputText [ngModel]="getNestedValue('title', 'ar')" (ngModelChange)="setNestedValue('title', 'ar', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>Title (English)</span>
+          <input pInputText [ngModel]="getNestedValue('title', 'en')" (ngModelChange)="setNestedValue('title', 'en', $event)" />
+        </label>
+      </div>
+
+      <!-- Slug -->
+      <label class="field-stack" *ngIf="hasField('slug')">
+        <span>Slug</span>
+        <input pInputText [ngModel]="getFieldValue('slug')" (ngModelChange)="setFieldValue('slug', $event)" placeholder="my-item-slug" />
+      </label>
+
+      <!-- Description -->
+      <div class="form-grid two-columns" *ngIf="hasField('description')">
+        <label class="field-stack">
+          <span>الوصف (عربي)</span>
+          <textarea pTextarea rows="3" [ngModel]="getNestedValue('description', 'ar')" (ngModelChange)="setNestedValue('description', 'ar', $event)"></textarea>
+        </label>
+        <label class="field-stack">
+          <span>Description (English)</span>
+          <textarea pTextarea rows="3" [ngModel]="getNestedValue('description', 'en')" (ngModelChange)="setNestedValue('description', 'en', $event)"></textarea>
+        </label>
+      </div>
+
+      <!-- Short description -->
+      <div class="form-grid two-columns" *ngIf="hasField('short_description')">
+        <label class="field-stack">
+          <span>وصف مختصر (عربي)</span>
+          <input pInputText [ngModel]="getNestedValue('short_description', 'ar')" (ngModelChange)="setNestedValue('short_description', 'ar', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>Short Description (English)</span>
+          <input pInputText [ngModel]="getNestedValue('short_description', 'en')" (ngModelChange)="setNestedValue('short_description', 'en', $event)" />
+        </label>
+      </div>
+
+      <!-- Price -->
+      <label class="field-stack" *ngIf="hasField('base_price')">
+        <span>السعر الأساسي</span>
+        <p-inputnumber [ngModel]="getFieldValue('base_price')" (ngModelChange)="setFieldValue('base_price', $event)" mode="decimal" [min]="0"></p-inputnumber>
+      </label>
+
+      <!-- Code -->
+      <label class="field-stack" *ngIf="hasField('code')">
+        <span>الكود</span>
+        <input pInputText [ngModel]="getFieldValue('code')" (ngModelChange)="setFieldValue('code', $event)" />
+      </label>
+
+      <!-- Amount (gift cards) -->
+      <label class="field-stack" *ngIf="hasField('amount')">
+        <span>المبلغ</span>
+        <p-inputnumber [ngModel]="getFieldValue('amount')" (ngModelChange)="setFieldValue('amount', $event)" mode="decimal" [min]="0"></p-inputnumber>
+      </label>
+
+      <!-- Value (coupons) -->
+      <label class="field-stack" *ngIf="hasField('value')">
+        <span>القيمة</span>
+        <p-inputnumber [ngModel]="getFieldValue('value')" (ngModelChange)="setFieldValue('value', $event)" mode="decimal"></p-inputnumber>
+      </label>
+
+      <!-- Delivery fee -->
+      <label class="field-stack" *ngIf="hasField('delivery_fee')">
+        <span>رسوم التوصيل</span>
+        <p-inputnumber [ngModel]="getFieldValue('delivery_fee')" (ngModelChange)="setFieldValue('delivery_fee', $event)" mode="decimal" [min]="0"></p-inputnumber>
+      </label>
+
+      <!-- Phone / email (branches) -->
+      <div class="form-grid two-columns" *ngIf="hasField('phone')">
+        <label class="field-stack">
+          <span>الهاتف</span>
+          <input pInputText [ngModel]="getFieldValue('phone')" (ngModelChange)="setFieldValue('phone', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>البريد الإلكتروني</span>
+          <input pInputText [ngModel]="getFieldValue('email')" (ngModelChange)="setFieldValue('email', $event)" type="email" />
+        </label>
+      </div>
+
+      <!-- Address -->
+      <label class="field-stack" *ngIf="hasField('address')">
+        <span>العنوان</span>
+        <input pInputText [ngModel]="getFieldValue('address')" (ngModelChange)="setFieldValue('address', $event)" />
+      </label>
+
+      <!-- Active toggle -->
+      <div class="toggle-row" *ngIf="hasField('is_active')">
+        <span>مفعّل</span>
+        <p-toggleswitch [ngModel]="getFieldValue('is_active')" (ngModelChange)="setFieldValue('is_active', $event)"></p-toggleswitch>
+      </div>
+
+      <!-- Advanced JSON fallback (collapsible) -->
+      <details class="json-fallback">
+        <summary>تحرير JSON متقدم</summary>
+        <textarea pTextarea rows="10" [ngModel]="payloadText()" (ngModelChange)="payloadText.set($event)" class="json-textarea"></textarea>
+      </details>
+    </div>
+
+    <div class="catalog-dialog-footer">
       <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="save()"></button>
+      <button pButton type="button" [label]="'إلغاء'" severity="secondary" (click)="dialogVisible.set(false)"></button>
     </div>
   </p-dialog>
 </section>

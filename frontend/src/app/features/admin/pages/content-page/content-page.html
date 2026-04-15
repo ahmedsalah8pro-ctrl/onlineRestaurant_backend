@@ -1,4 +1,5 @@
 <section class="surface-grid two-columns">
+  <!-- Pages table -->
   <div class="glass-panel content-card">
     <div class="panel-head">
       <div>
@@ -21,8 +22,8 @@
       <ng-template pTemplate="body" let-page>
         <tr>
           <td>{{ page['id'] }}</td>
-          <td>{{ page['title'] }}</td>
-          <td>{{ page['slug'] }}</td>
+          <td>{{ resolveText(page['title']) }}</td>
+          <td><code class="slug-code">{{ page['slug'] }}</code></td>
           <td><p-tag [value]="page['is_active'] ? 'مفعل' : 'غير مفعل'" [severity]="page['is_active'] ? 'success' : 'warn'"></p-tag></td>
           <td>
             <button pButton type="button" [label]="ui.t('admin.catalog.edit')" severity="secondary" (click)="editPage(page)"></button>
@@ -32,8 +33,15 @@
     </p-table>
   </div>
 
+  <!-- Reviews table -->
   <div class="glass-panel content-card">
-    <span class="eyebrow">{{ ui.t('admin.content.reviews') }}</span>
+    <div class="panel-head">
+      <div>
+        <span class="eyebrow">{{ ui.t('admin.content.reviews') }}</span>
+        <h2>{{ ui.t('admin.content.reviews') }}</h2>
+      </div>
+    </div>
+
     <p-table [value]="reviews()" [paginator]="true" [rows]="8" responsiveLayout="scroll">
       <ng-template pTemplate="header">
         <tr>
@@ -47,18 +55,25 @@
       <ng-template pTemplate="body" let-review>
         <tr>
           <td>{{ review['id'] }}</td>
-          <td>{{ review['rating'] }}</td>
-          <td>{{ review['comment'] }}</td>
-          <td><p-tag [value]="review['is_visible'] ? 'ظاهر' : 'مخفي'" [severity]="review['is_visible'] ? 'success' : 'warn'"></p-tag></td>
-          <td class="settings-actions">
-            <button pButton type="button" label="إظهار" severity="secondary" (click)="toggleReview(review, true)"></button>
-            <button pButton type="button" label="إخفاء" severity="danger" (click)="toggleReview(review, false)"></button>
+          <td>
+            <div class="star-display">
+              <span class="star-filled" *ngFor="let s of starsArray(review['rating'])">★</span>
+              <span class="star-empty" *ngFor="let s of emptyStarsArray(review['rating'])">☆</span>
+              <span class="star-score">{{ review['rating'] }}</span>
+            </div>
+          </td>
+          <td class="review-comment">{{ review['comment'] }}</td>
+          <td><p-tag [value]="review['is_visible'] ? 'ظاهر' : 'مخفي'" [severity]="review['is_visible'] ? 'success' : 'secondary'"></p-tag></td>
+          <td class="review-actions">
+            <button pButton type="button" label="إظهار" severity="secondary" [disabled]="review['is_visible']" (click)="toggleReview(review, true)"></button>
+            <button pButton type="button" label="إخفاء" severity="danger" [disabled]="!review['is_visible']" (click)="toggleReview(review, false)"></button>
           </td>
         </tr>
       </ng-template>
     </p-table>
   </div>
 
+  <!-- Page Edit Dialog — structured form -->
   <p-dialog
     header="تحرير صفحة ديناميكية"
     [visible]="pageDialogVisible()"
@@ -67,12 +82,56 @@
     [draggable]="false"
     [dismissableMask]="true"
     styleClass="admin-dialog"
-    [style]="{ width: 'min(980px, 95vw)' }"
+    [style]="{ width: 'min(860px, 95vw)' }"
     (visibleChange)="pageDialogVisible.set($event)"
   >
-    <textarea pTextarea rows="24" [ngModel]="pagePayloadText()" (ngModelChange)="pagePayloadText.set($event)"></textarea>
-    <div class="settings-actions">
+    <div class="page-form" *ngIf="pageDialogVisible()">
+      <!-- Slug -->
+      <label class="field-stack">
+        <span>Slug</span>
+        <input pInputText [ngModel]="getPageField('slug')" (ngModelChange)="setPageField('slug', $event)" placeholder="page-slug" />
+      </label>
+
+      <!-- Title -->
+      <div class="form-grid two-columns">
+        <label class="field-stack">
+          <span>العنوان (عربي)</span>
+          <input pInputText [ngModel]="getPageNested('title', 'ar')" (ngModelChange)="setPageNested('title', 'ar', $event)" />
+        </label>
+        <label class="field-stack">
+          <span>Title (English)</span>
+          <input pInputText [ngModel]="getPageNested('title', 'en')" (ngModelChange)="setPageNested('title', 'en', $event)" />
+        </label>
+      </div>
+
+      <!-- Content -->
+      <div class="form-grid two-columns">
+        <label class="field-stack">
+          <span>المحتوى (عربي)</span>
+          <textarea pTextarea rows="8" [ngModel]="getPageNested('content', 'ar')" (ngModelChange)="setPageNested('content', 'ar', $event)"></textarea>
+        </label>
+        <label class="field-stack">
+          <span>Content (English)</span>
+          <textarea pTextarea rows="8" [ngModel]="getPageNested('content', 'en')" (ngModelChange)="setPageNested('content', 'en', $event)"></textarea>
+        </label>
+      </div>
+
+      <!-- Active toggle -->
+      <div class="toggle-row">
+        <span>مفعّل</span>
+        <p-toggleswitch [ngModel]="getPageField('is_active')" (ngModelChange)="setPageField('is_active', $event)"></p-toggleswitch>
+      </div>
+
+      <!-- JSON fallback -->
+      <details class="json-fallback">
+        <summary>تحرير JSON متقدم</summary>
+        <textarea pTextarea rows="10" [ngModel]="pagePayloadText()" (ngModelChange)="pagePayloadText.set($event)" class="json-textarea"></textarea>
+      </details>
+    </div>
+
+    <div class="content-dialog-footer">
       <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="savePage()"></button>
+      <button pButton type="button" label="إلغاء" severity="secondary" (click)="pageDialogVisible.set(false)"></button>
     </div>
   </p-dialog>
 </section>

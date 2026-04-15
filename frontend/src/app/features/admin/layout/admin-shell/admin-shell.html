@@ -2,6 +2,7 @@
   <p-toast position="top-center"></p-toast>
   <p-confirmdialog></p-confirmdialog>
 
+  <!-- Desktop sidebar -->
   <aside *ngIf="!isMobile()" class="admin-sidebar admin-sidebar--desktop">
     <div class="admin-sidebar__inner">
       <div class="admin-brand">
@@ -31,9 +32,15 @@
         </div>
         <button pButton type="button" [label]="ui.t('admin.logout')" severity="secondary" (click)="logout()"></button>
       </div>
+
+      <!-- Sidebar collapse toggle at the bottom -->
+      <button class="sidebar-toggle" type="button" (click)="toggleMenu()" [title]="sidebarCollapsed ? 'توسيع' : 'طي'">
+        <i class="pi pi-chevron-right"></i>
+      </button>
     </div>
   </aside>
 
+  <!-- Mobile drawer -->
   <p-drawer *ngIf="isMobile()" [(visible)]="mobileMenuOpen" position="right" [modal]="true" styleClass="admin-drawer">
     <div class="admin-sidebar admin-sidebar--drawer">
       <div class="admin-sidebar__inner">
@@ -68,8 +75,16 @@
   <div class="admin-main">
     <header class="admin-topbar glass-panel">
       <div class="admin-topbar__heading">
-        <button pButton type="button" icon="pi pi-bars" severity="secondary" styleClass="admin-topbar__menu" (click)="toggleMenu()"></button>
-        <div>
+        <!-- Hamburger — shown always on mobile, toggles sidebar on desktop -->
+        <button
+          type="button"
+          class="admin-topbar__menu-btn"
+          (click)="toggleMenu()"
+          [attr.aria-label]="'Toggle menu'"
+        >
+          <i class="pi pi-bars"></i>
+        </button>
+        <div class="admin-topbar__title">
           <span class="eyebrow">{{ currentSectionLabel() }}</span>
           <h1>{{ storefront.siteName() }} {{ ui.t('admin.title') }}</h1>
           <p class="section-copy">{{ ui.t('admin.subtitle') }}</p>
@@ -77,9 +92,22 @@
       </div>
 
       <div class="admin-topbar__actions">
-        <span class="admin-user-pill">{{ adminName() }}</span>
-        <a pButton severity="secondary" routerLink="/">{{ ui.t('nav.storefront') }}</a>
-        <button pButton type="button" [label]="ui.t('admin.logout')" severity="secondary" (click)="logout()"></button>
+        <span class="admin-user-pill">
+          <i class="pi pi-user"></i>
+          {{ adminName() }}
+        </span>
+        <a class="admin-topbar__action-btn" routerLink="/">
+          <i class="pi pi-home"></i>
+          {{ ui.t('nav.storefront') }}
+        </a>
+        <button
+          type="button"
+          class="admin-topbar__action-btn admin-topbar__action-btn--danger"
+          (click)="logout()"
+        >
+          <i class="pi pi-sign-out"></i>
+          {{ ui.t('admin.logout') }}
+        </button>
       </div>
     </header>
 
@@ -87,14 +115,14 @@
       <router-outlet />
     </main>
 
-    <footer class="admin-footer glass-panel">
-      <div>
+    <!-- Sticky centered footer -->
+    <footer class="admin-footer">
+      <div class="admin-footer__center">
         <strong>{{ storefront.siteName() }}</strong>
+        <span class="admin-footer__sep">·</span>
         <span>{{ currentSectionLabel() }}</span>
-      </div>
-      <div class="admin-footer__meta">
-        <span>{{ runtime.frontendBaseUrl }}</span>
-        <span>{{ runtime.apiBaseUrl }}</span>
+        <span class="admin-footer__sep">·</span>
+        <span class="admin-footer__url">{{ runtime.frontendBaseUrl }}</span>
       </div>
     </footer>
   </div>

@@ -30,6 +30,7 @@ export class PublicShell implements OnInit {
     this.storefront.cart()?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
   );
   protected readonly walletBalance = computed(() => this.storefront.walletBalance());
+  protected readonly currentYear = new Date().getFullYear();
 
   protected readonly navigation = [
     { key: 'nav.home', path: '/' },
