@@ -132,6 +132,11 @@ def write_temp_png() -> Path:
 def run_flow(args: argparse.Namespace) -> None:
     client = FlowClient(args.base_url)
 
+    landing = client.request("GET", "/")
+    assert_true(landing["data"]["backend_only"] is True, "Root landing should declare backend-only mode.")
+    assert_true(landing["data"]["frontend"] is False, "Root landing should not advertise frontend artifacts.")
+    assert_true(landing["data"]["api_version"] == "v1", "Root landing API version mismatch.")
+
     unauth = client.request("GET", "/api/v1/profile", expected_status=401)
     assert_true(unauth["success"] is False, "Unauthenticated profile request should fail.")
 

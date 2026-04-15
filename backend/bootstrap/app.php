@@ -3,6 +3,7 @@
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SetApiLocale;
 use App\Http\Middleware\AttachApiMetadataHeaders;
+use App\Http\Middleware\TrustProxies;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -24,7 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(prepend: [
+            TrustProxies::class,
+        ]);
+
         $middleware->api(prepend: [
+            TrustProxies::class,
             ForceJsonResponse::class,
             SetApiLocale::class,
             AttachApiMetadataHeaders::class,
