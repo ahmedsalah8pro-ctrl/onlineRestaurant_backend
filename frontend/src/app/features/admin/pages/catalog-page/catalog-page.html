@@ -50,6 +50,10 @@
     [header]="ui.t('admin.catalog.advanced')"
     [visible]="dialogVisible()"
     [modal]="true"
+    appendTo="body"
+    [draggable]="false"
+    [dismissableMask]="true"
+    styleClass="admin-dialog"
     [style]="{ width: 'min(980px, 95vw)' }"
     (visibleChange)="dialogVisible.set($event)"
   >

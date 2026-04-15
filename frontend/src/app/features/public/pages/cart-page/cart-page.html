@@ -1,11 +1,14 @@
-<section class="page-shell surface-grid">
+<section class="page-shell cart-layout">
   <div class="glass-panel cart-panel">
     <div class="panel-head">
       <div>
         <span class="eyebrow">{{ ui.t('cart.eyebrow') }}</span>
         <h1 class="section-title">{{ ui.t('cart.title') }}</h1>
       </div>
-      <button pButton type="button" [label]="ui.t('cart.clear')" severity="secondary" (click)="clearCart()"></button>
+      <div class="cart-panel__actions">
+        <a pButton routerLink="/menu" severity="secondary" [label]="ui.t('nav.menu')"></a>
+        <button pButton type="button" [label]="ui.t('cart.clear')" severity="secondary" (click)="clearCart()"></button>
+      </div>
     </div>
 
     <div class="cart-row" *ngFor="let item of storefront.cart()?.items">
@@ -47,14 +50,19 @@
       <div><span>{{ ui.t('cart.quantity') }}</span><strong>{{ storefront.cart()?.items?.length || 0 }}</strong></div>
     </div>
 
-    <a pButton routerLink="/checkout" [label]="ui.t('cart.checkout')" *ngIf="storefront.cart()?.items?.length"></a>
+    <div class="cart-summary__actions" *ngIf="storefront.cart()?.items?.length">
+      <a pButton routerLink="/checkout" [label]="ui.t('cart.checkout')"></a>
+      <a pButton routerLink="/menu" severity="secondary" [label]="ui.t('menu.title')"></a>
+    </div>
   </div>
 
   <p-dialog
     [visible]="editorVisible()"
     [modal]="true"
+    appendTo="body"
     [draggable]="false"
     [dismissableMask]="true"
+    styleClass="surface-dialog"
     [style]="{ width: 'min(860px, 94vw)' }"
     (onHide)="closeEditor()"
   >

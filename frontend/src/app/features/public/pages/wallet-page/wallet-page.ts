@@ -36,6 +36,7 @@ export class WalletPage implements OnInit {
     ]);
 
     this.wallet.set(wallet);
+    this.storefront.walletBalance.set(Number(wallet.balance ?? 0));
     this.transactions.set(transactions.items);
   }
 

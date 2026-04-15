@@ -1,8 +1,8 @@
-<div class="admin-shell-theme admin-layout">
+<div class="admin-shell-theme admin-layout" [class.is-sidebar-collapsed]="sidebarCollapsed">
   <p-toast position="top-center"></p-toast>
   <p-confirmdialog></p-confirmdialog>
 
-  <aside class="admin-sidebar admin-sidebar--desktop">
+  <aside *ngIf="!isMobile()" class="admin-sidebar admin-sidebar--desktop">
     <div class="admin-sidebar__inner">
       <div class="admin-brand">
         <span class="eyebrow">{{ ui.t('admin.section.branding') }}</span>
@@ -11,10 +11,9 @@
       </div>
 
       <nav class="admin-nav">
-        <section class="admin-nav-group" *ngFor="let group of navGroups">
-          <div class="admin-nav-group__title">{{ ui.t(group.labelKey) }}</div>
+        <section class="admin-nav-group">
           <a
-            *ngFor="let item of group.items"
+            *ngFor="let item of navItems"
             [routerLink]="item.path"
             routerLinkActive="is-active"
             [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
@@ -35,7 +34,7 @@
     </div>
   </aside>
 
-  <p-drawer [(visible)]="mobileMenuOpen" position="right" [modal]="true" styleClass="admin-drawer">
+  <p-drawer *ngIf="isMobile()" [(visible)]="mobileMenuOpen" position="right" [modal]="true" styleClass="admin-drawer">
     <div class="admin-sidebar admin-sidebar--drawer">
       <div class="admin-sidebar__inner">
         <div class="admin-brand">
@@ -45,10 +44,9 @@
         </div>
 
         <nav class="admin-nav">
-          <section class="admin-nav-group" *ngFor="let group of navGroups">
-            <div class="admin-nav-group__title">{{ ui.t(group.labelKey) }}</div>
+          <section class="admin-nav-group">
             <a
-              *ngFor="let item of group.items"
+              *ngFor="let item of navItems"
               [routerLink]="item.path"
               routerLinkActive="is-active"
               [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
@@ -72,21 +70,32 @@
       <div class="admin-topbar__heading">
         <button pButton type="button" icon="pi pi-bars" severity="secondary" styleClass="admin-topbar__menu" (click)="toggleMenu()"></button>
         <div>
-          <span class="eyebrow">{{ ui.t('admin.title') }}</span>
+          <span class="eyebrow">{{ currentSectionLabel() }}</span>
           <h1>{{ storefront.siteName() }} {{ ui.t('admin.title') }}</h1>
           <p class="section-copy">{{ ui.t('admin.subtitle') }}</p>
         </div>
       </div>
 
-      <div class="admin-topbar__chips">
-        <p-tag [value]="ui.t('admin.section.branding')" severity="success"></p-tag>
-        <p-tag [value]="ui.t('admin.section.catalog')" severity="info"></p-tag>
-        <p-tag [value]="ui.t('admin.section.orders')" severity="warn"></p-tag>
+      <div class="admin-topbar__actions">
+        <span class="admin-user-pill">{{ adminName() }}</span>
+        <a pButton severity="secondary" routerLink="/">{{ ui.t('nav.storefront') }}</a>
+        <button pButton type="button" [label]="ui.t('admin.logout')" severity="secondary" (click)="logout()"></button>
       </div>
     </header>
 
     <main class="admin-content">
       <router-outlet />
     </main>
+
+    <footer class="admin-footer glass-panel">
+      <div>
+        <strong>{{ storefront.siteName() }}</strong>
+        <span>{{ currentSectionLabel() }}</span>
+      </div>
+      <div class="admin-footer__meta">
+        <span>{{ runtime.frontendBaseUrl }}</span>
+        <span>{{ runtime.apiBaseUrl }}</span>
+      </div>
+    </footer>
   </div>
 </div>

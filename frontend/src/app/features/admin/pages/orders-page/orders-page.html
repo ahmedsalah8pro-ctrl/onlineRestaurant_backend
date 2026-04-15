@@ -23,9 +23,13 @@
   </p-table>
 
   <p-dialog
-    header="إدارة الطلب"
+    [header]="ui.t('admin.orders.title')"
     [visible]="detailVisible()"
     [modal]="true"
+    appendTo="body"
+    [draggable]="false"
+    [dismissableMask]="true"
+    styleClass="admin-dialog admin-dialog--wide"
     [style]="{ width: 'min(1100px, 96vw)' }"
     (visibleChange)="detailVisible.set($event)"
   >

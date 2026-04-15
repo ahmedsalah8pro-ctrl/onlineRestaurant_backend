@@ -32,6 +32,10 @@
   gap: 1rem;
 }
 
+.checkout-summary strong {
+  white-space: nowrap;
+}
+
 @media (max-width: 960px) {
   .checkout-grid {
     grid-template-columns: 1fr;

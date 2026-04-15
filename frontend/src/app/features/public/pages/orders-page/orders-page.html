@@ -17,6 +17,10 @@
     header="Order Detail"
     [visible]="detailVisible()"
     [modal]="true"
+    appendTo="body"
+    [draggable]="false"
+    [dismissableMask]="true"
+    styleClass="surface-dialog"
     [style]="{ width: 'min(920px, 95vw)' }"
     (visibleChange)="detailVisible.set($event)"
   >

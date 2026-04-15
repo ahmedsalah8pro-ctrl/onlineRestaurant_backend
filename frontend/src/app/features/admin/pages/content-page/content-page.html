@@ -63,6 +63,10 @@
     header="تحرير صفحة ديناميكية"
     [visible]="pageDialogVisible()"
     [modal]="true"
+    appendTo="body"
+    [draggable]="false"
+    [dismissableMask]="true"
+    styleClass="admin-dialog"
     [style]="{ width: 'min(980px, 95vw)' }"
     (visibleChange)="pageDialogVisible.set($event)"
   >

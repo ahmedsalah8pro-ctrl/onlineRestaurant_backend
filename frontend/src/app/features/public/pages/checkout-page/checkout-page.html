@@ -49,21 +49,13 @@
       </div>
 
       <div class="field-stack">
-        <label>{{ ui.t('checkout.walletBalance') }}</label>
-        <p-inputnumber [(ngModel)]="form.wallet_amount" [max]="walletBalance()" [min]="0" [showButtons]="true"></p-inputnumber>
-      </div>
-
-      <div class="field-stack">
         <label>{{ ui.t('checkout.paymentMethod') }}</label>
         <p-select
-          [options]="[
-            { label: 'Cash On Delivery', value: 'cash_on_delivery' },
-            { label: 'Wallet', value: 'wallet' },
-            { label: 'Wallet + COD', value: 'wallet_plus_cash_on_delivery' }
-          ]"
+          [options]="paymentOptions()"
           [(ngModel)]="form.payment_method"
           optionLabel="label"
           optionValue="value"
+          [placeholder]="ui.t('checkout.paymentMethod')"
         />
       </div>
 
@@ -103,6 +95,12 @@
 
     @if (couponPreview()) {
       <p-message severity="success" [text]="couponPreviewMessage()"></p-message>
+    }
+
+    @if (feedback(); as state) {
+      <p-message [severity]="state.severity" [text]="state.text"></p-message>
+    } @else {
+      <p-message severity="info" [text]="ui.t('checkout.feedbackReady')"></p-message>
     }
 
     <div class="checkout-summary">

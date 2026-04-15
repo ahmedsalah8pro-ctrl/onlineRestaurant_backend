@@ -86,8 +86,10 @@
   <p-dialog
     [visible]="addressDialogVisible()"
     [modal]="true"
+    appendTo="body"
     [draggable]="false"
     [dismissableMask]="true"
+    styleClass="surface-dialog"
     [style]="{ width: 'min(760px, 94vw)' }"
     (onHide)="addressDialogVisible.set(false)"
   >

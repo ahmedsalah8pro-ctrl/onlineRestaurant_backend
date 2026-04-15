@@ -79,11 +79,11 @@
           <p>{{ product.short_description || ui.t('menu.noDescription') }}</p>
           <div class="menu-card__meta">
             <span>{{ storefront.formatMoney(product.base_price) }}</span>
-            <span>{{ product.rating_summary.average }} ★</span>
+            <span>{{ product.rating_summary.average }} &#9733;</span>
           </div>
           <div class="menu-card__actions">
             <button pButton type="button" [label]="ui.t('menu.fastAdd')" severity="secondary" (click)="quickAdd(product, $event)"></button>
-            <a [routerLink]="['/products', product.id]" (click)="$event.stopPropagation()">{{ ui.t('menu.details') }}</a>
+            <a pButton severity="secondary" [routerLink]="['/products', product.id]" (click)="$event.stopPropagation()">{{ ui.t('menu.details') }}</a>
           </div>
         </div>
       </article>
@@ -102,8 +102,10 @@
   <p-dialog
     [visible]="previewVisible()"
     [modal]="true"
+    appendTo="body"
     [draggable]="false"
     [dismissableMask]="true"
+    styleClass="surface-dialog"
     [style]="{ width: 'min(960px, 94vw)' }"
     (onHide)="closePreview()"
   >
@@ -123,7 +125,7 @@
           <p>{{ current.short_description || current.description || ui.t('menu.noDescription') }}</p>
           <div class="preview-modal__meta">
             <span>{{ storefront.formatMoney(current.base_price) }}</span>
-            <span>{{ current.rating_summary.average }} ★</span>
+            <span>{{ current.rating_summary.average }} &#9733;</span>
             <span>{{ current.sizes.length }} {{ ui.t('product.sizes') }}</span>
           </div>
           <div class="preview-modal__actions">

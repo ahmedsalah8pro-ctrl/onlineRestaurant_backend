@@ -52,6 +52,10 @@
         </a>
 
         @if (auth.isAuthenticated()) {
+          <a class="wallet-pill" routerLink="/wallet">
+            <i class="pi pi-wallet"></i>
+            <span>{{ storefront.formatMoney(walletBalance()) }}</span>
+          </a>
           <a class="icon-link" routerLink="/account" [attr.aria-label]="ui.t('nav.account')">
             <i class="pi pi-user"></i>
           </a>

@@ -16,6 +16,7 @@ export class StorefrontService {
   readonly categories = signal<Category[]>([]);
   readonly bestSellers = signal<ProductListItem[]>([]);
   readonly cart = signal<Cart | null>(null);
+  readonly walletBalance = signal(0);
   readonly unreadNotificationCount = signal(0);
   readonly loading = signal(false);
 
@@ -54,6 +55,11 @@ export class StorefrontService {
   async refreshUnreadNotifications(): Promise<void> {
     const data = await firstValueFrom(this.publicApi.getUnreadNotificationCount());
     this.unreadNotificationCount.set(data.unread_count);
+  }
+
+  async refreshWallet(): Promise<void> {
+    const wallet = await firstValueFrom(this.publicApi.getWallet());
+    this.walletBalance.set(Number(wallet.balance ?? 0));
   }
 
   formatMoney(amount: number | null | undefined): string {

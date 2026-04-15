@@ -78,6 +78,7 @@
 }
 
 .cart-pill,
+.wallet-pill,
 .icon-link,
 .admin-link {
   display: inline-flex;
@@ -90,6 +91,10 @@
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.05);
   font-weight: 700;
+}
+
+.wallet-pill {
+  min-width: 7rem;
 }
 
 .public-main {

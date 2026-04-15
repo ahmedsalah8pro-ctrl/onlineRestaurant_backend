@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 import { OrderDetail, OrderSummary } from '../../../../core/models/api.models';
 import { AdminApiService } from '../../../../core/services/admin-api';
@@ -16,6 +17,7 @@ export class OrdersPage implements OnInit {
   protected readonly adminApi = inject(AdminApiService);
   protected readonly storefront = inject(StorefrontService);
   protected readonly ui = inject(UiTextService);
+  private readonly message = inject(MessageService);
 
   protected readonly orders = signal<OrderSummary[]>([]);
   protected readonly selectedOrder = signal<OrderDetail | null>(null);
@@ -63,6 +65,7 @@ export class OrdersPage implements OnInit {
     }
 
     this.selectedOrder.set(await firstValueFrom(this.adminApi.updateOrderStatus(current.id, this.statusForm)));
+    this.message.add({ severity: 'success', summary: this.ui.t('admin.orders.title'), detail: this.ui.t('admin.orders.updateStatus') });
   }
 
   protected async assignDelivery(): Promise<void> {
@@ -73,5 +76,6 @@ export class OrdersPage implements OnInit {
     }
 
     this.selectedOrder.set(await firstValueFrom(this.adminApi.assignDelivery(current.id, this.deliveryForm)));
+    this.message.add({ severity: 'success', summary: this.ui.t('admin.orders.title'), detail: this.ui.t('admin.orders.assign') });
   }
 }

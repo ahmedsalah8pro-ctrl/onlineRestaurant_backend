@@ -30,6 +30,8 @@
   position: relative;
   overflow: hidden;
   cursor: pointer;
+  display: grid;
+  grid-template-rows: 220px minmax(0, 1fr);
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
@@ -55,6 +57,8 @@
   padding: 1rem;
   display: grid;
   gap: 0.8rem;
+  min-height: 100%;
+  align-content: start;
 }
 
 .menu-card__header,
@@ -97,6 +101,30 @@
 .preview-modal__body {
   display: grid;
   gap: 0.9rem;
+  align-content: start;
+  min-height: 340px;
+}
+
+.preview-modal__body h2,
+.preview-modal__body p {
+  margin: 0;
+}
+
+.preview-modal__meta span {
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  font-weight: 700;
+}
+
+.preview-modal__actions {
+  margin-top: auto;
+}
+
+.preview-modal__actions .p-button,
+.preview-modal__actions a {
+  flex: 1 1 220px;
+  justify-content: center;
 }
 
 .loading-state {

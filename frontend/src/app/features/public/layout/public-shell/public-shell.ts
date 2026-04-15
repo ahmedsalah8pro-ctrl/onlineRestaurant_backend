@@ -29,6 +29,7 @@ export class PublicShell implements OnInit {
   protected readonly cartCount = computed(() =>
     this.storefront.cart()?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
   );
+  protected readonly walletBalance = computed(() => this.storefront.walletBalance());
 
   protected readonly navigation = [
     { key: 'nav.home', path: '/' },
@@ -44,13 +45,14 @@ export class PublicShell implements OnInit {
     }
 
     if (this.auth.isAuthenticated()) {
-      await Promise.allSettled([this.storefront.refreshCart(), this.storefront.refreshUnreadNotifications()]);
+      await Promise.allSettled([this.storefront.refreshCart(), this.storefront.refreshUnreadNotifications(), this.storefront.refreshWallet()]);
     }
   }
 
   protected async logout(): Promise<void> {
     await this.auth.logout();
     this.storefront.cart.set(null);
+    this.storefront.walletBalance.set(0);
     this.storefront.unreadNotificationCount.set(0);
   }
 

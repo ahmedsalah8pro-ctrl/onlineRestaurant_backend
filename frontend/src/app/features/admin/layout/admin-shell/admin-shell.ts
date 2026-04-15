@@ -1,5 +1,6 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
 import { StorefrontService } from '../../../../core/services/storefront';
@@ -19,44 +20,46 @@ export class AdminShell implements OnInit {
   protected readonly runtime = inject(RuntimeConfigService);
   private readonly router = inject(Router);
   protected mobileMenuOpen = false;
+  protected sidebarCollapsed = false;
+  protected readonly isMobile = signal(typeof window !== 'undefined' ? window.innerWidth <= 1100 : false);
+  private readonly currentRouteUrl = signal(this.router.url);
 
-  protected readonly navGroups = [
-    {
-      labelKey: 'admin.section.dashboard',
-      items: [{ labelKey: 'admin.section.dashboard', path: '/admin' }],
-    },
-    {
-      labelKey: 'admin.section.orders',
-      items: [{ labelKey: 'admin.section.orders', path: '/admin/orders' }],
-    },
-    {
-      labelKey: 'admin.section.catalog',
-      items: [{ labelKey: 'admin.section.catalog', path: '/admin/catalog' }],
-    },
-    {
-      labelKey: 'admin.section.customers',
-      items: [{ labelKey: 'admin.section.customers', path: '/admin/access' }],
-    },
-    {
-      labelKey: 'admin.section.branding',
-      items: [{ labelKey: 'admin.section.branding', path: '/admin/settings' }],
-    },
-    {
-      labelKey: 'admin.section.content',
-      items: [{ labelKey: 'admin.section.content', path: '/admin/content' }],
-    },
-    {
-      labelKey: 'admin.section.media',
-      items: [{ labelKey: 'admin.section.media', path: '/admin/integrations' }],
-    },
+  protected readonly navItems = [
+    { labelKey: 'admin.section.dashboard', path: '/admin' },
+    { labelKey: 'admin.section.orders', path: '/admin/orders' },
+    { labelKey: 'admin.section.catalog', path: '/admin/catalog' },
+    { labelKey: 'admin.section.customers', path: '/admin/access' },
+    { labelKey: 'admin.section.branding', path: '/admin/settings' },
+    { labelKey: 'admin.section.content', path: '/admin/content' },
+    { labelKey: 'admin.section.media', path: '/admin/integrations' },
   ];
 
   protected readonly adminName = computed(() => this.auth.user()?.name ?? 'Admin');
+  protected readonly currentSectionLabel = computed(() => {
+    const current = this.navItems.find((item) =>
+      item.path === '/admin'
+        ? this.currentRouteUrl() === '/admin'
+        : this.currentRouteUrl().startsWith(item.path),
+    );
+
+    return this.ui.t(current?.labelKey ?? 'admin.section.dashboard');
+  });
 
   async ngOnInit(): Promise<void> {
     if (!this.storefront.settings()) {
       await this.storefront.bootstrap();
     }
+
+    this.syncViewport();
+
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.currentRouteUrl.set(event.urlAfterRedirects);
+        if (this.isMobile()) {
+          this.mobileMenuOpen = false;
+        }
+      });
   }
 
   protected async logout(): Promise<void> {
@@ -66,10 +69,29 @@ export class AdminShell implements OnInit {
   }
 
   protected toggleMenu(): void {
-    this.mobileMenuOpen = !this.mobileMenuOpen;
+    if (this.isMobile()) {
+      this.mobileMenuOpen = !this.mobileMenuOpen;
+      return;
+    }
+
+    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   protected closeMenu(): void {
     this.mobileMenuOpen = false;
+  }
+
+  @HostListener('window:resize')
+  protected syncViewport(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const isMobile = window.innerWidth <= 1100;
+    this.isMobile.set(isMobile);
+
+    if (!isMobile) {
+      this.mobileMenuOpen = false;
+    }
   }
 }
