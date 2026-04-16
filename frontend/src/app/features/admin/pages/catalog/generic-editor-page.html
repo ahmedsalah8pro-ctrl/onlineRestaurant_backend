@@ -1,0 +1,323 @@
+<div class="generic-editor animate-fade-in" [attr.lang]="ui.currentLocale()">
+  <header class="editor-hero">
+    <div class="editor-hero__main">
+      <a
+        pButton
+        class="editor-hero__back"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [routerLink]="['/admin/catalog', resourceType()]"
+        [text]="true"
+        [rounded]="true"
+      ></a>
+
+      <div class="editor-hero__titles">
+        <span class="editor-hero__eyebrow">{{ activeLabel() }}</span>
+        <h1 class="editor-hero__title">{{ pageTitle() }}</h1>
+        <p class="editor-hero__copy">{{ pageSubtitle() }}</p>
+      </div>
+    </div>
+
+    <div class="editor-hero__actions">
+      <a
+        pButton
+        class="editor-hero__cancel"
+        [label]="ui.t('admin.catalog.cancel')"
+        severity="secondary"
+        [routerLink]="['/admin/catalog', resourceType()]"
+        [outlined]="true"
+      ></a>
+      <button
+        pButton
+        class="editor-hero__save"
+        [label]="ui.t('admin.settings.save')"
+        icon="pi pi-check"
+        (click)="save()"
+        [loading]="saving()"
+      ></button>
+    </div>
+  </header>
+
+  <div class="editor-layout">
+    <section class="editor-main">
+      <article class="editor-card">
+        <div class="editor-card__head">
+          <div>
+            <span class="editor-card__eyebrow">{{ copy('الترجمة والاسم', 'Localization') }}</span>
+            <h2 class="editor-card__title">{{ copy('الاسم المعروض', 'Display Name') }}</h2>
+          </div>
+          <p class="editor-card__copy">
+            {{ copy('أدخل الاسم العربي والإنجليزي بالشكل الذي سيظهر للمستخدم ولوحة الإدارة.', 'Enter the Arabic and English display names used across the admin and storefront.') }}
+          </p>
+        </div>
+
+        <div class="field-grid field-grid--two">
+          <label class="field-stack">
+            <span>{{ ui.t('admin.catalog.arName') }}</span>
+            <input pInputText [(ngModel)]="form.translations.ar" [placeholder]="ui.t('admin.catalog.arName')" />
+          </label>
+
+          <label class="field-stack">
+            <span>{{ ui.t('admin.catalog.enName') }}</span>
+            <input pInputText [(ngModel)]="form.translations.en" [placeholder]="ui.t('admin.catalog.enName')" />
+          </label>
+        </div>
+      </article>
+
+      <article class="editor-card" *ngIf="showSlugField() || showCodeField()">
+        <div class="editor-card__head">
+          <div>
+            <span class="editor-card__eyebrow">{{ copy('المعرفات', 'Identifiers') }}</span>
+            <h2 class="editor-card__title">{{ copy('روابط ومراجع داخلية', 'URL and Internal References') }}</h2>
+          </div>
+        </div>
+
+        <div class="field-grid field-grid--two">
+          <label class="field-stack" *ngIf="showSlugField()">
+            <span>Slug</span>
+            <input pInputText [(ngModel)]="form.slug" [placeholder]="copy('مثال: family-meals', 'e.g. family-meals')" />
+            <small>{{ copy('يُستخدم في الروابط والمعرفات المقروءة.', 'Used in readable URLs and references.') }}</small>
+          </label>
+
+          <label class="field-stack" *ngIf="showCodeField()">
+            <span>{{ copy('الكود الداخلي', 'Internal Code') }}</span>
+            <input pInputText [(ngModel)]="form.code" [placeholder]="copy('مثال: CAT_01', 'e.g. CAT_01')" />
+            <small>{{ copy('مفيد للربط الداخلي أو التصنيف الإداري.', 'Useful for internal mapping and admin-side referencing.') }}</small>
+          </label>
+        </div>
+      </article>
+
+      <article class="editor-card" *ngIf="showBranchDetails()">
+        <div class="editor-card__head">
+          <div>
+            <span class="editor-card__eyebrow">{{ copy('الفرع', 'Branch') }}</span>
+            <h2 class="editor-card__title">{{ copy('بيانات التواصل والموقع', 'Location and Contact') }}</h2>
+          </div>
+        </div>
+
+        <div class="field-grid field-grid--two">
+          <label class="field-stack">
+            <span>{{ copy('رقم الهاتف', 'Phone Number') }}</span>
+            <input pInputText [(ngModel)]="form.phone" [placeholder]="copy('مثال: 01000000000', 'e.g. +20 100 000 0000')" />
+          </label>
+
+          <label class="field-stack">
+            <span>{{ copy('البريد الإلكتروني', 'Email Address') }}</span>
+            <input pInputText [(ngModel)]="form.email" placeholder="branch@example.com" />
+          </label>
+        </div>
+
+        <div class="field-grid field-grid--two">
+          <label class="field-stack">
+            <span>{{ copy('العنوان بالعربية', 'Arabic Address') }}</span>
+            <textarea pTextarea rows="3" [(ngModel)]="form.address_translations.ar" [placeholder]="copy('اكتب العنوان التفصيلي بالعربية', 'Write the detailed address in Arabic')"></textarea>
+          </label>
+
+          <label class="field-stack">
+            <span>{{ copy('العنوان بالإنجليزية', 'English Address') }}</span>
+            <textarea pTextarea rows="3" [(ngModel)]="form.address_translations.en" [placeholder]="copy('اكتب العنوان التفصيلي بالإنجليزية', 'Write the detailed address in English')"></textarea>
+          </label>
+        </div>
+      </article>
+
+      <article class="editor-card" *ngIf="showAddonGroupRules()">
+        <div class="editor-card__head">
+          <div>
+            <span class="editor-card__eyebrow">{{ ui.t('admin.catalog.addons') }}</span>
+            <h2 class="editor-card__title">{{ copy('قواعد الاختيار وخيارات المجموعة', 'Selection Rules and Group Options') }}</h2>
+          </div>
+        </div>
+
+        <div class="field-grid field-grid--two">
+          <label class="field-stack">
+            <span>{{ copy('المنتج المرتبط', 'Associated Product') }}</span>
+            <p-select
+              [options]="products()"
+              [(ngModel)]="form.product_id"
+              optionLabel="label"
+              optionValue="id"
+              [filter]="true"
+              appendTo="body"
+              [placeholder]="copy('اختر منتجاً', 'Choose a product')"
+            ></p-select>
+          </label>
+
+          <label class="field-stack">
+            <span>{{ copy('نوع الاختيار', 'Selection Mode') }}</span>
+            <p-select
+              [options]="selectionTypes()"
+              [(ngModel)]="form.selection_type"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+            ></p-select>
+          </label>
+        </div>
+
+        <div class="toggle-card">
+          <div>
+            <strong>{{ copy('اختيار إجباري', 'Required Selection') }}</strong>
+            <p>{{ copy('يجبر العميل على اختيار عنصر واحد على الأقل من هذه المجموعة.', 'Forces the customer to pick at least one option from this group.') }}</p>
+          </div>
+          <p-toggleswitch [(ngModel)]="form.is_required"></p-toggleswitch>
+        </div>
+
+        <div class="field-grid field-grid--two" *ngIf="form.selection_type === 'multiple'">
+          <label class="field-stack">
+            <span>{{ copy('الحد الأدنى', 'Minimum Selection') }}</span>
+            <p-inputnumber [(ngModel)]="form.min_select" [min]="0" [showButtons]="true"></p-inputnumber>
+          </label>
+
+          <label class="field-stack">
+            <span>{{ copy('الحد الأقصى', 'Maximum Selection') }}</span>
+            <p-inputnumber [(ngModel)]="form.max_select" [min]="1" [showButtons]="true"></p-inputnumber>
+          </label>
+        </div>
+
+        <div class="options-block">
+          <div class="options-block__head">
+            <div>
+              <h3>{{ copy('خيارات المجموعة', 'Group Options') }}</h3>
+              <p>{{ copy('أضف العناصر التي ستظهر للعميل داخل هذه المجموعة.', 'Add the customer-facing options for this addon group.') }}</p>
+            </div>
+
+            <button pButton type="button" icon="pi pi-plus" [label]="copy('إضافة خيار', 'Add Option')" [outlined]="true" (click)="addOption()"></button>
+          </div>
+
+          <div class="options-list" *ngIf="form.options.length; else emptyOptions">
+            <div class="option-card" *ngFor="let option of form.options; let i = index; trackBy: trackByIndex">
+              <div class="option-card__head">
+                <span class="option-card__index">#{{ i + 1 }}</span>
+                <button pButton type="button" icon="pi pi-trash" severity="danger" [text]="true" (click)="removeOption(i)"></button>
+              </div>
+
+              <div class="field-grid field-grid--two">
+                <label class="field-stack">
+                  <span>{{ copy('الاسم بالعربية', 'Arabic Name') }}</span>
+                  <input pInputText [(ngModel)]="option.translations.ar" />
+                </label>
+
+                <label class="field-stack">
+                  <span>{{ copy('الاسم بالإنجليزية', 'English Name') }}</span>
+                  <input pInputText [(ngModel)]="option.translations.en" />
+                </label>
+              </div>
+
+              <label class="field-stack">
+                <span>{{ copy('السعر الأساسي', 'Base Price') }}</span>
+                <p-inputnumber [(ngModel)]="option.base_price" [min]="0" mode="decimal"></p-inputnumber>
+              </label>
+            </div>
+          </div>
+
+          <ng-template #emptyOptions>
+            <div class="empty-state">
+              <i class="pi pi-plus-circle"></i>
+              <p>{{ copy('لا توجد خيارات مضافة بعد.', 'No options have been added yet.') }}</p>
+            </div>
+          </ng-template>
+        </div>
+      </article>
+
+      <article class="editor-card" *ngIf="showDeliveryZoneRules()">
+        <div class="editor-card__head">
+          <div>
+            <span class="editor-card__eyebrow">{{ ui.t('admin.catalog.delivery') }}</span>
+            <h2 class="editor-card__title">{{ copy('ربط الفرع ورسوم التوصيل', 'Branch Mapping and Delivery Fee') }}</h2>
+          </div>
+        </div>
+
+        <div class="field-grid field-grid--two">
+          <label class="field-stack">
+            <span>{{ copy('الفرع المستهدف', 'Target Branch') }}</span>
+            <p-select
+              [options]="branches()"
+              [(ngModel)]="form.branch_id"
+              optionLabel="name"
+              optionValue="id"
+              appendTo="body"
+              [placeholder]="copy('اختر الفرع', 'Select branch')"
+            ></p-select>
+          </label>
+
+          <label class="field-stack">
+            <span>{{ copy('رسوم التوصيل', 'Delivery Fee') }}</span>
+            <p-inputnumber [(ngModel)]="form.delivery_fee" mode="decimal" [min]="0"></p-inputnumber>
+          </label>
+        </div>
+      </article>
+    </section>
+
+    <aside class="editor-side">
+      <article class="editor-card editor-card--side">
+        <div class="editor-card__head">
+          <div>
+            <span class="editor-card__eyebrow">{{ copy('الحالة', 'Status') }}</span>
+            <h2 class="editor-card__title">{{ copy('الظهور والتحكم', 'Visibility and Control') }}</h2>
+          </div>
+        </div>
+
+        <div class="toggle-card">
+          <div>
+            <strong>{{ copy('مفعل', 'Active') }}</strong>
+            <p>{{ statusText() }}</p>
+          </div>
+          <p-toggleswitch [(ngModel)]="form.is_active"></p-toggleswitch>
+        </div>
+      </article>
+
+      <article class="editor-card editor-card--side" *ngIf="showCategoryHierarchy()">
+        <div class="editor-card__head">
+          <div>
+            <span class="editor-card__eyebrow">{{ copy('الهيكل', 'Hierarchy') }}</span>
+            <h2 class="editor-card__title">{{ copy('القسم الأب', 'Parent Category') }}</h2>
+          </div>
+        </div>
+
+        <label class="field-stack">
+          <span>{{ copy('اختر القسم الأب', 'Choose Parent Category') }}</span>
+          <p-select
+            [options]="categories()"
+            [(ngModel)]="form.parent_id"
+            optionLabel="label"
+            optionValue="id"
+            [showClear]="true"
+            appendTo="body"
+            [placeholder]="copy('بدون قسم أب', 'No parent category')"
+          ></p-select>
+        </label>
+      </article>
+
+      <article class="editor-card editor-card--side">
+        <div class="editor-card__head">
+          <div>
+            <span class="editor-card__eyebrow">{{ copy('ملخص سريع', 'Quick Summary') }}</span>
+            <h2 class="editor-card__title">{{ copy('مراجعة قبل الحفظ', 'Review Before Save') }}</h2>
+          </div>
+        </div>
+
+        <ul class="summary-list">
+          <li>
+            <span>{{ copy('النوع', 'Type') }}</span>
+            <strong>{{ activeLabel() }}</strong>
+          </li>
+          <li>
+            <span>{{ copy('الوضع', 'Mode') }}</span>
+            <strong>{{ isEdit() ? copy('تعديل', 'Edit') : copy('إنشاء', 'Create') }}</strong>
+          </li>
+          <li>
+            <span>{{ copy('الحالة', 'Visibility') }}</span>
+            <strong>{{ statusText() }}</strong>
+          </li>
+        </ul>
+
+        <div class="editor-note">
+          <i class="pi pi-info-circle"></i>
+          <p>
+            {{ copy('يمكنك الحفظ الآن أو الرجوع دون حفظ. ستظهر رسائل نجاح أو فشل بعد التنفيذ مباشرة.', 'You can save now or go back without saving. Success and failure feedback will appear immediately.') }}
+          </p>
+        </div>
+      </article>
+    </aside>
+  </div>
+</div>
