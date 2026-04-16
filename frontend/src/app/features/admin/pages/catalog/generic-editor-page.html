@@ -288,36 +288,6 @@
         </label>
       </article>
 
-      <article class="editor-card editor-card--side">
-        <div class="editor-card__head">
-          <div>
-            <span class="editor-card__eyebrow">{{ copy('ملخص سريع', 'Quick Summary') }}</span>
-            <h2 class="editor-card__title">{{ copy('مراجعة قبل الحفظ', 'Review Before Save') }}</h2>
-          </div>
-        </div>
-
-        <ul class="summary-list">
-          <li>
-            <span>{{ copy('النوع', 'Type') }}</span>
-            <strong>{{ activeLabel() }}</strong>
-          </li>
-          <li>
-            <span>{{ copy('الوضع', 'Mode') }}</span>
-            <strong>{{ isEdit() ? copy('تعديل', 'Edit') : copy('إنشاء', 'Create') }}</strong>
-          </li>
-          <li>
-            <span>{{ copy('الحالة', 'Visibility') }}</span>
-            <strong>{{ statusText() }}</strong>
-          </li>
-        </ul>
-
-        <div class="editor-note">
-          <i class="pi pi-info-circle"></i>
-          <p>
-            {{ copy('يمكنك الحفظ الآن أو الرجوع دون حفظ. ستظهر رسائل نجاح أو فشل بعد التنفيذ مباشرة.', 'You can save now or go back without saving. Success and failure feedback will appear immediately.') }}
-          </p>
-        </div>
-      </article>
     </aside>
   </div>
 </div>
