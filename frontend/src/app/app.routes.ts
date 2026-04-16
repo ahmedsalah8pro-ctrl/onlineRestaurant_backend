@@ -20,6 +20,7 @@ import { MenuPage } from './features/public/pages/menu-page/menu-page';
 import { OrdersPage as PublicOrdersPage } from './features/public/pages/orders-page/orders-page';
 import { PageDetailPage } from './features/public/pages/page-detail-page/page-detail-page';
 import { ProductDetailPage } from './features/public/pages/product-detail-page/product-detail-page';
+import { StatusPage } from './features/public/pages/status-page/status-page';
 import { WalletPage } from './features/public/pages/wallet-page/wallet-page';
 
 export const routes: Routes = [
@@ -42,6 +43,9 @@ export const routes: Routes = [
       { path: 'wallet/redeem', component: WalletPage, canActivate: [userAuthGuard] },
       { path: 'wallet/deposit', component: WalletPage, canActivate: [userAuthGuard] },
       { path: 'wallet', component: WalletPage, canActivate: [userAuthGuard] },
+      { path: '401', component: StatusPage, data: { statusCode: 401 } },
+      { path: '403', component: StatusPage, data: { statusCode: 403 } },
+      { path: '404', component: StatusPage, data: { statusCode: 404 } },
       { path: 'auth/:mode', component: AuthPage },
       { path: 'auth', redirectTo: 'auth/login', pathMatch: 'full' },
     ],
@@ -76,5 +80,5 @@ export const routes: Routes = [
       { path: 'integrations', component: IntegrationsPage },
     ],
   },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: '404' },
 ];

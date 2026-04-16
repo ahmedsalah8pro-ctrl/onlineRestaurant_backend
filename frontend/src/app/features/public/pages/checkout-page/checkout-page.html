@@ -8,11 +8,11 @@
         <label>{{ ui.t('menu.branch') }}</label>
         <p-select
           [options]="storefront.branches()"
-          [(ngModel)]="form.branch_id"
+          [ngModel]="branchId()"
+          (ngModelChange)="onBranchChange($event)"
           optionLabel="name"
           optionValue="id"
           [placeholder]="ui.t('menu.branch')"
-          (ngModelChange)="form.delivery_zone_id = zones()[0]?.id ?? null"
         />
       </div>
 
@@ -20,11 +20,16 @@
         <label>{{ ui.t('checkout.deliveryZone') }}</label>
         <p-select
           [options]="zones()"
-          [(ngModel)]="form.delivery_zone_id"
+          [ngModel]="deliveryZoneId()"
+          (ngModelChange)="onDeliveryZoneChange($event)"
           optionLabel="name"
           optionValue="id"
           [placeholder]="ui.t('checkout.deliveryZone')"
+          [disabled]="zones().length === 0"
         />
+        @if (zones().length === 0 && branchId()) {
+          <small class="text-muted">{{ ui.t('checkout.noZones') || 'No delivery zones available for this branch.' }}</small>
+        }
       </div>
 
       @if (!isGuest()) {
@@ -63,15 +68,14 @@
             </div>
           </div>
 
-          <div class="field-stack">
-            <label>{{ ui.t('checkout.street') }} ({{ ui.t('public.optional') || 'Optional' }})</label>
-            <input pInputText [(ngModel)]="newAddress.street" [placeholder]="ui.t('checkout.street')" />
+          <div class="field-stack md:col-span-2">
+            <label>{{ ui.t('checkout.street') }} <span class="text-danger">*</span></label>
+            <textarea pTextarea rows="3" [(ngModel)]="newAddress.street" required [placeholder]="ui.t('checkout.streetHint') || 'e.g. 45st, mobarak city, assiut, egypt'" #streetInput="ngModel" [class.ng-invalid]="streetInput.invalid && streetInput.dirty" class="w-full"></textarea>
           </div>
-          <div class="field-stack">
-            <label>{{ ui.t('checkout.building') || 'Building' }}</label>
-            <input pInputText [(ngModel)]="newAddress.building" [placeholder]="ui.t('checkout.building')" />
+
+          <div class="quick-address-actions">
+            <button pButton type="button" [label]="ui.t('checkout.saveAddress') || 'Save Address'" severity="secondary" icon="pi pi-save" (click)="createAddress()"></button>
           </div>
-          <button pButton type="button" [label]="ui.t('checkout.saveAddress')" severity="success" (click)="createAddress()" *ngIf="!isGuest()"></button>
         </div>
       }
 
@@ -80,16 +84,43 @@
         <textarea pTextarea rows="4" [(ngModel)]="form.notes" [placeholder]="ui.t('checkout.notes')"></textarea>
       </div>
 
-      <div class="coupon-box">
-        <input pInputText [(ngModel)]="form.coupon_code" [placeholder]="ui.t('checkout.coupon')" />
-        <button pButton type="button" [label]="ui.t('checkout.preview')" severity="secondary" (click)="previewCoupon()"></button>
+      <div class="coupon-stage">
+        <div class="coupon-stage__copy">
+          <strong>{{ ui.locale() === 'ar' ? 'كوبون الخصم' : 'Discount Coupon' }}</strong>
+          <p>{{ ui.locale() === 'ar' ? 'سيتم إعادة التحقق من الكوبون تلقائيًا عند تغيير منطقة التوصيل.' : 'The coupon will be revalidated automatically when the delivery zone changes.' }}</p>
+        </div>
+
+        <div class="coupon-box">
+          <input pInputText [(ngModel)]="form.coupon_code" [placeholder]="ui.t('checkout.coupon')" />
+          <button pButton type="button" [label]="ui.t('checkout.preview')" severity="secondary" (click)="previewCoupon()" icon="pi pi-ticket"></button>
+          @if (form.coupon_code) {
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              icon="pi pi-times"
+              class="p-button-rounded p-button-text"
+              [pTooltip]="ui.locale() === 'ar' ? 'إلغاء الكوبون' : 'Remove coupon'"
+              (click)="clearCoupon()"
+            ></button>
+          }
+        </div>
+
+        @if (couponPreview()) {
+          <p-message
+            [severity]="couponPreview()?.valid ? 'success' : 'warn'"
+            [text]="couponPreviewMessage()"
+            styleClass="w-full"
+          ></p-message>
+        }
       </div>
 
       <div class="field-stack">
         <label>{{ ui.t('checkout.paymentMethod') }}</label>
         <p-select
           [options]="paymentOptions()"
-          [(ngModel)]="form.payment_method"
+          [ngModel]="paymentMethod()"
+          (ngModelChange)="paymentMethod.set($event)"
           optionLabel="label"
           optionValue="value"
           [placeholder]="ui.t('checkout.paymentMethod')"
@@ -109,7 +140,7 @@
   </div>
 
   <div class="glass-panel checkout-card summary-card">
-    <span class="eyebrow"><i class="pi pi-shopping-bag"></i> {{ ui.t('cart.title') }}</span>
+    <span class="eyebrow"><i class="pi pi-shopping-bag"></i> {{ ui.locale() === 'ar' ? 'سلة الطلب الحالية' : 'Current Order Cart' }}</span>
     
     <div class="mini-cart-items">
         <div class="mini-item" *ngFor="let item of storefront.cart()?.items">
@@ -131,15 +162,26 @@
         <span>{{ ui.t('checkout.subtotal') }}</span>
         <strong>{{ storefront.formatMoney(storefront.cart()?.subtotal) }}</strong>
       </div>
-      
-      <div class="summary-row discount animate-fade-in" *ngIf="couponPreview()?.['valid']">
-        <span>{{ ui.t('checkout.discount') || 'Discount' }}</span>
-        <strong class="text-success">-{{ storefront.formatMoney(+$any(couponPreview()?.['discount_total'])) }}</strong>
-      </div>
 
-      <div class="summary-row" *ngIf="!isGuest()">
-        <span>{{ ui.t('checkout.walletBalance') }}</span>
-        <strong>{{ storefront.formatMoney(walletBalance()) }}</strong>
+      <div class="summary-row">
+        <span>{{ ui.locale() === 'ar' ? 'الإجمالي قبل الخصم' : 'Total before discount' }}</span>
+        <strong>{{ storefront.formatMoney(grossTotal()) }}</strong>
+      </div>
+      
+      <div class="summary-row discount animate-fade-in" *ngIf="couponPreview()?.valid">
+        <span class="discount-label">
+          {{ ui.t('checkout.discount') || 'Discount' }}
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            icon="pi pi-times-circle"
+            class="p-button-rounded p-button-text discount-clear-btn"
+            [pTooltip]="ui.locale() === 'ar' ? 'إلغاء الكوبون' : 'Remove coupon'"
+            (click)="clearCoupon()"
+          ></button>
+        </span>
+        <strong class="text-success">-{{ storefront.formatMoney(discountTotal()) }}</strong>
       </div>
       
       <div class="summary-row">
@@ -147,15 +189,26 @@
         <strong>{{ storefront.formatMoney(selectedDeliveryFee()) }}</strong>
       </div>
 
+      <div class="summary-row">
+        <span>{{ ui.locale() === 'ar' ? 'بعد الخصم وقبل المحفظة' : 'After discount, before wallet' }}</span>
+        <strong>{{ storefront.formatMoney(netTotalAfterDiscount()) }}</strong>
+      </div>
+
+      <div class="summary-row" *ngIf="walletToUsePreview() > 0">
+        <span>{{ ui.locale() === 'ar' ? 'المدفوع من المحفظة' : 'Paid from wallet' }}</span>
+        <strong class="text-primary">-{{ storefront.formatMoney(walletToUsePreview()) }}</strong>
+      </div>
+
+      <div class="summary-row payment-row">
+        <span>{{ ui.t('checkout.paymentMethod') }}</span>
+        <strong>{{ paymentMethodLabel() }}</strong>
+      </div>
+
       <div class="summary-row total">
-        <span>{{ ui.t('menu.total') }}</span>
+        <span>{{ ui.locale() === 'ar' ? 'المبلغ المطلوب الآن' : 'Amount due now' }}</span>
         <strong>{{ storefront.formatMoney(checkoutTotal()) }}</strong>
       </div>
     </div>
-
-    @if (couponPreview()) {
-      <p-message severity="success" [text]="couponPreviewMessage()" styleClass="w-full mt-3"></p-message>
-    }
 
     @if (feedback(); as state) {
       <p-message [severity]="state.severity" [text]="state.text" styleClass="w-full mt-3"></p-message>

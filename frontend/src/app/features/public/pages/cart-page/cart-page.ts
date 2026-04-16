@@ -1,8 +1,9 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
-import { AddonGroup, ProductDetail } from '../../../../core/models/api.models';
+import { AddonGroup, CouponPreview, ProductDetail } from '../../../../core/models/api.models';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { StorefrontService } from '../../../../core/services/storefront';
 import { ThemeService } from '../../../../core/services/theme';
@@ -25,7 +26,6 @@ export class CartPage implements OnInit {
 
   protected readonly loading = signal(false);
   protected readonly couponCode = signal('');
-  protected readonly couponPreview = signal<Record<string, unknown> | null>(null);
   protected readonly editorVisible = signal(false);
   protected readonly editorLoading = signal(false);
   protected readonly editorProduct = signal<ProductDetail | null>(null);
@@ -34,9 +34,20 @@ export class CartPage implements OnInit {
   protected readonly editorQuantity = signal(1);
   protected readonly selectedAddonMap = signal<Record<number, number[]>>({});
   protected readonly cartTotal = computed(() => this.storefront.cart()?.subtotal ?? 0);
+  protected readonly couponPreview = computed(() => this.storefront.appliedCouponPreview());
+  protected readonly couponPreviewSeverity = computed<'success' | 'warn' | 'info'>(() => {
+    const preview = this.couponPreview();
+
+    if (!preview) {
+      return 'info';
+    }
+
+    return preview.valid ? 'success' : 'warn';
+  });
 
   async ngOnInit(): Promise<void> {
     await this.storefront.refreshCart();
+    this.couponCode.set(this.storefront.appliedCouponCode());
   }
 
   protected async updateQuantity(itemId: number, quantity: number): Promise<void> {
@@ -72,27 +83,68 @@ export class CartPage implements OnInit {
   }
 
   protected async previewCoupon(): Promise<void> {
-    if (!this.couponCode()) {
+    const code = this.couponCode().trim();
+
+    if (!code) {
+      this.clearCoupon();
       return;
     }
 
     this.loading.set(true);
 
     try {
-      this.couponPreview.set(
-        await firstValueFrom(
-          this.publicApi.previewCoupon({
-            coupon_code: this.couponCode(),
-          }),
-        ),
+      const preview = await firstValueFrom(
+        this.publicApi.previewCoupon({
+          coupon_code: code,
+        }),
       );
+
+      this.storefront.setAppliedCoupon(code, preview);
+      this.message.add({
+        severity: preview.valid ? 'success' : 'warn',
+        summary: this.ui.t('checkout.coupon'),
+        detail: preview.message,
+      });
+    } catch (error) {
+      this.storefront.clearAppliedCoupon();
+      this.message.add({
+        severity: 'error',
+        summary: this.ui.t('checkout.coupon'),
+        detail: this.resolveErrorMessage(error),
+      });
     } finally {
       this.loading.set(false);
     }
   }
 
   protected couponPreviewMessage(): string {
-    return (this.couponPreview()?.['message'] as string | undefined) ?? this.ui.t('cart.couponPreview');
+    return this.couponPreview()?.message ?? this.ui.t('cart.couponPreview');
+  }
+
+  protected onCouponCodeChange(value: string): void {
+    this.couponCode.set(value);
+
+    if (!value.trim()) {
+      this.storefront.clearAppliedCoupon();
+    }
+  }
+
+  protected clearCoupon(): void {
+    this.couponCode.set('');
+    this.storefront.clearAppliedCoupon();
+    this.message.add({
+      severity: 'info',
+      summary: this.ui.t('checkout.coupon'),
+      detail: this.ui.locale() === 'ar' ? 'تم إلغاء الكوبون المحدد.' : 'Coupon removed.',
+    });
+  }
+
+  protected couponValue(preview: CouponPreview | null): string {
+    if (!preview?.coupon?.code) {
+      return '';
+    }
+
+    return preview.coupon.code;
   }
 
   protected async openEditor(itemId: number): Promise<void> {
@@ -184,5 +236,21 @@ export class CartPage implements OnInit {
     } finally {
       this.editorLoading.set(false);
     }
+  }
+
+  private resolveErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const firstField = error.error?.errors ? Object.values(error.error.errors)[0] : null;
+      const firstMessage = Array.isArray(firstField) ? firstField[0] : error.error?.message;
+      if (typeof firstMessage === 'string' && firstMessage.trim() !== '') {
+        return firstMessage;
+      }
+
+      if (typeof error.error?.message === 'string' && error.error.message.trim() !== '') {
+        return error.error.message;
+      }
+    }
+
+    return this.ui.locale() === 'ar' ? 'تعذر التحقق من الكوبون حاليًا.' : 'Unable to validate the coupon right now.';
   }
 }

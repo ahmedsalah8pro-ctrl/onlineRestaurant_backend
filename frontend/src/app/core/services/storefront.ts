@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { Branch, Cart, Category, ProductListItem, PublicSettings } from '../models/api.models';
+import { Branch, Cart, Category, CouponPreview, ProductListItem, PublicSettings } from '../models/api.models';
 import { PublicApiService } from './public-api';
 import { ThemeService } from './theme';
 import { UiTextService } from './ui-text';
@@ -22,6 +22,8 @@ export class StorefrontService {
   readonly unreadNotificationCount = signal(0);
   readonly loading = signal(false);
   readonly cartPulse = signal(false);
+  readonly appliedCouponCode = signal('');
+  readonly appliedCouponPreview = signal<CouponPreview | null>(null);
 
   readonly siteName = computed(() => this.settings()?.general?.site_name ?? 'Online Restaurant');
   readonly currency = computed(() => ({
@@ -66,6 +68,17 @@ export class StorefrontService {
   async refreshWallet(): Promise<void> {
     const wallet = await firstValueFrom(this.publicApi.getWallet());
     this.walletBalance.set(Number(wallet.balance ?? 0));
+  }
+
+  setAppliedCoupon(code: string, preview: CouponPreview | null): void {
+    const normalized = code.trim();
+    this.appliedCouponCode.set(normalized);
+    this.appliedCouponPreview.set(preview);
+  }
+
+  clearAppliedCoupon(): void {
+    this.appliedCouponCode.set('');
+    this.appliedCouponPreview.set(null);
   }
 
   formatMoney(amount: number | null | undefined): string {

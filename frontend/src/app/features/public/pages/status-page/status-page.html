@@ -1,0 +1,20 @@
+<section class="page-shell status-shell">
+  <div class="glass-panel status-card">
+    <span class="eyebrow">
+      <i class="pi pi-shield"></i>
+      {{ ui.locale() === 'ar' ? 'حالة الصفحة' : 'Page Status' }}
+    </span>
+
+    <div class="status-code">{{ code() }}</div>
+
+    <div class="status-content">
+      <h1 class="section-title">{{ title() }}</h1>
+      <p class="section-copy">{{ copy() }}</p>
+    </div>
+
+    <div class="status-actions">
+      <a pButton [routerLink]="actionLink()" [queryParams]="actionQueryParams()" [label]="actionLabel()" icon="pi pi-arrow-right"></a>
+      <a pButton severity="secondary" [routerLink]="secondaryLink()" [label]="secondaryLabel()" icon="pi pi-compass"></a>
+    </div>
+  </div>
+</section>

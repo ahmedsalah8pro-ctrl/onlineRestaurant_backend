@@ -18,6 +18,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class OrderDetailResource extends JsonResource
 {
+    protected function paymentMethod(Order $order): string
+    {
+        if ((float) $order->wallet_amount > 0 && (float) $order->total > 0) {
+            return 'wallet_plus_cash_on_delivery';
+        }
+
+        if ((float) $order->wallet_amount > 0) {
+            return 'wallet';
+        }
+
+        return 'cash_on_delivery';
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -35,6 +48,9 @@ class OrderDetailResource extends JsonResource
         $items = $order->items;
         /** @var EloquentCollection<int, OrderStatusLog> $statusLogs */
         $statusLogs = $order->statusLogs;
+        $grandTotalBeforeDiscount = round((float) $order->subtotal + (float) $order->delivery_fee, 2);
+        $grandTotalBeforeWallet = round($grandTotalBeforeDiscount - (float) $order->discount_total, 2);
+        $paymentMethod = $this->paymentMethod($order);
 
         return [
             'id' => $order->id,
@@ -45,6 +61,17 @@ class OrderDetailResource extends JsonResource
             'discount_total' => (float) $order->discount_total,
             'wallet_amount' => (float) $order->wallet_amount,
             'total' => (float) $order->total,
+            'grand_total_before_discount' => $grandTotalBeforeDiscount,
+            'grand_total_before_wallet' => $grandTotalBeforeWallet,
+            'payment_method' => $paymentMethod,
+            'payment_summary' => [
+                'method' => $paymentMethod,
+                'paid_from_wallet' => (float) $order->wallet_amount,
+                'due_on_delivery' => (float) $order->total,
+                'grand_total_before_discount' => $grandTotalBeforeDiscount,
+                'grand_total_before_wallet' => $grandTotalBeforeWallet,
+                'discount_total' => (float) $order->discount_total,
+            ],
             'coupon_code' => $order->coupon_code,
             'coupon_snapshot' => $order->coupon_snapshot,
             'notes' => $order->notes,

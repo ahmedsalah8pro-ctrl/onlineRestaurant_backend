@@ -44,17 +44,64 @@
     <span class="eyebrow"><i class="pi pi-receipt"></i> {{ ui.t('cart.summary') }}</span>
     <h2 class="cart-total-price">{{ storefront.formatMoney(cartTotal()) }}</h2>
 
-    <div class="coupon-box">
-      <input pInputText [ngModel]="couponCode()" style="flex: 1" (ngModelChange)="couponCode.set($event)" [placeholder]="ui.t('checkout.coupon')" />
-      <button pButton type="button" severity="primary" [label]="ui.t('cart.couponPreview')" style="white-space: nowrap;" [loading]="loading()" (click)="previewCoupon()" icon="pi pi-ticket"></button>
-    </div>
+    <div class="coupon-panel">
+      <div class="coupon-panel__head">
+        <div>
+          <strong>{{ ui.locale() === 'ar' ? 'فحص الكوبون قبل الدفع' : 'Validate Coupon Before Checkout' }}</strong>
+          <p>{{ ui.locale() === 'ar' ? 'احفظ الكوبون هنا لينتقل تلقائيًا إلى صفحة الدفع.' : 'Keep the coupon here so it carries over to checkout automatically.' }}</p>
+        </div>
+        @if (couponPreview(); as preview) {
+          <span class="coupon-badge" [class.is-valid]="preview.valid">
+            <i class="pi" [ngClass]="preview.valid ? 'pi-check-circle' : 'pi-info-circle'"></i>
+            {{ couponValue(preview) || (ui.locale() === 'ar' ? 'كوبون' : 'Coupon') }}
+          </span>
+        }
+      </div>
 
-    @if (couponPreview()) {
-      <p-message severity="success" [text]="couponPreviewMessage()"></p-message>
-    }
+      <div class="coupon-box">
+        <input
+          pInputText
+          [ngModel]="couponCode()"
+          style="flex: 1"
+          (ngModelChange)="onCouponCodeChange($event)"
+          [placeholder]="ui.t('checkout.coupon')"
+        />
+        <button
+          pButton
+          type="button"
+          severity="primary"
+          [label]="ui.t('cart.couponPreview')"
+          style="white-space: nowrap;"
+          [loading]="loading()"
+          (click)="previewCoupon()"
+          icon="pi pi-ticket"
+        ></button>
+        @if (couponCode()) {
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            icon="pi pi-times"
+            class="p-button-rounded p-button-text"
+            [pTooltip]="ui.locale() === 'ar' ? 'إلغاء الكوبون' : 'Remove coupon'"
+            (click)="clearCoupon()"
+          ></button>
+        }
+      </div>
+
+      @if (couponPreview()) {
+        <p-message [severity]="couponPreviewSeverity()" [text]="couponPreviewMessage()"></p-message>
+      }
+    </div>
 
     <div class="cart-summary__rows">
       <div><span>{{ ui.t('checkout.subtotal') }}</span><strong>{{ storefront.formatMoney(storefront.cart()?.subtotal) }}</strong></div>
+      @if (couponPreview()?.valid) {
+        <div class="discount-row">
+          <span>{{ ui.t('checkout.discount') }}</span>
+          <strong class="text-success">-{{ storefront.formatMoney(couponPreview()!.discount_total) }}</strong>
+        </div>
+      }
       <div><span>{{ ui.t('cart.quantity') }}</span><strong>{{ storefront.cart()?.items?.length || 0 }}</strong></div>
     </div>
 

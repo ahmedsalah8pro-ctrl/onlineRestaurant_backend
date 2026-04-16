@@ -254,6 +254,22 @@ export interface Cart {
   subtotal: number;
 }
 
+export interface CouponPreview {
+  valid: boolean;
+  message: string;
+  discount_products: number;
+  discount_delivery: number;
+  discount_total: number;
+  applies_to?: string | null;
+  requires_delivery_zone?: boolean;
+  coupon?: {
+    code?: string;
+    applies_to?: string;
+    value?: number;
+    type?: string;
+  } | null;
+}
+
 export interface Address {
   id: number;
   label?: string | null;
@@ -329,6 +345,9 @@ export interface OrderSummary {
   discount_total: number;
   wallet_amount: number;
   total: number;
+  grand_total_before_discount?: number;
+  grand_total_before_wallet?: number;
+  payment_method?: 'cash_on_delivery' | 'wallet' | 'wallet_plus_cash_on_delivery';
   coupon_code?: string | null;
   grace_period_ends_at?: string | null;
   placed_at?: string | null;
@@ -338,6 +357,14 @@ export interface OrderDetail extends OrderSummary {
   currency_code: string;
   coupon_snapshot?: Record<string, unknown> | null;
   notes?: string | null;
+  payment_summary?: {
+    method: 'cash_on_delivery' | 'wallet' | 'wallet_plus_cash_on_delivery';
+    paid_from_wallet: number;
+    due_on_delivery: number;
+    grand_total_before_discount: number;
+    grand_total_before_wallet: number;
+    discount_total: number;
+  };
   delivery_person_name?: string | null;
   delivery_person_phone?: string | null;
   branch?: Branch | null;
@@ -346,6 +373,10 @@ export interface OrderDetail extends OrderSummary {
   items: Array<{
     id: number;
     product_snapshot: Record<string, unknown>;
+    product_name?: string;
+    product_translations?: TranslatedText | null;
+    size?: string | null;
+    size_translations?: TranslatedText | null;
     selected_addons: SelectedAddonSnapshot[];
     unit_price: number;
     quantity: number;

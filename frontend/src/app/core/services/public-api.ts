@@ -6,6 +6,7 @@ import {
   Branch,
   Cart,
   Category,
+  CouponPreview,
   DynamicPage,
   NotificationItem,
   OrderDetail,
@@ -114,7 +115,7 @@ export class PublicApiService {
     return this.api.deleteData('/cart');
   }
 
-  previewCoupon(payload: Record<string, unknown>): Observable<Record<string, unknown>> {
+  previewCoupon(payload: Record<string, unknown>): Observable<CouponPreview> {
     return this.api.postData('/cart/preview-coupon', payload);
   }
 

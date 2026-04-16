@@ -1,89 +1,323 @@
-<section class="page-shell">
+<section class="page-shell orders-shell">
   @if (!selectedOrder()) {
-    <div class="glass-panel orders-card">
-      <span class="eyebrow">{{ ui.t('nav.orders') }}</span>
-      <h1 class="section-title">{{ ui.t('orders.title') }}</h1>
-
-      <div class="order-row" *ngFor="let order of orders()">
-        <div>
-          <strong>#{{ order.id }}</strong>
-          <p>{{ ui.orderStatus(order.status) }} · {{ order.placed_at | date: 'medium' }}</p>
+    <div class="orders-overview">
+      <div class="glass-panel orders-hero">
+        <div class="orders-hero__copy">
+          <span class="eyebrow"><i class="pi pi-truck"></i> {{ ui.t('nav.orders') }}</span>
+          <h1 class="section-title">{{ ui.locale() === 'ar' ? 'مركز تتبع الطلبات' : 'Order Tracking Center' }}</h1>
+          <p class="section-copy">
+            {{ ui.locale() === 'ar'
+              ? 'تابع جميع طلباتك في مكان واحد، وادخل مباشرة إلى كل طلب لمعرفة حالته، المدفوع منه، والمتبقي عليك.'
+              : 'Track all of your orders in one place, then open any order for a detailed live progress view.' }}
+          </p>
         </div>
-        <div class="order-row__meta">
-          <strong>{{ storefront.formatMoney(order.total) }}</strong>
-          <button pButton type="button" [label]="ui.t('orders.details')" severity="secondary" (click)="openOrder(order.id)"></button>
+
+        <div class="orders-hero__metrics">
+          <article class="metric-card">
+            <span class="metric-card__label">{{ ui.locale() === 'ar' ? 'إجمالي الطلبات' : 'Total Orders' }}</span>
+            <div class="metric-card__value">{{ orders().length }}</div>
+          </article>
+          <article class="metric-card">
+            <span class="metric-card__label">{{ ui.locale() === 'ar' ? 'قيد التنفيذ' : 'Active' }}</span>
+            <div class="metric-card__value">{{ activeOrdersCount() }}</div>
+          </article>
+          <article class="metric-card">
+            <span class="metric-card__label">{{ ui.locale() === 'ar' ? 'تم تسليمها' : 'Delivered' }}</span>
+            <div class="metric-card__value">{{ deliveredOrdersCount() }}</div>
+          </article>
         </div>
       </div>
 
-      <div *ngIf="orders().length === 0" class="orders-empty">
-        <i class="pi pi-list"></i>
-        <p>{{ ui.t('orders.noOrders') }}</p>
+      <div class="glass-panel orders-list-panel">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">{{ ui.locale() === 'ar' ? 'سجل الطلبات' : 'Orders Feed' }}</span>
+            <h2>{{ ui.t('orders.title') }}</h2>
+          </div>
+        </div>
+
+        @if (listLoading()) {
+          <div class="orders-state">
+            <p-progressspinner strokeWidth="3"></p-progressspinner>
+          </div>
+        } @else if (orders().length === 0) {
+          <div class="orders-empty">
+            <i class="pi pi-inbox"></i>
+            <p>{{ ui.t('orders.noOrders') }}</p>
+          </div>
+        } @else {
+          <div class="orders-grid">
+            <article class="order-card" *ngFor="let order of orders()">
+              <div class="order-card__head">
+                <div>
+                  <span class="order-card__number">#{{ order.id }}</span>
+                  <p>{{ order.placed_at | date: 'medium' }}</p>
+                </div>
+                <p-tag [value]="ui.orderStatus(order.status)" [severity]="statusTagSeverity(order)"></p-tag>
+              </div>
+
+              <div class="order-card__money">
+                <div>
+                  <span>{{ ui.locale() === 'ar' ? 'قبل الخصم' : 'Before discount' }}</span>
+                  <strong>{{ storefront.formatMoney(originalOrderTotal(order)) }}</strong>
+                </div>
+                <div>
+                  <span>{{ ui.locale() === 'ar' ? 'الخصم' : 'Discount' }}</span>
+                  <strong class="negative">{{ storefront.formatMoney(order.discount_total) }}</strong>
+                </div>
+                <div>
+                  <span>{{ ui.locale() === 'ar' ? 'المحفظة' : 'Wallet' }}</span>
+                  <strong class="accent">{{ storefront.formatMoney(walletPaid(order)) }}</strong>
+                </div>
+                <div>
+                  <span>{{ ui.locale() === 'ar' ? 'المتبقي' : 'Due now' }}</span>
+                  <strong>{{ storefront.formatMoney(dueAmount(order)) }}</strong>
+                </div>
+              </div>
+
+              <div class="order-card__foot">
+                <span class="order-card__method">{{ paymentMethodLabel(order) }}</span>
+                <button
+                  pButton
+                  type="button"
+                  [label]="ui.locale() === 'ar' ? 'فتح التتبع' : 'Open tracking'"
+                  icon="pi pi-arrow-left"
+                  (click)="openOrder(order.id)"
+                ></button>
+              </div>
+            </article>
+          </div>
+        }
       </div>
     </div>
-  } @else {
-    <div class="order-tracker">
-      <div class="order-tracker__header">
-        <button pButton icon="pi pi-arrow-left" severity="secondary" class="p-button-rounded p-button-text" (click)="goBack()" [pTooltip]="ui.t('orders.back')"></button>
-        <h2>{{ ui.currentLocale() === 'ar' ? 'الطلب' : 'Order' }} #{{ selectedOrder()!.id }}</h2>
-        <p-tag [value]="ui.orderStatus(selectedOrder()!.status)" [severity]="selectedOrder()!.status === 'delivered' ? 'success' : (selectedOrder()!.status === 'cancelled' ? 'danger' : 'info')"></p-tag>
-      </div>
+  } @else if (selectedOrder(); as current) {
+    <div class="order-details-view">
+      <div class="glass-panel order-hero">
+        <div class="order-hero__top">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            class="p-button-rounded p-button-text"
+            icon="pi pi-arrow-left"
+            (click)="goBack()"
+          ></button>
 
-      <div class="surface-grid two-columns">
-        <div class="glass-panel order-items-panel">
-          <h3>{{ ui.t('orders.items') }}</h3>
-          <div class="mini-order-items">
-            <div class="mini-item" *ngFor="let item of selectedOrder()!.items">
-                <div class="mini-item__main">
-                    <strong>{{ item.quantity }}x {{ theme.resolveText($any(item.product_snapshot).translations || $any(item.product_snapshot).name) }}</strong>
-                    <span>{{ storefront.formatMoney(item.line_subtotal) }}</span>
-                </div>
-                <div class="mini-item__addons" *ngIf="item.selected_addons.length">
-                    <span class="addon-tag" *ngFor="let addon of item.selected_addons">
-                        {{ theme.resolveText(addon.translations || addon.name) }} (+{{ storefront.formatMoney(addon.price) }})
-                    </span>
-                </div>
+          <div class="order-hero__title">
+            <span class="eyebrow">{{ ui.locale() === 'ar' ? 'متابعة مباشرة' : 'Live Tracking' }}</span>
+            <h1>{{ ui.locale() === 'ar' ? 'الطلب' : 'Order' }} #{{ current.id }}</h1>
+            <p>{{ current.placed_at | date: 'fullDate' }} • {{ current.placed_at | date: 'shortTime' }}</p>
+          </div>
+
+          <p-tag [value]="ui.orderStatus(current.status)" [severity]="statusTagSeverity(current)"></p-tag>
+        </div>
+
+        @if (isSpecialTerminalStatus(current)) {
+          <div class="terminal-status-banner">
+            <i class="pi" [ngClass]="current.status === 'refunded' ? 'pi-refresh' : 'pi-times-circle'"></i>
+            <div>
+              <strong>{{ ui.orderStatus(current.status) }}</strong>
+              <p>
+                {{ current.status === 'refunded'
+                  ? (ui.locale() === 'ar' ? 'تم رد قيمة الطلب أو جزء منه وفق سياسة المحفظة والاسترجاع.' : 'The order value has been refunded according to the active refund policy.')
+                  : (ui.locale() === 'ar' ? 'تم إيقاف الطلب ولن ينتقل إلى مراحل التحضير أو التوصيل.' : 'This order has been stopped and will not move to preparation or delivery.') }}
+              </p>
             </div>
           </div>
+        }
 
-          <div class="checkout-summary" style="margin-top: 1rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1rem;">
-            <div class="summary-row"><span>{{ ui.t('checkout.subtotal') }}</span><strong>{{ storefront.formatMoney(selectedOrder()!.subtotal) }}</strong></div>
-            <div class="summary-row"><span>{{ ui.t('checkout.deliveryFee') }}</span><strong>{{ storefront.formatMoney(selectedOrder()!.delivery_fee) }}</strong></div>
-            <div class="summary-row total"><span>{{ ui.t('menu.total') }}</span><strong>{{ storefront.formatMoney(selectedOrder()!.total) }}</strong></div>
-          </div>
-
-          <div style="margin-top: 1.5rem;" *ngIf="selectedOrder()!.status === 'created' || selectedOrder()!.status === 'pending'">
-            <hr style="opacity: 0.1; margin: 1rem 0;">
-            <label class="field-stack">
-              <strong style="font-size: 0.9rem;">{{ ui.t('orders.selfService') }}</strong>
-              <textarea pTextarea rows="2" [ngModel]="noteDraft()" (ngModelChange)="noteDraft.set($event)" [placeholder]="ui.t('orders.changeNote')"></textarea>
-            </label>
-            <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-                <button pButton type="button" [label]="ui.t('orders.saveNotes')" severity="secondary" (click)="saveNotes()" icon="pi pi-save"></button>
-                <button pButton type="button" [label]="ui.t('orders.cancelOrder')" severity="danger" class="p-button-text" (click)="cancelOrder()" icon="pi pi-times"></button>
+        <div class="tracking-steps">
+          <div
+            class="tracking-step"
+            *ngFor="let step of orderSteps"
+            [class.is-complete]="stepState(current, step) === 'complete'"
+            [class.is-current]="stepState(current, step) === 'current'"
+          >
+            <div class="tracking-step__dot">
+              <i class="pi" [ngClass]="stepState(current, step) === 'complete' ? 'pi-check' : 'pi-circle'"></i>
+            </div>
+            <div class="tracking-step__content">
+              <strong>{{ ui.orderStatus(step) }}</strong>
+              <small>{{ stepState(current, step) === 'current'
+                ? (ui.locale() === 'ar' ? 'المرحلة الحالية' : 'Current stage')
+                : stepState(current, step) === 'complete'
+                  ? (ui.locale() === 'ar' ? 'تمت' : 'Completed')
+                  : (ui.locale() === 'ar' ? 'بانتظار التنفيذ' : 'Waiting') }}</small>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="glass-panel timeline-panel">
-          <h3>{{ ui.t('orders.tracking') }}</h3>
-          <p-timeline [value]="selectedOrder()!.status_logs">
-            <ng-template pTemplate="content" let-log>
-              <div class="timeline-card">
-                <strong>{{ ui.orderStatus(log.to_status) }}</strong>
-                <p>{{ log.notes || ui.t('orders.statusUpdated') }}</p>
-                <small>{{ log.created_at | date: 'shortTime' }}</small>
+      @if (detailLoading()) {
+        <div class="glass-panel orders-state">
+          <p-progressspinner strokeWidth="3"></p-progressspinner>
+        </div>
+      } @else if (detailError()) {
+        <div class="glass-panel orders-state error">
+          <i class="pi pi-exclamation-circle"></i>
+          <p>{{ detailError() }}</p>
+        </div>
+      } @else {
+        <div class="order-detail-grid">
+          <div class="glass-panel finance-panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">{{ ui.locale() === 'ar' ? 'الملخص المالي' : 'Financial Summary' }}</span>
+                <h2>{{ ui.locale() === 'ar' ? 'تفاصيل الدفع والخصم' : 'Payment & Discount Details' }}</h2>
               </div>
-            </ng-template>
-          </p-timeline>
+            </div>
 
-          <div class="branch-contact">
-             <strong>{{ ui.t('orders.branchContact') }}</strong>
-             <p>{{ selectedOrder()!.branch?.name }}</p>
-             <a [href]="'tel:' + selectedOrder()!.branch?.phone" pButton icon="pi pi-phone" severity="secondary"
-                [label]="selectedOrder()!.branch?.phone || ui.t('orders.callBranch')" class="p-button-text"></a>
+            <div class="finance-grid">
+              <article class="finance-card">
+                <span>{{ ui.locale() === 'ar' ? 'قبل الخصم' : 'Before discount' }}</span>
+                <strong>{{ storefront.formatMoney(originalOrderTotal(current)) }}</strong>
+              </article>
+              <article class="finance-card">
+                <span>{{ ui.locale() === 'ar' ? 'إجمالي الخصم' : 'Discount applied' }}</span>
+                <strong class="negative">-{{ storefront.formatMoney(current.discount_total) }}</strong>
+              </article>
+              <article class="finance-card">
+                <span>{{ ui.locale() === 'ar' ? 'المدفوع من المحفظة' : 'Paid from wallet' }}</span>
+                <strong class="accent">{{ storefront.formatMoney(walletPaid(current)) }}</strong>
+              </article>
+              <article class="finance-card">
+                <span>{{ ui.locale() === 'ar' ? 'المطلوب سداده' : 'Amount due' }}</span>
+                <strong>{{ storefront.formatMoney(dueAmount(current)) }}</strong>
+              </article>
+            </div>
+
+            <div class="finance-breakdown">
+              <div><span>{{ ui.t('checkout.subtotal') }}</span><strong>{{ storefront.formatMoney(current.subtotal) }}</strong></div>
+              <div><span>{{ ui.t('checkout.deliveryFee') }}</span><strong>{{ storefront.formatMoney(current.delivery_fee) }}</strong></div>
+              <div><span>{{ ui.locale() === 'ar' ? 'بعد الخصم وقبل المحفظة' : 'After discount, before wallet' }}</span><strong>{{ storefront.formatMoney(totalAfterDiscount(current)) }}</strong></div>
+              <div><span>{{ ui.t('checkout.paymentMethod') }}</span><strong>{{ paymentMethodLabel(current) }}</strong></div>
+              @if (current.coupon_code) {
+                <div><span>{{ ui.locale() === 'ar' ? 'الكوبون المستخدم' : 'Applied coupon' }}</span><strong>{{ current.coupon_code }}</strong></div>
+              }
+            </div>
           </div>
+
+          <div class="glass-panel delivery-panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">{{ ui.locale() === 'ar' ? 'التوصيل والعنوان' : 'Delivery & Address' }}</span>
+                <h2>{{ ui.locale() === 'ar' ? 'من المسؤول عن الطلب الآن؟' : 'Who is handling the order now?' }}</h2>
+              </div>
+            </div>
+
+            <div class="delivery-grid">
+              <div class="delivery-block">
+                <label>{{ ui.locale() === 'ar' ? 'الفرع' : 'Branch' }}</label>
+                <strong>{{ theme.resolveText(current.branch?.translations || current.branch?.name || '') || '—' }}</strong>
+              </div>
+              <div class="delivery-block">
+                <label>{{ ui.locale() === 'ar' ? 'منطقة التوصيل' : 'Delivery Zone' }}</label>
+                <strong>{{ theme.resolveText(current.delivery_zone?.translations || current.delivery_zone?.name || '') || '—' }}</strong>
+              </div>
+              <div class="delivery-block">
+                <label>{{ ui.locale() === 'ar' ? 'اسم المستلم' : 'Recipient' }}</label>
+                <strong>{{ current.address?.recipient_name || '—' }}</strong>
+              </div>
+              <div class="delivery-block">
+                <label>{{ ui.locale() === 'ar' ? 'الهاتف' : 'Phone' }}</label>
+                <strong>{{ current.address?.phone || '—' }}</strong>
+              </div>
+              <div class="delivery-block full">
+                <label>{{ ui.locale() === 'ar' ? 'العنوان التفصيلي' : 'Delivery Address' }}</label>
+                <strong>{{ current.address?.street || current.address?.label || '—' }}</strong>
+              </div>
+            </div>
+
+            @if (current.delivery_person_name || current.delivery_person_phone) {
+              <div class="driver-card">
+                <div>
+                  <span>{{ ui.locale() === 'ar' ? 'بيانات المندوب' : 'Assigned Driver' }}</span>
+                  <strong>{{ current.delivery_person_name || (ui.locale() === 'ar' ? 'المندوب قيد التعيين' : 'Driver pending assignment') }}</strong>
+                </div>
+                @if (current.delivery_person_phone) {
+                  <a
+                    pButton
+                    severity="secondary"
+                    class="p-button-sm"
+                    [href]="'tel:' + current.delivery_person_phone"
+                    [label]="current.delivery_person_phone"
+                    icon="pi pi-phone"
+                  ></a>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="glass-panel items-panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">{{ ui.t('orders.items') }}</span>
+                <h2>{{ ui.locale() === 'ar' ? 'محتويات الطلب' : 'Ordered Items' }}</h2>
+              </div>
+            </div>
+
+            <div class="items-stack">
+              <article class="item-card" *ngFor="let item of current.items">
+                <div class="item-card__main">
+                  <div>
+                    <strong>{{ item.quantity }}× {{ item.product_name }}</strong>
+                    <p>{{ item.size || (ui.locale() === 'ar' ? 'الحجم الافتراضي' : 'Default size') }}</p>
+                  </div>
+                  <strong>{{ storefront.formatMoney(item.line_subtotal) }}</strong>
+                </div>
+
+                <div class="item-card__addons" *ngIf="item.selected_addons.length">
+                  <span class="addon-tag" *ngFor="let addon of item.selected_addons">
+                    {{ theme.resolveText(addon.translations || addon.name) }} (+{{ storefront.formatMoney(addon.price) }})
+                  </span>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="glass-panel history-panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">{{ ui.locale() === 'ar' ? 'سجل الحالات' : 'Status History' }}</span>
+                <h2>{{ ui.t('orders.tracking') }}</h2>
+              </div>
+            </div>
+
+            <p-timeline [value]="current.status_logs" styleClass="order-history-timeline">
+              <ng-template pTemplate="content" let-log>
+                <div class="history-card">
+                  <div class="history-card__head">
+                    <strong>{{ ui.orderStatus(log.to_status) }}</strong>
+                    <small>{{ log.created_at | date: 'medium' }}</small>
+                  </div>
+                  <p>{{ log.notes || ui.t('orders.statusUpdated') }}</p>
+                </div>
+              </ng-template>
+            </p-timeline>
+          </div>
+
+          @if (canSelfManage(current)) {
+            <div class="glass-panel actions-panel">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">{{ ui.locale() === 'ar' ? 'إدارة سريعة' : 'Self-Service' }}</span>
+                  <h2>{{ ui.locale() === 'ar' ? 'تعديل الملاحظات أو إلغاء الطلب' : 'Edit notes or cancel the order' }}</h2>
+                </div>
+              </div>
+
+              <div class="field-stack">
+                <label>{{ ui.t('orders.changeNote') }}</label>
+                <textarea pTextarea rows="4" [ngModel]="noteDraft()" (ngModelChange)="noteDraft.set($event)"></textarea>
+              </div>
+
+              <div class="actions-row">
+                <button pButton type="button" [label]="ui.t('orders.saveNotes')" severity="secondary" icon="pi pi-save" (click)="saveNotes()"></button>
+                <button pButton type="button" [label]="ui.t('orders.cancelOrder')" severity="danger" icon="pi pi-times" (click)="cancelOrder()"></button>
+              </div>
+            </div>
+          }
         </div>
-      </div>
+      }
     </div>
   }
 </section>

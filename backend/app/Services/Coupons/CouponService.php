@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 
 class CouponService
 {
-    public function evaluate(?Coupon $coupon, User $user, Collection $cartItems, float $productsTotal, float $deliveryFee): array
+    public function evaluate(?Coupon $coupon, ?User $user, Collection $cartItems, float $productsTotal, float $deliveryFee): array
     {
         if (! $coupon) {
             return $this->emptyResult();
@@ -34,7 +34,7 @@ class CouponService
 
         $conditions = $coupon->conditions ?? [];
 
-        if (($conditions['first_order_only'] ?? false) && $user->orders()->exists()) {
+        if (($conditions['first_order_only'] ?? false) && $user && $user->orders()->exists()) {
             return $this->emptyResult('Coupon is valid only for first orders.');
         }
 
@@ -42,13 +42,14 @@ class CouponService
             return $this->emptyResult('Coupon usage limit has been reached.');
         }
 
-        if ($coupon->usage_limit_per_user !== null && $coupon->usages()->where('user_id', $user->id)->count() >= $coupon->usage_limit_per_user) {
+        if ($user && $coupon->usage_limit_per_user !== null && $coupon->usages()->where('user_id', $user->id)->count() >= $coupon->usage_limit_per_user) {
             return $this->emptyResult('You have already reached the usage limit for this coupon.');
         }
 
         $eligibleProductsTotal = $this->eligibleProductsTotal($conditions, $cartItems, $productsTotal);
         $discountProducts = 0.0;
         $discountDelivery = 0.0;
+        $requiresDeliveryZone = false;
 
         if (in_array($coupon->applies_to, [CouponAppliesTo::Products->value, CouponAppliesTo::Both->value], true)) {
             $discountProducts = $this->calculateDiscount($coupon, $eligibleProductsTotal);
@@ -56,16 +57,28 @@ class CouponService
         }
 
         if (in_array($coupon->applies_to, [CouponAppliesTo::Delivery->value, CouponAppliesTo::Both->value], true)) {
+            if ($deliveryFee <= 0) {
+                $requiresDeliveryZone = true;
+            }
             $discountDelivery = $this->calculateDiscount($coupon, $deliveryFee);
             $discountDelivery = min($discountDelivery, $deliveryFee);
         }
 
+        $hasDiscount = ($discountProducts + $discountDelivery) > 0;
+        $message = $hasDiscount
+            ? 'Coupon applied successfully.'
+            : ($requiresDeliveryZone
+                ? 'Coupon requires selecting a delivery zone to calculate the final discount.'
+                : 'Coupon does not match any eligible amounts.');
+
         return [
-            'valid' => ($discountProducts + $discountDelivery) > 0,
-            'message' => ($discountProducts + $discountDelivery) > 0 ? 'Coupon applied successfully.' : 'Coupon does not match any eligible amounts.',
+            'valid' => $hasDiscount,
+            'message' => $message,
             'discount_products' => round($discountProducts, 2),
             'discount_delivery' => round($discountDelivery, 2),
             'discount_total' => round($discountProducts + $discountDelivery, 2),
+            'applies_to' => $coupon->applies_to,
+            'requires_delivery_zone' => $requiresDeliveryZone,
             'coupon' => $coupon,
         ];
     }
@@ -113,6 +126,8 @@ class CouponService
             'discount_products' => 0.0,
             'discount_delivery' => 0.0,
             'discount_total' => 0.0,
+            'applies_to' => null,
+            'requires_delivery_zone' => false,
             'coupon' => null,
         ];
     }

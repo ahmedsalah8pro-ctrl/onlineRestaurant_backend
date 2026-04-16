@@ -69,6 +69,34 @@
     i { font-size: 1.25rem; }
 }
 
+.coupon-stage {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 247, 237, 0.88));
+  border: 1px solid rgba(178, 34, 34, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.coupon-stage__copy {
+  display: grid;
+  gap: 0.3rem;
+
+  strong {
+    color: #111827;
+    font-size: 1rem;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.6;
+    font-size: 0.9rem;
+  }
+}
+
 .mini-cart-items {
     display: grid;
     gap: 0.75rem;
@@ -115,6 +143,8 @@
   .summary-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
       color: #6b7280;
       font-weight: 500;
       
@@ -131,9 +161,36 @@
   }
 }
 
+.discount-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.discount-clear-btn {
+  width: 1.8rem !important;
+  height: 1.8rem !important;
+  color: #0f172a !important;
+}
+
+.payment-row strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.text-primary {
+  color: var(--brand-primary) !important;
+}
+
 @media (max-width: 960px) {
   .checkout-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+
+  .coupon-box {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
 }
