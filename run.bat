@@ -1,32 +1,33 @@
 @echo off
-setlocal enableextensions enabledelayedexpansion
+setlocal enableextensions
 
-echo [BACKEND] Starting Laravel server...
-echo [FRONTEND] Starting Angular server...
-echo.
+set "ROOT_DIR=%~dp0"
+set "RUNNER=%ROOT_DIR%dev_runner.py"
 
-REM Prefer PHP 8.3+ explicitly for Laravel 13, then fall back to PATH if needed.
-set "PHP_BIN=C:\Users\PC\AppData\Local\Microsoft\WinGet\Packages\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe\php.exe"
-if not exist "%PHP_BIN%" (
-  set "PHP_BIN="
-  where php >nul 2>nul
-  if errorlevel 1 (
-    echo [ERROR] PHP 8.3+ not found. Install PHP 8.3 or update PHP_BIN in run.bat
-    exit /b 1
-  ) else (
-    set "PHP_BIN=php"
-  )
+if not exist "%RUNNER%" (
+  echo [ERROR] dev_runner.py was not found: %RUNNER%
+  exit /b 1
 )
 
-REM Start backend (port 8000)
-start "Backend API (Laravel)" cmd /k "cd /d \"%~dp0backend\" && \"%PHP_BIN%\" artisan serve --host=127.0.0.1 --port=8000"
-
-REM Start frontend (port 4200)
-start "Frontend (Angular)" cmd /k "cd /d \"%~dp0frontend\" && npm run start -- --host 127.0.0.1 --port 4200"
+cd /d "%ROOT_DIR%"
 
 echo.
-echo [OK] Backend:  http://127.0.0.1:8000
-echo [OK] Frontend: http://127.0.0.1:4200
+echo [RUNNER] Starting backend and frontend via dev_runner.py...
+echo [INFO] Backend:  http://127.0.0.1:8000
+echo [INFO] Frontend: http://127.0.0.1:4200
 echo.
-echo Close the opened windows to stop the servers.
-endlocal
+
+where python >nul 2>nul
+if not errorlevel 1 (
+  python "%RUNNER%"
+  exit /b %errorlevel%
+)
+
+where py >nul 2>nul
+if not errorlevel 1 (
+  py -3 "%RUNNER%"
+  exit /b %errorlevel%
+)
+
+echo [ERROR] Python was not found. Install Python 3 or add it to PATH.
+exit /b 1
