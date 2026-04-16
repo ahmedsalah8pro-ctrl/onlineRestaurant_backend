@@ -12,6 +12,30 @@ class Product extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($product) {
+            if ($product->isDirty('slug')) {
+                $product->slug = static::makeUniqueSlug($product->slug, $product->id);
+            }
+        });
+    }
+
+    protected static function makeUniqueSlug(string $slug, $id = null): string
+    {
+        $original = $slug;
+        $count = 2;
+
+        while (static::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+            $slug = "{$original}-{$count}";
+            $count++;
+        }
+
+        return $slug;
+    }
+
     protected $fillable = [
         'name',
         'slug',
@@ -26,6 +50,7 @@ class Product extends Model
         'is_best_seller_pinned',
         'best_seller_rank',
         'sort_order',
+        'purchases_count',
     ];
 
     protected function casts(): array

@@ -10,11 +10,11 @@ trait ApiResponse
     /**
      * @param  array<string, mixed>  $meta
      */
-    protected function successResponse(mixed $data = null, string $message = 'OK', int $status = 200, array $meta = []): JsonResponse
+    protected function successResponse(mixed $data = null, string $message = null, int $status = 200, array $meta = []): JsonResponse
     {
         return response()->json([
             'success' => true,
-            'message' => $message,
+            'message' => $message ?: __('OK'),
             'data' => $data,
             'meta' => $meta,
         ], $status);
@@ -24,9 +24,9 @@ trait ApiResponse
      * @param  LengthAwarePaginator<int, mixed>  $paginator
      * @param  array<string, mixed>  $meta
      */
-    protected function paginatedResponse(LengthAwarePaginator $paginator, mixed $data, string $message = 'OK', array $meta = []): JsonResponse
+    protected function paginatedResponse(LengthAwarePaginator $paginator, mixed $data, string $message = null, array $meta = []): JsonResponse
     {
-        return $this->successResponse($data, $message, 200, array_merge([
+        return $this->successResponse($data, $message ?: __('OK'), 200, array_merge([
             'current_page' => $paginator->currentPage(),
             'last_page' => $paginator->lastPage(),
             'per_page' => $paginator->perPage(),
@@ -37,11 +37,11 @@ trait ApiResponse
     /**
      * @param  array<string, mixed>  $errors
      */
-    protected function errorResponse(string $message, int $status = 422, array $errors = []): JsonResponse
+    protected function errorResponse(string $message = null, int $status = 422, array $errors = []): JsonResponse
     {
         return response()->json([
             'success' => false,
-            'message' => $message,
+            'message' => $message ?: __('Error occurred'),
             'errors' => $errors,
         ], $status);
     }

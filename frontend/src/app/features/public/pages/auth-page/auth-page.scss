@@ -1,38 +1,476 @@
-.auth-grid {
-  display: grid;
-  grid-template-columns: 1fr 0.85fr;
-  gap: 1rem;
+.auth-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: #fafafa;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.register-mode {
+    flex-direction: row-reverse;
+  }
 }
 
-.auth-card,
-.demo-card {
-  padding: 1.5rem;
-  display: grid;
+.auth-visual {
+  flex: 1.1;
+  position: relative;
+  display: none;
+  overflow: hidden;
+
+  @media (min-width: 992px) {
+    display: block;
+  }
+
+  .visual-content {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 5rem;
+    color: white;
+
+    .bg-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 15s linear;
+    }
+
+    &:hover .bg-img {
+      transform: scale(1.1);
+    }
+
+    .visual-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+    }
+
+    .visual-text {
+      position: relative;
+      z-index: 10;
+      max-width: 550px;
+
+      .badge {
+        display: inline-block;
+        padding: 0.6rem 1.2rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        border-radius: 100px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      h1 {
+        font-size: 4rem;
+        line-height: 1;
+        margin-bottom: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+
+        span {
+          color: var(--primary-color);
+          position: relative;
+          
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--primary-color);
+            opacity: 0.3;
+            z-index: -1;
+          }
+        }
+      }
+
+      p {
+        font-size: 1.25rem;
+        opacity: 0.85;
+        line-height: 1.7;
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+.auth-form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: white;
+  position: relative;
+  z-index: 20;
+  box-shadow: -10px 0 50px rgba(0,0,0,0.05);
+
+  .auth-card-wrapper {
+    width: 100%;
+    max-width: 440px;
+    padding: 1rem;
+
+    &.register-mode {
+        max-width: 580px;
+    }
+  }
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 3.5rem;
+  font-weight: 900;
+  font-size: 1.75rem;
+  letter-spacing: -0.05em;
+  color: #111827;
+
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--primary-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.3);
+  }
+}
+
+.form-header {
+  margin-bottom: 3rem;
+
+  .title {
+    font-size: 2.75rem;
+    font-weight: 900;
+    margin-bottom: 0.75rem;
+    color: #111827;
+    letter-spacing: -0.03em;
+  }
+
+  .subtitle {
+    color: #6b7280;
+    font-size: 1.15rem;
+    line-height: 1.5;
+  }
+}
+
+.error-banner {
+  background: #fff1f2;
+  border: 1px solid #fecaca;
+  padding: 1.25rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
   gap: 1rem;
+  margin-bottom: 2.5rem;
+  color: #be123c;
+  font-weight: 600;
+
+  i {
+    font-size: 1.25rem;
+  }
 }
 
 .form-grid {
   display: grid;
-  gap: 1rem;
+  gap: 1.75rem;
+
+  &.register-grid {
+    gap: 1.5rem;
+  }
 }
 
-.demo-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.6);
-}
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 
-.demo-row p,
-.demo-row small {
-  color: #64748b;
-}
-
-@media (max-width: 960px) {
-  .auth-grid {
+  @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  position: relative;
+
+  label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #374151;
+    margin-left: 4px;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    i {
+      position: absolute;
+      left: 1.25rem;
+      color: #9ca3af;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    input, 
+    ::ng-deep .p-password input {
+      width: 100%;
+      padding: 1rem 1.25rem 1rem 3.25rem !important;
+      border-radius: 16px;
+      border: 2px solid #f3f4f6;
+      font-size: 1.05rem;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: #f9fafb;
+      color: #111827;
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+
+      &:focus {
+        border-color: var(--primary-color);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.08);
+        outline: none;
+
+        + i {
+          color: var(--primary-color);
+        }
+      }
+    }
+
+    ::ng-deep .p-password {
+        width: 100%;
+    }
+  }
+
+  .error-text {
+    font-size: 0.85rem;
+    color: #ef4444;
+    font-weight: 600;
+    margin-top: 4px;
+    margin-left: 4px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* Validation States */
+  &.field-error {
+    label { color: #ef4444; }
+    input, ::ng-deep .p-password input {
+      border-color: #fecaca;
+      background: #fffafb;
+      &:focus { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08); }
+    }
+    .input-wrapper i { color: #f87171; }
+  }
+
+  &.field-success {
+    input, ::ng-deep .p-password input {
+      border-color: #d1fae5;
+      background: #f6fffb;
+      &:focus { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.08); }
+    }
+    .input-wrapper i { color: #10b981; }
+  }
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+
+  .btn-primary {
+    width: 100%;
+    padding: 1.1rem;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 1.15rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.85rem;
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    &:not(:disabled):hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 20px 30px -10px rgba(var(--primary-rgb), 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(0.5);
+    }
+    
+    i {
+        font-size: 1rem;
+    }
+  }
+}
+
+.form-footer {
+  margin-top: 2.5rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 1.05rem;
+
+  a {
+    color: var(--primary-color);
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    margin-left: 0.5rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      text-decoration: underline;
+      filter: brightness(0.8);
+    }
+  }
+}
+
+.demo-section {
+    margin-top: 2.5rem;
+    display: flex;
+    justify-content: center;
+
+    .btn-ghost {
+        color: #9ca3af;
+        font-weight: 600;
+        background: transparent;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        &:hover {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+    }
+}
+
+.demo-panel {
+    padding: 1.5rem;
+    width: 360px;
+    background: white;
+
+    h3 {
+        margin-bottom: 1.5rem;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #111827;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        
+        &::before { content: ''; width: 4px; height: 1.25rem; background: var(--primary-color); border-radius: 2px; }
+    }
+
+    .demo-list {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .demo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.15rem;
+        background: #f8fafc;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: var(--transition-bounce);
+
+        &:hover {
+            border-color: var(--primary-color);
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+            
+            .demo-info strong { color: var(--primary-color); }
+        }
+
+        .demo-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            strong {
+                font-size: 1rem;
+                color: #111827;
+                transition: color 0.3s ease;
+            }
+
+            span {
+                font-size: 0.85rem;
+                color: #6b7280;
+                font-family: inherit;
+            }
+        }
+        
+        ::ng-deep .p-button {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border-radius: 12px;
+        }
+    }
+}
+
+/* Base Animations */
+.animate-fade-in {
+  animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(1.05); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+[dir="rtl"] {
+    .auth-container.register-mode {
+        flex-direction: row;
+    }
+    
+    .auth-visual .visual-content {
+        .visual-text .badge, h1, p {
+            text-align: right;
+        }
+    }
+    
+    .input-group .input-wrapper i {
+        left: auto;
+        right: 1.25rem;
+    }
+    
+    .input-group .input-wrapper input,
+    .input-group .input-wrapper ::ng-deep .p-password input {
+        padding-left: 1.25rem !important;
+        padding-right: 3.25rem !important;
+    }
 }

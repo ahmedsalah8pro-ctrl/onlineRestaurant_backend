@@ -171,35 +171,35 @@
         <div class="form-grid">
           <label class="field-stack">
             <span>{{ ui.t('admin.settings.publicArBody') }}</span>
-            <input pInputText [ngModel]="values('typography')['public_ar_body_font']" (ngModelChange)="updateValue('typography', 'public_ar_body_font', $event)" />
+            <p-select [editable]="true" [options]="fontLibrary()" optionLabel="name" optionValue="font_family" [ngModel]="values('typography')['public_ar_body_font']" (ngModelChange)="updateValue('typography', 'public_ar_body_font', $event)"></p-select>
           </label>
           <label class="field-stack">
             <span>{{ ui.t('admin.settings.publicEnBody') }}</span>
-            <input pInputText [ngModel]="values('typography')['public_en_body_font']" (ngModelChange)="updateValue('typography', 'public_en_body_font', $event)" />
+            <p-select [editable]="true" [options]="fontLibrary()" optionLabel="name" optionValue="font_family" [ngModel]="values('typography')['public_en_body_font']" (ngModelChange)="updateValue('typography', 'public_en_body_font', $event)"></p-select>
           </label>
           <label class="field-stack">
             <span>{{ ui.t('admin.settings.publicArHeading') }}</span>
-            <input pInputText [ngModel]="values('typography')['public_ar_heading_font']" (ngModelChange)="updateValue('typography', 'public_ar_heading_font', $event)" />
+            <p-select [editable]="true" [options]="fontLibrary()" optionLabel="name" optionValue="font_family" [ngModel]="values('typography')['public_ar_heading_font']" (ngModelChange)="updateValue('typography', 'public_ar_heading_font', $event)"></p-select>
           </label>
           <label class="field-stack">
             <span>{{ ui.t('admin.settings.publicEnHeading') }}</span>
-            <input pInputText [ngModel]="values('typography')['public_en_heading_font']" (ngModelChange)="updateValue('typography', 'public_en_heading_font', $event)" />
+            <p-select [editable]="true" [options]="fontLibrary()" optionLabel="name" optionValue="font_family" [ngModel]="values('typography')['public_en_heading_font']" (ngModelChange)="updateValue('typography', 'public_en_heading_font', $event)"></p-select>
           </label>
           <label class="field-stack">
             <span>{{ ui.t('admin.settings.adminArBody') }}</span>
-            <input pInputText [ngModel]="values('typography')['admin_ar_body_font']" (ngModelChange)="updateValue('typography', 'admin_ar_body_font', $event)" />
+            <p-select [editable]="true" [options]="fontLibrary()" optionLabel="name" optionValue="font_family" [ngModel]="values('typography')['admin_ar_body_font']" (ngModelChange)="updateValue('typography', 'admin_ar_body_font', $event)"></p-select>
           </label>
           <label class="field-stack">
             <span>{{ ui.t('admin.settings.adminEnBody') }}</span>
-            <input pInputText [ngModel]="values('typography')['admin_en_body_font']" (ngModelChange)="updateValue('typography', 'admin_en_body_font', $event)" />
+            <p-select [editable]="true" [options]="fontLibrary()" optionLabel="name" optionValue="font_family" [ngModel]="values('typography')['admin_en_body_font']" (ngModelChange)="updateValue('typography', 'admin_en_body_font', $event)"></p-select>
           </label>
           <label class="field-stack">
             <span>{{ ui.t('admin.settings.adminArHeading') }}</span>
-            <input pInputText [ngModel]="values('typography')['admin_ar_heading_font']" (ngModelChange)="updateValue('typography', 'admin_ar_heading_font', $event)" />
+            <p-select [editable]="true" [options]="fontLibrary()" optionLabel="name" optionValue="font_family" [ngModel]="values('typography')['admin_ar_heading_font']" (ngModelChange)="updateValue('typography', 'admin_ar_heading_font', $event)"></p-select>
           </label>
           <label class="field-stack">
             <span>{{ ui.t('admin.settings.adminEnHeading') }}</span>
-            <input pInputText [ngModel]="values('typography')['admin_en_heading_font']" (ngModelChange)="updateValue('typography', 'admin_en_heading_font', $event)" />
+            <p-select [editable]="true" [options]="fontLibrary()" optionLabel="name" optionValue="font_family" [ngModel]="values('typography')['admin_en_heading_font']" (ngModelChange)="updateValue('typography', 'admin_en_heading_font', $event)"></p-select>
           </label>
         </div>
       </div>
@@ -298,6 +298,126 @@
       </div>
       <div class="settings-actions">
         <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="saveGroup('uploads')"></button>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'social') {
+    <div class="glass-panel settings-card">
+      <div class="form-grid">
+        <!-- Google -->
+        <div class="panel-section">
+          <div class="toggle-row">
+            <span>Enable Google Login</span>
+            <p-toggleswitch [ngModel]="values('social')['google_enabled']" (ngModelChange)="updateValue('social', 'google_enabled', $event)"></p-toggleswitch>
+          </div>
+          <div class="form-grid two-columns mt-2" *ngIf="values('social')['google_enabled']">
+            <label class="field-stack">
+              <span>Google Client ID</span>
+              <input pInputText [ngModel]="values('social')['google_client_id']" (ngModelChange)="updateValue('social', 'google_client_id', $event)" placeholder="Enter Client ID" />
+            </label>
+            <label class="field-stack">
+              <span>Google Client Secret</span>
+              <input pInputText type="password" [ngModel]="values('social')['google_client_secret']" (ngModelChange)="updateValue('social', 'google_client_secret', $event)" placeholder="••••••••" />
+            </label>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Discord -->
+        <div class="panel-section">
+          <div class="toggle-row">
+            <span>Enable Discord Login</span>
+            <p-toggleswitch [ngModel]="values('social')['discord_enabled']" (ngModelChange)="updateValue('social', 'discord_enabled', $event)"></p-toggleswitch>
+          </div>
+          <div class="form-grid two-columns mt-2" *ngIf="values('social')['discord_enabled']">
+            <label class="field-stack">
+              <span>Discord Client ID</span>
+              <input pInputText [ngModel]="values('social')['discord_client_id']" (ngModelChange)="updateValue('social', 'discord_client_id', $event)" placeholder="Enter Client ID" />
+            </label>
+            <label class="field-stack">
+              <span>Discord Client Secret</span>
+              <input pInputText type="password" [ngModel]="values('social')['discord_client_secret']" (ngModelChange)="updateValue('social', 'discord_client_secret', $event)" placeholder="••••••••" />
+            </label>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Facebook -->
+        <div class="panel-section">
+          <div class="toggle-row">
+            <span>Enable Facebook Login</span>
+            <p-toggleswitch [ngModel]="values('social')['facebook_enabled']" (ngModelChange)="updateValue('social', 'facebook_enabled', $event)"></p-toggleswitch>
+          </div>
+          <div class="form-grid two-columns mt-2" *ngIf="values('social')['facebook_enabled']">
+            <label class="field-stack">
+              <span>Facebook App ID</span>
+              <input pInputText [ngModel]="values('social')['facebook_client_id']" (ngModelChange)="updateValue('social', 'facebook_client_id', $event)" placeholder="Enter App ID" />
+            </label>
+            <label class="field-stack">
+              <span>Facebook App Secret</span>
+              <input pInputText type="password" [ngModel]="values('social')['facebook_client_secret']" (ngModelChange)="updateValue('social', 'facebook_client_secret', $event)" placeholder="••••••••" />
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="settings-actions">
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="saveGroup('social')"></button>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'security') {
+    <div class="glass-panel settings-card">
+      <div class="form-grid">
+        <div class="panel-section">
+          <div class="toggle-grid">
+            <div class="toggle-row">
+              <span>Captcha at Login</span>
+              <p-toggleswitch [ngModel]="values('security')['login_captcha_enabled']" (ngModelChange)="updateValue('security', 'login_captcha_enabled', $event)"></p-toggleswitch>
+            </div>
+            <div class="toggle-row">
+              <span>Captcha at Registration</span>
+              <p-toggleswitch [ngModel]="values('security')['register_captcha_enabled']" (ngModelChange)="updateValue('security', 'register_captcha_enabled', $event)"></p-toggleswitch>
+            </div>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="panel-section">
+          <label class="field-stack">
+            <span>Captcha Service Type</span>
+            <p-select
+              [options]="[
+                { label: 'Google reCAPTCHA v2', value: 'google' },
+                { label: 'hCaptcha', value: 'hcaptcha' },
+                { label: 'Internal Simple Captcha', value: 'simple' },
+                { label: 'Swap Line (Drag)', value: 'swap' }
+              ]"
+              [ngModel]="values('security')['captcha_type']"
+              (ngModelChange)="updateValue('security', 'captcha_type', $event)"
+              optionLabel="label"
+              optionValue="value"
+            />
+          </label>
+
+          <div class="form-grid two-columns mt-4" *ngIf="values('security')['captcha_type'] === 'google' || values('security')['captcha_type'] === 'hcaptcha'">
+            <label class="field-stack">
+              <span>Site Key</span>
+              <input pInputText [ngModel]="values('security')['captcha_site_key']" (ngModelChange)="updateValue('security', 'captcha_site_key', $event)" placeholder="Enter site key" />
+            </label>
+            <label class="field-stack">
+              <span>Secret Key</span>
+              <input pInputText type="password" [ngModel]="values('security')['captcha_secret_key']" (ngModelChange)="updateValue('security', 'captcha_secret_key', $event)" placeholder="••••••••" />
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="settings-actions">
+        <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="saveGroup('security')"></button>
       </div>
     </div>
   }

@@ -56,12 +56,17 @@ class OrderDetailResource extends JsonResource
             'delivery_zone' => $deliveryZone ? [
                 'id' => $deliveryZone->id,
                 'name' => Translatable::get($deliveryZone->name),
+                'translations' => $deliveryZone->name,
                 'delivery_fee' => (float) $deliveryZone->delivery_fee,
             ] : null,
             'address' => $address ? new AddressResource($address) : null,
             'items' => $items->map(fn (OrderItem $item) => [
                 'id' => $item->id,
                 'product_snapshot' => $item->product_snapshot,
+                'product_name' => Translatable::get($item->product_snapshot['name'] ?? 'Product'),
+                'product_translations' => $item->product_snapshot['name'] ?? null,
+                'size' => Translatable::get($item->product_snapshot['size'] ?? ''),
+                'size_translations' => $item->product_snapshot['size'] ?? null,
                 'selected_addons' => $item->selected_addons,
                 'unit_price' => (float) $item->unit_price,
                 'quantity' => $item->quantity,

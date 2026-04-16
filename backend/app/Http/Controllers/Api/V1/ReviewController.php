@@ -17,19 +17,21 @@ class ReviewController extends Controller
     public function store(StoreReviewRequest $request): JsonResponse
     {
         $user = $request->user();
-        $eligible = $user->orders()
-            ->where('status', 'delivered')
-            ->whereHas('items', fn ($query) => $query->where('product_id', $request->integer('product_id')))
-            ->exists();
+        $unreviewedItem = \App\Models\OrderItem::whereHas('order', function ($q) use ($user) {
+            $q->where('user_id', $user->id)->where('status', 'delivered');
+        })
+        ->where('product_id', $request->integer('product_id'))
+        ->whereDoesntHave('review')
+        ->first();
 
-        if (! $eligible) {
-            return $this->errorResponse('You can review only products you have purchased and received.', 422);
+        if (! $unreviewedItem) {
+            return $this->errorResponse('You can review only products you have purchased and received, and you cannot review the same purchase twice.', 422);
         }
 
         $review = Review::create([
             'user_id' => $user->id,
             'product_id' => $request->integer('product_id'),
-            'order_item_id' => $request->validated('order_item_id'),
+            'order_item_id' => $unreviewedItem->id,
             'rating' => $request->integer('rating'),
             'comment' => $request->filled('comment') ? strip_tags($request->string('comment')) : null,
             'is_anonymous' => $request->boolean('is_anonymous'),

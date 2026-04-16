@@ -1,29 +1,82 @@
-<section class="surface-grid">
-  <div class="surface-grid four-up">
-    <div class="metric-card" *ngFor="let metric of metrics()">
-      <div class="metric-card__label">{{ metric.label }}</div>
-      <div class="metric-card__value">{{ metric.value }}</div>
+<section class="dash-grid">
+  <!-- KPI Cards Row -->
+  <div class="dash-kpi-row">
+    <div class="dash-kpi" *ngFor="let metric of metrics()">
+      <span class="dash-kpi__icon">{{ metric.icon }}</span>
+      <div class="dash-kpi__body">
+        <div class="dash-kpi__label">{{ metric.label }}</div>
+        <div class="dash-kpi__value">{{ metric.value }}</div>
+      </div>
     </div>
   </div>
 
-  <div class="surface-grid two-columns">
-    <div class="glass-panel dashboard-card">
-      <span class="eyebrow">{{ ui.t('admin.orders.title') }}</span>
-      <highcharts-chart
-        [options]="chartOptions"
-        style="width: 100%; height: 420px; display: block;"
-      ></highcharts-chart>
+  <div class="dash-two-col">
+    <!-- Bar Chart — Order Status -->
+    <div class="glass-panel dash-card">
+      <span class="eyebrow">📊 {{ ui.t('admin.chart.orderStatus') }}</span>
+      <h2>{{ ui.t('admin.orders.title') }}</h2>
+
+      <div class="dash-chart" *ngIf="chartData().length > 0; else noOrders">
+        <div class="dash-chart__bars">
+          <div class="dash-chart__bar-group" *ngFor="let bar of chartData()">
+            <div class="dash-chart__bar-wrap">
+              <span class="dash-chart__bar-val">{{ bar.count }}</span>
+              <div class="dash-chart__bar" [style.height.%]="bar.pct"></div>
+            </div>
+            <span class="dash-chart__bar-label">{{ bar.label }}</span>
+          </div>
+        </div>
+      </div>
+      <ng-template #noOrders>
+        <div class="dash-empty">🧾 لا توجد طلبات حتى الآن</div>
+      </ng-template>
     </div>
 
-    <div class="glass-panel dashboard-card">
-      <span class="eyebrow">{{ ui.t('admin.dashboard.recentFocus') }}</span>
+    <!-- Operational Focus Panel -->
+    <div class="glass-panel dash-card">
+      <span class="eyebrow">🎯 {{ ui.t('admin.dashboard.recentFocus') }}</span>
       <h2>{{ ui.t('admin.dashboard.recentFocus') }}</h2>
-      <ul class="dashboard-list">
-        <li>{{ ui.t('admin.dashboard.focusA') }}</li>
-        <li>{{ ui.t('admin.dashboard.focusB') }}</li>
-        <li>{{ ui.t('admin.dashboard.focusC') }}</li>
-        <li>{{ ui.t('admin.dashboard.focusD') }}</li>
+
+      <ul class="dash-focus-list">
+        <li>
+          <span class="focus-icon">🚚</span>
+          <span>{{ ui.t('admin.dashboard.focusA') }}</span>
+        </li>
+        <li>
+          <span class="focus-icon">🔥</span>
+          <span>{{ ui.t('admin.dashboard.focusB') }}</span>
+        </li>
+        <li>
+          <span class="focus-icon">🎨</span>
+          <span>{{ ui.t('admin.dashboard.focusC') }}</span>
+        </li>
+        <li>
+          <span class="focus-icon">🔐</span>
+          <span>{{ ui.t('admin.dashboard.focusD') }}</span>
+        </li>
       </ul>
+
+      <!-- Quick Links -->
+      <div class="dash-quicklinks">
+        <a class="dash-quicklink" routerLink="/admin/orders">🛒 {{ ui.t('admin.section.orders') }}</a>
+        <a class="dash-quicklink" routerLink="/admin/catalog">🍔 {{ ui.t('admin.section.catalog') }}</a>
+        <a class="dash-quicklink" routerLink="/admin/settings">🎨 {{ ui.t('admin.section.branding') }}</a>
+        <a class="dash-quicklink" routerLink="/admin/access">👥 {{ ui.t('admin.section.customers') }}</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Revenue Banner -->
+  <div class="glass-panel dash-revenue">
+    <div class="dash-revenue__left">
+      <span class="dash-revenue__icon">💰</span>
+      <div>
+        <div class="dash-revenue__label">{{ ui.t('admin.metrics.revenue') }}</div>
+        <div class="dash-revenue__value">{{ revenueFormatted() }}</div>
+      </div>
+    </div>
+    <div class="dash-revenue__right">
+      <span class="dash-revenue__badge">{{ ui.t('admin.metrics.pending') }}: {{ pendingCount() }}</span>
     </div>
   </div>
 </section>

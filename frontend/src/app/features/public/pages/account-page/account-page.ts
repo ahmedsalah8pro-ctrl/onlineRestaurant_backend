@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
-import { Address, NotificationItem, UserProfile } from '../../../../core/models/api.models';
+import { Address, Branch, DeliveryZone, NotificationItem, UserProfile } from '../../../../core/models/api.models';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
+import { StorefrontService } from '../../../../core/services/storefront';
 import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
@@ -16,6 +17,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 export class AccountPage implements OnInit {
   protected readonly publicApi = inject(PublicApiService);
   protected readonly runtime = inject(RuntimeConfigService);
+  protected readonly storefront = inject(StorefrontService);
   protected readonly ui = inject(UiTextService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly message = inject(MessageService);
@@ -26,6 +28,8 @@ export class AccountPage implements OnInit {
   protected readonly loading = signal(false);
   protected readonly addressDialogVisible = signal(false);
   protected readonly editingAddressId = signal<number | null>(null);
+  protected readonly selectedBranchId = signal<number | null>(null);
+  protected readonly alternativePhoneModels = signal<string[]>([]);
 
   protected addressDraft = this.createEmptyAddress();
 
@@ -97,36 +101,78 @@ export class AccountPage implements OnInit {
   }
 
   protected openCreateAddress(): void {
-    this.addressDraft = this.createEmptyAddress();
+    const empty = this.createEmptyAddress();
+    this.addressDraft = { ...empty } as any;
+    this.alternativePhoneModels.set([]);
     this.editingAddressId.set(null);
+    this.selectedBranchId.set(this.storefront.branches()[0]?.id ?? null);
     this.addressDialogVisible.set(true);
   }
 
   protected openEditAddress(address: Address): void {
+    const pModels = [...(address.alternative_phones ?? [])];
+    this.alternativePhoneModels.set(pModels);
+
     this.addressDraft = {
+      ...this.createEmptyAddress(),
       label: address.label ?? '',
       recipient_name: address.recipient_name,
       phone: address.phone,
-      country: address.country ?? 'Egypt',
-      city: address.city,
-      area: address.area,
-      street: address.street,
+      alternative_phones: pModels,
+      country: address.country ?? '',
+      delivery_zone_id: address.delivery_zone_id,
+      street: address.street ?? '',
       building: address.building ?? '',
-      floor: address.floor ?? '',
-      apartment: address.apartment ?? '',
-      landmark: address.landmark ?? '',
-      notes: address.notes ?? '',
       is_default: address.is_default,
-    };
+    } as any;
+    
+    // Find branch of the zone
+    const branch = this.storefront.branches().find((b: Branch) => b.delivery_zones?.some((z: DeliveryZone) => z.id === address.delivery_zone_id));
+    if (branch) this.selectedBranchId.set(branch.id);
+    
     this.editingAddressId.set(address.id);
     this.addressDialogVisible.set(true);
   }
 
+  protected updateAltPhone(idx: number, val: string) {
+    const cur = [...this.alternativePhoneModels()];
+    cur[idx] = val;
+    this.alternativePhoneModels.set(cur);
+  }
+
+  protected addAltPhone(): void {
+    if (this.alternativePhoneModels().length < 3) {
+      this.alternativePhoneModels.set([...this.alternativePhoneModels(), '']);
+    }
+  }
+
+  protected removeAltPhone(index: number): void {
+    const cur = [...this.alternativePhoneModels()];
+    cur.splice(index, 1);
+    this.alternativePhoneModels.set(cur);
+  }
+
+  protected onBranchChange(branchId: number): void {
+    this.selectedBranchId.set(branchId);
+    // Auto-select first delivery zone when branch changes
+    const firstZone = this.storefront.branches().find((b: Branch) => b.id === branchId)?.delivery_zones?.[0];
+    if (firstZone) this.addressDraft.delivery_zone_id = firstZone.id;
+  }
+
+  protected readonly zones = computed(() => {
+    return this.storefront.branches().find((b: Branch) => b.id === this.selectedBranchId())?.delivery_zones ?? [];
+  });
+
   protected async saveAddress(): Promise<void> {
     const addressId = this.editingAddressId();
+    const payload = {
+      ...this.addressDraft,
+      alternative_phones: this.alternativePhoneModels().filter(p => !!p)
+    };
+    
     const response = addressId
-      ? await firstValueFrom(this.publicApi.updateAddress(addressId, this.addressDraft))
-      : await firstValueFrom(this.publicApi.createAddress(this.addressDraft));
+      ? await firstValueFrom(this.publicApi.updateAddress(addressId, payload))
+      : await firstValueFrom(this.publicApi.createAddress(payload));
 
     const next = [...this.addresses()];
     const index = next.findIndex((entry) => entry.id === response.id);
@@ -171,15 +217,11 @@ export class AccountPage implements OnInit {
       label: '',
       recipient_name: '',
       phone: '',
-      country: 'Egypt',
-      city: '',
-      area: '',
+      alternative_phones: ['', '', ''],
+      country: '',
+      delivery_zone_id: null as number | null,
       street: '',
       building: '',
-      floor: '',
-      apartment: '',
-      landmark: '',
-      notes: '',
       is_default: false,
     };
   }

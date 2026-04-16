@@ -45,4 +45,9 @@ class OrderItem extends Model
     {
         return $this->belongsTo(ProductSize::class);
     }
+
+    public function review(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Review::class, 'order_item_id');
+    }
 }

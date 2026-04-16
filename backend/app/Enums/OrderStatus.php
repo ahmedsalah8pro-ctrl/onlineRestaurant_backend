@@ -12,4 +12,18 @@ enum OrderStatus: string
     case Delivered = 'delivered';
     case Cancelled = 'cancelled';
     case Refunded = 'refunded';
+    
+    public function label(): string
+    {
+        return match($this) {
+            self::Created => 'تم الإنشاء',
+            self::Pending => 'قيد المراجعة',
+            self::Confirmed => 'تم التأكيد',
+            self::Preparing => 'جارٍ التحضير',
+            self::OutForDelivery => 'مع المندوب',
+            self::Delivered => 'تم التسليم',
+            self::Cancelled => 'ملغي',
+            self::Refunded => 'مسترجع',
+        };
+    }
 }

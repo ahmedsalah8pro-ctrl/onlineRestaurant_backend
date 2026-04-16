@@ -162,8 +162,8 @@ export class PublicApiService {
     return this.api.getData('/wallet');
   }
 
-  getWalletTransactions(): Observable<ApiListResponse<WalletTransaction>> {
-    return this.api.getPaginated('/wallet/transactions');
+  getWalletTransactions(params?: Record<string, unknown>): Observable<ApiListResponse<WalletTransaction>> {
+    return this.api.getPaginated('/wallet/transactions', params);
   }
 
   redeemGiftCard(code: string): Observable<Wallet> {

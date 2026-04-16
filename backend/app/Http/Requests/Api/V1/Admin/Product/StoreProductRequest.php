@@ -18,7 +18,7 @@ class StoreProductRequest extends FormRequest
             'name' => ['required', 'array'],
             'name.ar' => ['required', 'string', 'max:255'],
             'name.en' => ['nullable', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:150', Rule::unique('products', 'slug')],
+            'slug' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'array'],
             'short_description' => ['nullable', 'array'],
             'base_price' => ['nullable', 'numeric', 'min:0'],

@@ -1,115 +1,212 @@
-<div class="public-shell">
-  <p-toast position="top-center"></p-toast>
+<div class="app-container" [attr.lang]="ui.currentLocale()" [class.rtl]="ui.currentLocale() === 'ar'">
+  <p-toast position="top-right"></p-toast>
   <p-confirmdialog></p-confirmdialog>
 
-  <header class="public-header glass-panel">
-    <div class="page-shell public-header__content">
-      <a class="brand-lockup" routerLink="/">
-        <div class="brand-lockup__mark">
-          @if (logoUrl()) {
-            <img [src]="logoUrl()" [alt]="siteName()" />
-          } @else {
-            {{ siteName().slice(0, 1) }}
-          }
-        </div>
-        <div>
-          <div class="brand-lockup__name">{{ siteName() }}</div>
-          <div class="brand-lockup__tagline">
-            {{ theme.resolveText(storefront.settings()?.branding?.brand_tagline) || ui.t('public.taglineFallback') }}
+  <!-- Modern Floating Header -->
+  <header class="navbar-wrapper" [class.navbar-scrolled]="isScrolled()">
+    <div class="navbar-container">
+      <div class="navbar-inner">
+        <!-- Brand -->
+        <a routerLink="/" class="navbar-brand">
+          <div class="logo-box">
+            @if (logoUrl()) {
+              <img [src]="logoUrl()" [alt]="siteName()" />
+            } @else {
+              <span>{{ siteName().slice(0, 1) }}</span>
+            }
           </div>
-        </div>
-      </a>
-
-      <nav class="public-nav">
-        @for (item of navigation; track item.path) {
-          @if (!item.auth || auth.isAuthenticated()) {
-            <a
-              [routerLink]="item.path"
-              routerLinkActive="is-active"
-              [routerLinkActiveOptions]="{ exact: item.path === '/' }"
-            >
-              {{ ui.t(item.key) }}
-            </a>
-          }
-        }
-      </nav>
-
-      <div class="public-actions">
-        <div class="lang-switcher">
-          <button
-            type="button"
-            class="lang-btn"
-            [class.lang-btn--active]="theme.locale() === 'ar'"
-            (click)="switchLocale('ar')"
-          >AR</button>
-          <button
-            type="button"
-            class="lang-btn"
-            [class.lang-btn--active]="theme.locale() === 'en'"
-            (click)="switchLocale('en')"
-          >EN</button>
-        </div>
-
-        <a class="cart-pill" routerLink="/cart" *ngIf="auth.isAuthenticated()">
-          <i class="pi pi-shopping-bag"></i>
-          <span>{{ cartCount() }}</span>
+          <div class="brand-info">
+            <span class="site-name">{{ siteName() }}</span>
+            <span class="tagline">Premium Dining</span>
+          </div>
         </a>
 
-        @if (auth.isAuthenticated()) {
-          <a class="wallet-pill" routerLink="/wallet">
-            <i class="pi pi-wallet"></i>
-            <span>{{ storefront.formatMoney(walletBalance()) }}</span>
-          </a>
-          <a class="icon-link" routerLink="/account" [attr.aria-label]="ui.t('nav.account')">
-            <i class="pi pi-user"></i>
-          </a>
-          @if (auth.isAdmin()) {
-            <a class="admin-link" routerLink="/admin">{{ ui.t('nav.admin') }}</a>
+        <!-- Desktop Navigation -->
+        <nav class="nav-links">
+          @for (item of navigation; track item.path) {
+            @if (!item.auth || auth.isAuthenticated()) {
+              <a
+                [routerLink]="item.path"
+                routerLinkActive="link-active"
+                [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+                class="nav-item"
+              >
+                <i [class]="item.icon"></i>
+                {{ ui.t(item.key) }}
+              </a>
+            }
           }
-          <button type="button" class="nav-btn nav-btn--secondary" (click)="logout()">
-            <i class="pi pi-sign-out"></i>
-            {{ ui.t('nav.logout') }}
-          </button>
-        } @else {
-          <a class="nav-btn nav-btn--primary" routerLink="/auth">
-            <i class="pi pi-sign-in"></i>
-            {{ ui.t('nav.login') }}
-          </a>
-        }
+        </nav>
+
+        <!-- Actions -->
+        <div class="navbar-actions">
+          <!-- Multi-language Switcher -->
+          <div class="lang-selector">
+            <button (click)="switchLocale('ar')" [class.active]="ui.currentLocale() === 'ar'">AR</button>
+            <div class="divider"></div>
+            <button (click)="switchLocale('en')" [class.active]="ui.currentLocale() === 'en'">EN</button>
+          </div>
+
+          <!-- Interaction Icons -->
+          <div class="icon-group">
+            <div class="wallet-badge" *ngIf="auth.isAuthenticated()">
+              <i class="pi pi-wallet"></i>
+              <span>{{ storefront.formatMoney(walletBalance()) }}</span>
+            </div>
+
+            <a routerLink="/cart" class="action-icon cart-trigger" *ngIf="auth.isAuthenticated() || cartCount() > 0">
+              <i class="pi pi-shopping-bag"></i>
+              <span class="cart-badge" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
+            </a>
+            
+            <button class="mobile-menu-btn" (click)="mobileMenuOpen.set(!mobileMenuOpen())">
+              <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()"></i>
+            </button>
+          </div>
+
+          <!-- User Entry -->
+          <div class="user-block">
+            @if (auth.isAuthenticated()) {
+              <div class="profile-dropdown">
+                <button class="profile-trigger" (click)="userPopover.toggle($event)">
+                  <div class="avatar-pill">
+                    <i class="pi pi-user-edit"></i>
+                    <span class="user-name">{{ auth.user()?.name }}</span>
+                    <i class="pi pi-chevron-down fold"></i>
+                  </div>
+                </button>
+                <p-popover #userPopover>
+                  <div class="user-popover-content">
+                    <div class="account-summary">
+                      <strong>{{ auth.user()?.name }}</strong>
+                      <p>{{ auth.user()?.email || auth.user()?.username }}</p>
+                      <div class="balance-pill">
+                        <i class="pi pi-wallet"></i> {{ storefront.formatMoney(walletBalance()) }}
+                      </div>
+                    </div>
+                    <div class="popover-links">
+                      <a routerLink="/account"><i class="pi pi-user"></i> {{ ui.t('nav.account') }}</a>
+                      <a routerLink="/wallet"><i class="pi pi-wallet"></i> {{ ui.t('nav.wallet') }}</a>
+                      <a *ngIf="auth.isAdmin()" routerLink="/admin" class="admin-access"><i class="pi pi-shield"></i> {{ ui.t('nav.admin') }}</a>
+                      <div class="p-divider"></div>
+                      <button (click)="logout()" class="logout-btn"><i class="pi pi-power-off"></i> {{ ui.t('nav.logout') }}</button>
+                    </div>
+                  </div>
+                </p-popover>
+              </div>
+            } @else {
+              <a routerLink="/auth/login" class="login-btn" pButton icon="pi pi-user" iconPos="left">
+                <span>{{ ui.t('nav.login') }}</span>
+              </a>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-drawer" [class.open]="mobileMenuOpen()">
+      <div class="drawer-overlay" (click)="mobileMenuOpen.set(false)"></div>
+      <div class="drawer-panel">
+        <div class="drawer-header">
+           <span class="site-name">{{ siteName() }}</span>
+           <button class="close-btn" (click)="mobileMenuOpen.set(false)"><i class="pi pi-times"></i></button>
+        </div>
+        <nav class="drawer-nav">
+          @for (item of navigation; track item.path) {
+            @if (!item.auth || auth.isAuthenticated()) {
+              <a [routerLink]="item.path" routerLinkActive="active" (click)="mobileMenuOpen.set(false)">
+                <i [class]="item.icon"></i>
+                {{ ui.t(item.key) }}
+              </a>
+            }
+          }
+        </nav>
+        <div class="drawer-footer">
+          @if (!auth.isAuthenticated()) {
+            <a routerLink="/auth/login" class="full-btn primary" (click)="mobileMenuOpen.set(false)">{{ ui.t('nav.login') }}</a>
+          } @else {
+             <button (click)="logout(); mobileMenuOpen.set(false)" class="full-btn outline">{{ ui.t('nav.logout') }}</button>
+          }
+        </div>
       </div>
     </div>
   </header>
 
-  <main class="public-main">
+  <!-- Content Layer -->
+  <main class="page-content">
     <router-outlet />
   </main>
 
-  <!-- Sticky centered footer -->
-  <footer class="public-footer">
-    <div class="page-shell public-footer__content">
-      <div class="public-footer__brand">
-        <div class="brand-lockup__name">{{ siteName() }}</div>
-        <p class="section-copy">
-          {{ ui.t('public.footerAbout') }}
-        </p>
-      </div>
+  <!-- Premium Footer -->
+  <footer class="site-footer">
+    <div class="footer-upper">
+      <div class="container-xl grid-layout">
+        <div class="col-brand">
+          <h3 class="footer-logo">{{ siteName() }}</h3>
+          <p class="brand-desc">{{ ui.t('public.footerAbout') }}</p>
+          <div class="social-pills">
+            <a href="#" aria-label="Facebook"><i class="pi pi-facebook"></i></a>
+            <a href="#" aria-label="Twitter"><i class="pi pi-twitter"></i></a>
+            <a href="#" aria-label="Instagram"><i class="pi pi-instagram"></i></a>
+          </div>
+        </div>
+        
+        <div class="col-links">
+          <h4 class="col-title">{{ ui.t('nav.pages') }}</h4>
+           <ul class="link-list">
+              <li><a routerLink="/menu"><i class="pi pi-th-large"></i> {{ ui.t('nav.menu') }}</a></li>
+              <li><a routerLink="/pages/terms-of-service"><i class="pi pi-file"></i> {{ ui.t('public.terms') }}</a></li>
+              <li><a routerLink="/cart"><i class="pi pi-shopping-bag"></i> {{ ui.t('nav.cart') || 'Cart' }}</a></li>
+              <li *ngIf="auth.isAdmin()"><a routerLink="/admin/settings"><i class="pi pi-cog"></i> {{ ui.t('public.brandControl') }}</a></li>
+           </ul>
+        </div>
 
-      <div class="public-footer__links">
-        <span class="public-footer__heading">{{ ui.t('nav.menu') }}</span>
-        <a routerLink="/pages/terms-of-service">{{ ui.t('public.terms') }}</a>
-        <a routerLink="/menu">{{ ui.t('nav.menu') }}</a>
-        <a *ngIf="auth.isAdmin()" routerLink="/admin/settings">{{ ui.t('public.brandControl') }}</a>
-      </div>
-
-      <div class="public-footer__support">
-        <span class="public-footer__heading">{{ ui.t('public.contactUs') || 'اتصل بنا' }}</span>
-        <span><i class="pi pi-phone"></i> {{ storefront.settings()?.general?.support_phone || '+20-100-000-0000' }}</span>
-        <span><i class="pi pi-envelope"></i> {{ storefront.settings()?.general?.support_email || 'support@example.com' }}</span>
+        <div class="col-contact">
+          <h4 class="col-title">{{ ui.t('public.contactUs') }}</h4>
+          <div class="contact-card">
+            <div class="item">
+              <div class="icon-wrap"><i class="pi pi-phone"></i></div>
+              <div class="text">
+                <small>Call us at</small>
+                <span>{{ storefront.settings()?.general?.support_phone || '+20-100-000-0000' }}</span>
+              </div>
+            </div>
+            <div class="item">
+              <div class="icon-wrap"><i class="pi pi-envelope"></i></div>
+              <div class="text">
+                <small>Email Support</small>
+                <span>{{ storefront.settings()?.general?.support_email || 'support@example.com' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="public-footer__bottom">
-      <span>© {{ siteName() }} {{ currentYear }}</span>
+    
+    <div class="footer-bottom">
+      <div class="container-xl bottom-inner">
+        <p class="copyright">© {{ currentYear }} {{ siteName() }}. {{ ui.t('public.allRights') }}</p>
+        <div class="bottom-links">
+           <a href="#">Privacy Policy</a>
+           <a href="#">Security</a>
+        </div>
+      </div>
     </div>
   </footer>
+
+  <!-- Fixed Engagement Elements -->
+  <a routerLink="/cart" class="floating-cart-btn" *ngIf="auth.isAuthenticated() || cartCount() > 0" [class.animate-pulse]="storefront.cartPulse()">
+    <div class="btn-body">
+      <i class="pi pi-shopping-cart"></i>
+      <span class="count">{{ cartCount() }}</span>
+    </div>
+  </a>
+
+  <!-- Mobile Language Switcher (Floating) -->
+  <div class="mobile-lang-fab" [class.hidden]="isScrolled()">
+      <button (click)="theme.setLocale(ui.currentLocale() === 'ar' ? 'en' : 'ar')">
+         {{ ui.currentLocale() === 'ar' ? 'EN' : 'AR' }}
+      </button>
+  </div>
 </div>

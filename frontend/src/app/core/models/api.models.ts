@@ -161,6 +161,7 @@ export interface ProductListItem {
   translations?: TranslatedText;
   slug: string;
   short_description?: string | null;
+  short_description_translations?: TranslatedText;
   base_price?: number | null;
   main_image_path?: string | null;
   is_active: boolean;
@@ -171,6 +172,7 @@ export interface ProductListItem {
     count: number;
   };
   addon_groups_count?: number;
+  purchases_count?: number;
 }
 
 export interface ProductMediaItem {
@@ -214,6 +216,7 @@ export interface AddonGroup {
 
 export interface ProductDetail extends ProductListItem {
   description?: string | null;
+  description_translations?: TranslatedText;
   categories: Array<Pick<Category, 'id' | 'name' | 'slug'>>;
   tags: Array<{ id: number; name: string; slug: string }>;
   sizes: ProductSize[];
@@ -226,12 +229,22 @@ export interface CartItem {
   product_id: number;
   product_size_id?: number | null;
   product_name: string;
+  product_translations?: TranslatedText;
   size?: string | null;
+  size_translations?: TranslatedText;
   quantity: number;
   price_snapshot: number;
   selected_addon_option_ids?: number[];
-  selected_addons: Array<Record<string, unknown>>;
+  selected_addons: SelectedAddonSnapshot[];
   line_subtotal: number;
+}
+
+export interface SelectedAddonSnapshot {
+    id: number;
+    name: string;
+    price: number;
+    translations?: TranslatedText;
+    [key: string]: unknown;
 }
 
 export interface Cart {
@@ -246,10 +259,11 @@ export interface Address {
   label?: string | null;
   recipient_name: string;
   phone: string;
+  alternative_phones?: string[] | null;
   country?: string | null;
-  city: string;
-  area: string;
-  street: string;
+  delivery_zone_id: number;
+  delivery_zone?: DeliveryZone | null;
+  street?: string | null;
   building?: string | null;
   floor?: string | null;
   apartment?: string | null;
@@ -332,7 +346,7 @@ export interface OrderDetail extends OrderSummary {
   items: Array<{
     id: number;
     product_snapshot: Record<string, unknown>;
-    selected_addons: Array<Record<string, unknown>>;
+    selected_addons: SelectedAddonSnapshot[];
     unit_price: number;
     quantity: number;
     line_subtotal: number;

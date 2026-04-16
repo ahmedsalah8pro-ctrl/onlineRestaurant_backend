@@ -16,8 +16,8 @@ class UserAddress extends Model
         'recipient_name',
         'phone',
         'country',
-        'city',
-        'area',
+        'delivery_zone_id',
+        'alternative_phones',
         'street',
         'building',
         'floor',
@@ -31,7 +31,13 @@ class UserAddress extends Model
     {
         return [
             'is_default' => 'boolean',
+            'alternative_phones' => 'array',
         ];
+    }
+
+    public function deliveryZone(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryZone::class);
     }
 
     public function user(): BelongsTo

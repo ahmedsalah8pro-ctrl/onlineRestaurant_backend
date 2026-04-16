@@ -38,7 +38,7 @@ export class RuntimeConfigService {
   }
 
   resolveAsset(path?: string | null, fallback = ''): string {
-    if (!path) {
+    if (!path || path === 'null' || path === '') {
       return fallback;
     }
 
@@ -46,7 +46,10 @@ export class RuntimeConfigService {
       return path;
     }
 
-    return `${this.cdnBaseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+    // Normalize: strip leading slash and redundant /storage prefix if present
+    const cleanPath = path.replace(/^\//, '').replace(/^storage\//i, '');
+
+    return `${this.cdnBaseUrl.replace(/\/$/, '')}/${cleanPath}`;
   }
 
   private resolveConfig(): ResolvedRuntimeConfig {

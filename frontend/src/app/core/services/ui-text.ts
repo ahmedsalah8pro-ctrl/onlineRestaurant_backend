@@ -10,7 +10,12 @@ type Locale = 'ar' | 'en';
 export class UiTextService {
   private readonly theme = inject(ThemeService);
 
+  /** Expose locale as a signal so templates can subscribe for reactivity */
+  readonly currentLocale = this.theme.locale;
+
   private readonly dictionary: Record<string, Record<Locale, string>> = {
+    'common.loading': { ar: 'جاري التحميل...', en: 'Loading...' },
+    'currency.symbol': { ar: 'ج.م', en: 'EGP' },
     'nav.home': { ar: 'الرئيسية', en: 'Home' },
     'nav.menu': { ar: 'المنيو', en: 'Menu' },
     'nav.orders': { ar: 'الطلبات', en: 'Orders' },
@@ -18,12 +23,17 @@ export class UiTextService {
     'nav.account': { ar: 'الحساب', en: 'Account' },
     'nav.login': { ar: 'تسجيل الدخول', en: 'Login' },
     'nav.logout': { ar: 'تسجيل الخروج', en: 'Logout' },
+    'nav.cart': { ar: 'السلة', en: 'Cart' },
     'nav.admin': { ar: 'لوحة التحكم', en: 'Admin' },
+    'nav.pages': { ar: 'الصفحات', en: 'Pages' },
     'nav.storefront': { ar: 'واجهة المتجر', en: 'Storefront' },
     'public.taglineFallback': { ar: 'طلبات مطاعم عربية جاهزة للويب والموبايل.', en: 'Restaurant ordering for web and mobile clients.' },
     'public.footerAbout': { ar: 'منصة طلبات قابلة لإعادة التخصيص لكل علامة تجارية مع دعم كامل للعربية والإنجليزية.', en: 'A white-label ordering platform with full Arabic and English support.' },
     'public.terms': { ar: 'الشروط والأحكام', en: 'Terms of Service' },
+    'public.contactUs': { ar: 'اتصل بنا', en: 'Contact Us' },
+    'public.allRights': { ar: 'جميع الحقوق محفوظة.', en: 'All rights reserved.' },
     'public.brandControl': { ar: 'تحكم العلامة التجارية', en: 'Brand Control' },
+    'public.optional': { ar: 'اختياري', en: 'Optional' },
     'home.heroEyebrow': { ar: 'مطعم عربي احترافي أونلاين', en: 'Professional Arabic Restaurant Platform' },
     'home.primaryAction': { ar: 'تصفح المنيو', en: 'Browse Menu' },
     'home.secondaryAction': { ar: 'لوحة الإدارة', en: 'Admin Panel' },
@@ -38,7 +48,7 @@ export class UiTextService {
     'home.bestSellers': { ar: 'الأكثر طلبًا', en: 'Most Ordered' },
     'home.bestSellersTitle': { ar: 'ترشيحات يحبها العملاء', en: 'Customer Favorite Picks' },
     'home.fullMenu': { ar: 'عرض المنيو بالكامل', en: 'View Full Menu' },
-    'home.branches': { ar: 'الفروع والتوصيل', en: 'Branches & Delivery' },
+    'home.branches': { ar: 'الفروع', en: 'Branches' },
     'home.branchActive': { ar: 'مفعل', en: 'Active' },
     'home.branchDisabled': { ar: 'غير مفعل', en: 'Disabled' },
     'menu.eyebrow': { ar: 'تصفح الأصناف', en: 'Browse Menu' },
@@ -84,10 +94,13 @@ export class UiTextService {
     'checkout.payment.wallet': { ar: 'المحفظة', en: 'Wallet' },
     'checkout.payment.hybrid': { ar: 'المحفظة + عند الاستلام', en: 'Wallet + COD' },
     'checkout.quickAddress': { ar: 'إضافة عنوان سريع', en: 'Quick Address' },
+    'checkout.addNewAddress': { ar: 'إضافة عنوان جديد', en: 'Add New Address' },
     'checkout.recipient': { ar: 'اسم المستلم', en: 'Recipient name' },
+    'checkout.altPhone': { ar: 'رقم احتياطي', en: 'Alternative Phone' },
     'checkout.city': { ar: 'المدينة', en: 'City' },
     'checkout.area': { ar: 'المنطقة', en: 'Area' },
     'checkout.street': { ar: 'الشارع', en: 'Street' },
+    'checkout.building': { ar: 'المبنى / الدور', en: 'Building / Floor' },
     'checkout.saveAddress': { ar: 'حفظ العنوان', en: 'Save Address' },
     'checkout.subtotal': { ar: 'إجمالي السلة', en: 'Cart subtotal' },
     'checkout.walletBalance': { ar: 'رصيد المحفظة', en: 'Wallet balance' },
@@ -108,10 +121,13 @@ export class UiTextService {
     'product.reviewTitle': { ar: 'آراء العملاء بعد الشراء', en: 'Verified Purchase Feedback' },
     'product.rating': { ar: 'التقييم', en: 'Rating' },
     'product.writeReview': { ar: 'اكتب تقييمك', en: 'Write a review' },
-    'product.anonymous': { ar: 'إخفاء الاسم', en: 'Anonymous' },
+    'product.anonymous': { ar: 'مجهول', en: 'Anonymous' },
     'product.submitReview': { ar: 'إرسال التقييم', en: 'Submit Review' },
     'product.customer': { ar: 'عميل', en: 'Customer' },
     'product.noComment': { ar: 'لا يوجد تعليق.', en: 'No comment provided.' },
+    'product.suggestions': { ar: 'قد يعجبك أيضاً', en: 'You may also like' },
+    'product.suggestionsSubtitle': { ar: 'ترشيحات مبنية على تفضيلاتك وما يشتريه الآخرون بشجرة ذكاء اصطناعي.', en: 'AI-driven recommendations based on your preferences and what others are buying.' },
+    'product.aiBadge': { ar: 'ترشيح ذكي', en: 'AI Pick' },
     'wallet.eyebrow': { ar: 'المحفظة', en: 'Wallet' },
     'wallet.copy': { ar: 'اشحن الرصيد عبر بطاقات الهدايا وتابع كل الحركات المالية المرتبطة بطلباتك.', en: 'Redeem gift cards and track every wallet transaction.' },
     'wallet.code': { ar: 'كود بطاقة الهدية', en: 'Gift card code' },
@@ -121,6 +137,14 @@ export class UiTextService {
     'wallet.confirmMessage': { ar: 'هل تريد استخدام هذا الكود الآن وإضافة رصيده إلى المحفظة؟', en: 'Do you want to redeem this code now and add its value to your wallet?' },
     'wallet.redeemSuccess': { ar: 'تم استرداد البطاقة بنجاح.', en: 'Gift card redeemed successfully.' },
     'wallet.redeemFailed': { ar: 'تعذر استرداد البطاقة.', en: 'Gift card redemption failed.' },
+    'wallet.deposit': { ar: 'إيداع', en: 'Deposit' },
+    'wallet.depositTitle': { ar: 'إيداع رصيد', en: 'Add Balance' },
+    'wallet.depositCopy': { ar: 'اختر طريقة الدفع والمبلغ المراد إضافته لمحفظتك.', en: 'Choose your payment method and the amount to add to your wallet.' },
+    'wallet.depositComingSoon': { ar: 'بوابة الدفع قيد التطوير', en: 'Payment gateway coming soon' },
+    'wallet.depositComingSoonDetail': { ar: 'نحن نعمل على دمج بوابة الدفع بشكل آمن. سيتوفر هذا قريباً.', en: 'We are integrating a secure payment gateway. This feature will be available soon.' },
+    'wallet.giftcard': { ar: 'بطاقة ؇دية', en: 'Gift Card' },
+    'wallet.giftcardTitle': { ar: 'استرداد بطاقة هدية', en: 'Redeem Gift Card' },
+    'wallet.giftcardCopy': { ar: 'أدخل كود بطاقة الهدية لإضافة رصيدها إلى محفظتك فوراً.', en: 'Enter the gift card code to add its value to your wallet instantly.' },
     'account.profile': { ar: 'الملف الشخصي', en: 'Profile' },
     'account.privacy': { ar: 'الخصوصية', en: 'Privacy' },
     'account.addresses': { ar: 'العناوين', en: 'Addresses' },
@@ -239,14 +263,74 @@ export class UiTextService {
     'admin.settings.publicBaseUrl': { ar: 'رابط الـ CDN العام', en: 'Public CDN URL' },
     'admin.settings.saved': { ar: 'تم حفظ الإعدادات بنجاح.', en: 'Settings saved successfully.' },
     'admin.settings.resetDone': { ar: 'تمت استعادة القيم الافتراضية.', en: 'Defaults restored successfully.' },
+    'admin.catalog.products': { ar: 'المنتجات', en: 'Products' },
+    'admin.catalog.categories': { ar: 'الأقسام', en: 'Categories' },
+    'admin.catalog.tags': { ar: 'الوسوم', en: 'Tags' },
+    'admin.catalog.addons': { ar: 'مجموعات الإضافات', en: 'Addon Groups' },
+    'admin.catalog.branches': { ar: 'الفروع', en: 'Branches' },
+    'admin.catalog.delivery': { ar: 'مناطق التوصيل', en: 'Delivery Zones' },
+    'admin.catalog.coupons': { ar: 'الكوبونات', en: 'Coupons' },
+    'admin.catalog.giftcards': { ar: 'بطاقات الهدايا', en: 'Gift Cards' },
+    'admin.catalog.availableInAllBranches': { ar: 'متاح في جميع الفروع', en: 'Available in all branches' },
+    'admin.catalog.selectBranches': { ar: 'اختر الفروع', en: 'Select Branches' },
+    'admin.catalog.arName': { ar: 'الاسم بالعربي', en: 'Name (Arabic)' },
+    'admin.catalog.enName': { ar: 'الاسم بالإنجليزي', en: 'Name (English)' },
+    'admin.catalog.code': { ar: 'الكود / المعرف', en: 'Code / Identifier' },
+    'admin.catalog.category': { ar: 'القسم', en: 'Category' },
+    'admin.catalog.tag': { ar: 'الوسم', en: 'Tag' },
+    'admin.catalog.price_override': { ar: 'تعديل السعر حسب الحجم', en: 'Price override per size' },
+    'admin.back': { ar: 'رجوع', en: 'Back' },
     'admin.catalog.title': { ar: 'إدارة المنيو والمنتجات', en: 'Catalog Management' },
-    'admin.catalog.create': { ar: 'إضافة عنصر', en: 'Create Item' },
+    'admin.catalog.create': { ar: 'إنشاء جديد', en: 'Create New' },
     'admin.catalog.edit': { ar: 'تعديل', en: 'Edit' },
     'admin.catalog.delete': { ar: 'حذف', en: 'Delete' },
+    'admin.catalog.name': { ar: 'الاسم', en: 'Name' },
+    'admin.catalog.details': { ar: 'التفاصيل', en: 'Details' },
+    'admin.catalog.status': { ar: 'الحالة', en: 'Status' },
+    'admin.catalog.actions': { ar: 'إجراءات', en: 'Actions' },
+    'admin.catalog.active': { ar: 'مفعل', en: 'Active' },
+    'admin.catalog.inactive': { ar: 'غير مفعل', en: 'Inactive' },
+    'admin.catalog.cancel': { ar: 'إلغاء', en: 'Cancel' },
+    'admin.catalog.arTitle': { ar: 'العنوان (عربي)', en: 'Title (Arabic)' },
+    'admin.catalog.enTitle': { ar: 'العنوان (إنجليزي)', en: 'Title (English)' },
+    'admin.catalog.arDescription': { ar: 'الوصف (عربي)', en: 'Description (Arabic)' },
+    'admin.catalog.enDescription': { ar: 'الوصف (إنجليزي)', en: 'Description (English)' },
+    'admin.catalog.price': { ar: 'السعر', en: 'Price' },
+    'admin.catalog.image': { ar: 'الصورة', en: 'Image' },
+    'admin.catalog.phone': { ar: 'الهاتف', en: 'Phone' },
+    'admin.catalog.email': { ar: 'البريد الإلكتروني', en: 'Email' },
+    'admin.catalog.address': { ar: 'العنوان', en: 'Address' },
     'admin.catalog.advanced': { ar: 'تحرير متقدم', en: 'Advanced Editor' },
-    'admin.access.roles': { ar: 'الأدوار', en: 'Roles' },
+    'product.reviews_count': { ar: 'تقييم', en: 'Reviews' },
+    'product.purchases_count': { ar: 'شراء', en: 'Buys' },
+    'product.loadMore': { ar: 'عرض المزيد من التقييمات', en: 'Load More Reviews' },
+    'product.noReviews': { ar: 'لا توجد تقييمات مطابقة للفلتر.', en: 'No reviews matching your filter.' },
+    'admin.collapseMenu': { ar: 'طي القائمة', en: 'Collapse' },
+    'orders.title': { ar: 'تتبع الطلبات', en: 'Customer Tracking' },
+    'orders.noOrders': { ar: 'لا توجد طلبات سابقة.', en: 'No previous orders found.' },
+    'orders.details': { ar: 'التفاصيل', en: 'Details' },
+    'orders.items': { ar: 'المنتجات', en: 'Items' },
+    'orders.tracking': { ar: 'التتبع', en: 'Tracking' },
+    'orders.branchContact': { ar: 'تواصل مع الفرع', en: 'Branch Contact' },
+    'orders.callBranch': { ar: 'اتصل بالفرع', en: 'Call Branch' },
+    'orders.selfService': { ar: 'ملاحظات للطلب (تعديل)', en: 'Order Notes (Self Service)' },
+    'orders.changeNote': { ar: 'هل تريد تغيير شيء؟', en: 'Need to change something?' },
+    'orders.saveNotes': { ar: 'حفظ الملاحظة', en: 'Save Notes' },
+    'orders.cancelOrder': { ar: 'إلغاء الطلب', en: 'Cancel Order' },
+    'orders.back': { ar: 'رجوع', en: 'Back' },
+    'orders.statusUpdated': { ar: 'تم تحديث الحالة.', en: 'Status updated.' },
+    'admin.access.roles': { ar: 'الأدوار والصلاحيات', en: 'Roles & Permissions' },
+    'admin.access.members': { ar: 'إدارة الأعضاء', en: 'Member Management' },
     'admin.access.permissions': { ar: 'الصلاحيات', en: 'Permissions' },
     'admin.access.save': { ar: 'حفظ الدور', en: 'Save Role' },
+    'admin.access.addMember': { ar: 'إضافة عضو', en: 'Add Member' },
+    'admin.access.editMember': { ar: 'تعديل العضو', en: 'Edit Member' },
+    'admin.access.name': { ar: 'الاسم', en: 'Name' },
+    'admin.access.email': { ar: 'البريد الإلكتروني', en: 'Email' },
+    'admin.access.role': { ar: 'الدور', en: 'Role' },
+    'admin.access.status': { ar: 'الحالة', en: 'Status' },
+    'admin.access.createRole': { ar: 'إنشاء دور جديد', en: 'Create Role' },
+    'admin.access.roleName': { ar: 'اسم الدور', en: 'Role Name' },
     'admin.orders.title': { ar: 'إدارة الطلبات', en: 'Order Management' },
     'admin.orders.manage': { ar: 'إدارة', en: 'Manage' },
     'admin.orders.status': { ar: 'الحالة', en: 'Status' },
@@ -260,6 +344,33 @@ export class UiTextService {
     'admin.content.reviews': { ar: 'مراجعة التقييمات', en: 'Review Moderation' },
     'admin.integrations.media': { ar: 'الرفع والـ CDN', en: 'Uploads & CDN' },
     'admin.integrations.logs': { ar: 'سجل العمليات', en: 'Audit Logs' },
+    'admin.settings.social': { ar: 'التكامل الاجتماعي', en: 'Social Integration' },
+    'admin.settings.security': { ar: 'الحماية والكابتشا', en: 'Security & Captcha' },
+    'admin.settings.googleEnabled': { ar: 'تفعيل جوجل', en: 'Enable Google' },
+    'admin.settings.discordEnabled': { ar: 'تفعيل ديسكورد', en: 'Enable Discord' },
+    'admin.settings.facebookEnabled': { ar: 'تفعيل فيسبوك', en: 'Enable Facebook' },
+    'admin.settings.captchaLogin': { ar: 'كابتشا عند الدخول', en: 'Captcha at Login' },
+    'admin.settings.captchaRegister': { ar: 'كابتشا عند التسجيل', en: 'Captcha at Register' },
+    'admin.settings.captchaType': { ar: 'نوع الكابتشا', en: 'Captcha Type' },
+    'auth.welcomeTitle': { ar: 'مرحباً بعودتك!', en: 'Welcome back!' },
+    'auth.welcomeSubtitle': { ar: 'برجاء إدخال بياناتك للمتابعة.', en: 'Please enter your details to continue.' },
+    'auth.regTitle': { ar: 'عضو جديد', en: 'New Member' },
+    'auth.regHeading': { ar: 'انضم إلى نادينا الحصري', en: 'Join Our Exclusive Club' },
+    'auth.regSubtitle': { ar: 'املأ المعلومات أدناه لإنشاء حسابك.', en: 'Fill in the information below to create your account.' },
+    'auth.identityPlaceholder': { ar: 'أدخل اسم المستخدم أو البريد', en: 'Enter username or email' },
+    'auth.passwordPlaceholder': { ar: 'أدخل كلمة المرور', en: 'Enter password' },
+    'auth.noAccount': { ar: 'ليس لديك حساب؟', en: "Don't have an account?" },
+    'auth.createOne': { ar: 'أنشئ حساباً', en: 'Create one' },
+    'auth.haveAccount': { ar: 'لديك حساب بالفعل؟', en: 'Already have an account?' },
+    'auth.signInInstead': { ar: 'سجل دخولك بدلاً من ذلك', en: 'Sign in instead' },
+    'auth.quickAccess': { ar: 'وصول سريع', en: 'Quick Access' },
+    'validation.required': { ar: 'هذا الحقل مطلوب.', en: 'This field is required.' },
+    'validation.email': { ar: 'صيغة البريد الإلكتروني غير صحيحة.', en: 'Invalid email format.' },
+    'validation.minlength': { ar: 'لابد أن يكون طول النص :min على الأقل.', en: 'Minimum length is :min characters.' },
+    'validation.pattern': { ar: 'الصيغة المدخلة غير صحيحة.', en: 'Invalid format.' },
+    'validation.mismatch': { ar: 'كلمتا المرور غير متطابقتين.', en: 'Passwords do not match.' },
+    'validation.unique': { ar: 'هذه القيمة مستخدمة بالفعل.', en: 'This value is already taken.' },
+    'public.footerSocial': { ar: 'تواصل معنا', en: 'Follow Us' },
   };
 
   t(key: string): string {
@@ -303,8 +414,11 @@ export class UiTextService {
       credit: { ar: 'إضافة رصيد', en: 'Credit' },
       debit: { ar: 'خصم رصيد', en: 'Debit' },
       redeem: { ar: 'استرداد بطاقة', en: 'Gift Redemption' },
+      gift_card_redeem: { ar: 'استرداد بطاقة هدية', en: 'Gift Card Redemption' },
       refund: { ar: 'استرجاع طلب', en: 'Refund' },
       purchase: { ar: 'دفع طلب', en: 'Purchase' },
+      order_payment: { ar: 'دفع طلب', en: 'Order Payment' },
+      referral_bonus: { ar: 'مكافأة دعوة', en: 'Referral Bonus' },
     };
 
     return map[type]?.[this.locale()] ?? type;
@@ -374,5 +488,24 @@ export class UiTextService {
 
   transactionNote(transaction: WalletTransaction): string {
     return transaction.notes || this.transactionType(transaction.type);
+  }
+
+  timeAgo(date: string | Date): string {
+    const time = new Date(date).getTime();
+    const now = new Date().getTime();
+    const diff = Math.floor((now - time) / 1000);
+    const locale = this.locale();
+
+    if (diff < 60) return locale === 'ar' ? 'الآن' : 'just now';
+    if (diff < 3600) {
+        const m = Math.floor(diff / 60);
+        return locale === 'ar' ? `منذ ${m} دقيقة` : `${m}m ago`;
+    }
+    if (diff < 86400) {
+        const h = Math.floor(diff / 3600);
+        return locale === 'ar' ? `منذ ${h} ساعة` : `${h}h ago`;
+    }
+    const d = Math.floor(diff / 86400);
+    return locale === 'ar' ? `منذ ${d} يوم` : `${d}d ago`;
   }
 }

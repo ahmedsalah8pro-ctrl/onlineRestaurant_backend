@@ -3,6 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { Branch, Cart, Category, ProductListItem, PublicSettings } from '../models/api.models';
 import { PublicApiService } from './public-api';
 import { ThemeService } from './theme';
+import { UiTextService } from './ui-text';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,7 @@ import { ThemeService } from './theme';
 export class StorefrontService {
   private readonly publicApi = inject(PublicApiService);
   private readonly theme = inject(ThemeService);
+  private readonly ui = inject(UiTextService);
 
   readonly settings = signal<PublicSettings | null>(null);
   readonly branches = signal<Branch[]>([]);
@@ -19,11 +21,12 @@ export class StorefrontService {
   readonly walletBalance = signal(0);
   readonly unreadNotificationCount = signal(0);
   readonly loading = signal(false);
+  readonly cartPulse = signal(false);
 
   readonly siteName = computed(() => this.settings()?.general?.site_name ?? 'Online Restaurant');
   readonly currency = computed(() => ({
     code: this.settings()?.currency?.code ?? 'EGP',
-    symbol: this.settings()?.currency?.symbol ?? 'EGP',
+    symbol: this.ui.t('currency.symbol'),
     symbolPosition: this.settings()?.currency?.symbol_position ?? 'after',
   }));
 
@@ -50,6 +53,9 @@ export class StorefrontService {
 
   async refreshCart(): Promise<void> {
     this.cart.set(await firstValueFrom(this.publicApi.getCart()));
+    
+    this.cartPulse.set(true);
+    setTimeout(() => this.cartPulse.set(false), 800);
   }
 
   async refreshUnreadNotifications(): Promise<void> {

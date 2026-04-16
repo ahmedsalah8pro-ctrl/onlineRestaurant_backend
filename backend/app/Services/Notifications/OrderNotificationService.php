@@ -20,8 +20,8 @@ class OrderNotificationService
 
         $customer->notify(new OrderLifecycleNotification(
             'order.created.customer',
-            'Order created',
-            'Your order was created and is waiting for branch review.',
+            'طلب جديد #' . $order->id,
+            'تم استلام طلبك وهو بانتظار مراجعة الفرع.',
             $this->context($order)
         ));
 
@@ -32,8 +32,8 @@ class OrderNotificationService
         if ($admins->isNotEmpty()) {
             Notification::send($admins, new OrderLifecycleNotification(
                 'order.created.admin',
-                'New order received',
-                'A new order was placed and requires review.',
+                'طلب جديد وارد',
+                'تم تقديم طلب جديد من ' . ($order->user->name ?? 'عميل') . ' ويحتاج للمراجعة.',
                 $this->context($order)
             ));
         }
@@ -47,8 +47,8 @@ class OrderNotificationService
 
         $customer->notify(new OrderLifecycleNotification(
             'order.status.updated',
-            'Order status updated',
-            "Your order status changed from {$fromStatus} to {$toStatus}.",
+            'تحديث حالة الطلب #' . $order->id,
+            "تغيرت حالة طلبك إلى: " . $order->status,
             $this->context($order, [
                 'from_status' => $fromStatus,
                 'to_status' => $toStatus,
@@ -65,8 +65,8 @@ class OrderNotificationService
 
         $customer->notify(new OrderLifecycleNotification(
             'order.delivery.assigned',
-            'Delivery assigned',
-            'Your order is now assigned to a delivery rider.',
+            'تم تعيين مندوب للطلب',
+            "طلبك الآن مع المندوب: {$order->delivery_person_name}. يمكنك التواصل معه على: {$order->delivery_person_phone}",
             $this->context($order, [
                 'delivery_person_name' => $order->delivery_person_name,
                 'delivery_person_phone' => $order->delivery_person_phone,

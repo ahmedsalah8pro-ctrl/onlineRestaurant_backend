@@ -15,6 +15,10 @@ export class ThemeService {
   readonly locale = signal<'ar' | 'en'>(this.readLocale());
 
   setLocale(locale: 'ar' | 'en'): void {
+    if (this.locale() === locale) {
+        this.applyLanguageAttributes(); 
+        return;
+    }
     this.locale.set(locale);
     localStorage.setItem(this.localeKey, locale);
     this.applyLanguageAttributes();
@@ -47,9 +51,6 @@ export class ThemeService {
     this.setCssVariable(root, '--brand-surface', palette.surface ?? tokens['surface'] ?? '#FFF7ED');
     this.setCssVariable(root, '--brand-radius', tokens['radius'] ?? '16px');
     this.applyTypography(settings.typography?.font_library ?? [], settings.typography ?? {});
-
-    const defaultLocale = (settings.localization?.default_locale as 'ar' | 'en' | undefined) ?? this.locale();
-    this.setLocale(defaultLocale);
 
     const title = this.resolveText(settings.seo?.default_meta_title) || settings.general?.site_name || 'Restaurant Demo';
     this.document.title = title;

@@ -76,8 +76,12 @@ class ProductController extends Controller
     {
         abort_unless($product->is_active, 404);
 
+        $product->load(['categories', 'tags', 'sizes', 'addonGroups.options', 'media'])
+                ->loadCount('reviews')
+                ->loadAvg(['reviews as reviews_avg_rating' => fn ($q) => $q->visible()], 'rating');
+
         return $this->successResponse(
-            new ProductDetailResource($product->load(['categories', 'tags', 'sizes', 'addonGroups.options', 'media'])),
+            new ProductDetailResource($product),
             'Product loaded.'
         );
     }

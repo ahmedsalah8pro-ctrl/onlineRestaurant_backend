@@ -7,52 +7,50 @@
     <div class="detail-grid">
       <div class="glass-panel detail-media">
         <img
-          [src]="runtime.resolveAsset(current.main_image_path, current.media[0]?.url || 'https://placehold.co/640x520/7c2d12/ffffff?text=Product')"
-          [alt]="current.name"
+          [src]="runtime.resolveAsset(current.main_image_path, (current.media && current.media.length > 0) ? (current.media[0].url || '') : 'https://placehold.co/640x520/7c2d12/ffffff?text=Product')"
+          [alt]="theme.resolveText(current.translations || current.name)"
         />
-        <div class="detail-gallery">
+        <div class="detail-gallery" *ngIf="current.media.length">
           <a class="detail-gallery__item" *ngFor="let media of current.media" [href]="media.url || media.external_url" target="_blank">
-            {{ media.media_type }}
+            <i class="pi pi-image" *ngIf="media.media_type === 'image'"></i>
+            <i class="pi pi-video" *ngIf="media.media_type !== 'image'"></i>
           </a>
         </div>
       </div>
 
       <div class="glass-panel detail-panel">
         <span class="eyebrow">{{ ui.t('product.eyebrow') }}</span>
-        <h1 class="section-title">{{ current.name }}</h1>
-        <p class="section-copy">{{ current.description || ui.t('product.copy') }}</p>
+        <h1 class="section-title">{{ theme.resolveText(current.translations || current.name) }}</h1>
+        <p class="section-copy">{{ theme.resolveText(current.description_translations || current.description) || ui.t('product.copy') }}</p>
 
         <div class="detail-meta">
-          <span>{{ storefront.formatMoney(current.base_price) }}</span>
-          <span>{{ averageRating() | number: '1.1-1' }} ★</span>
-          <span>{{ current.tags.length }}</span>
+          <div class="rating-line">
+            <p-rating [ngModel]="averageRating()" [disabled]="true"></p-rating>
+            <span class="rating-text">({{ averageRating() | number: '1.1-1' }} ★) ({{ current.rating_summary.count }} {{ ui.t('product.reviews_count') }})</span>
+            <span class="purchases-count" *ngIf="current.purchases_count">
+              <i class="pi pi-shopping-bag"></i> {{ current.purchases_count }} {{ ui.t('product.purchases_count') }}
+            </span>
+          </div>
+          <div class="price-pill">{{ storefront.formatMoney(current.base_price) }}</div>
         </div>
 
-        <div class="surface-grid" *ngIf="current.sizes.length > 0">
+        <div class="surface-grid" *ngIf="current.sizes && current.sizes.length > 0">
           <h3>{{ ui.t('product.sizes') }}</h3>
           <div class="chip-row">
             <button
               pButton
               type="button"
               *ngFor="let size of current.sizes"
-              [label]="size.name + ' • ' + storefront.formatMoney(size.price)"
+              [label]="theme.resolveText(size.translations || size.name) + ' • ' + storefront.formatMoney(size.price)"
               [severity]="selectedSizeId() === size.id ? undefined : 'secondary'"
-              (click)="selectedSizeId.set(size.id)"
+              (click)="selectSize(size.id)"
             ></button>
           </div>
         </div>
 
-        <div class="surface-grid" *ngFor="let group of current.addon_groups">
+        <div class="surface-grid" *ngFor="let group of current.addon_groups || []">
           <div class="detail-option-head">
-            <h3>{{ group.name }}</h3>
-            <button
-              *ngIf="group.selection_type === 'single' && !group.is_required"
-              pButton
-              type="button"
-              [label]="ui.t('product.clearSingle')"
-              severity="secondary"
-              (click)="clearSingleSelection(group)"
-            ></button>
+            <h3>{{ theme.resolveText(group.translations || group.name) }}</h3>
           </div>
 
           <div class="chip-row">
@@ -60,7 +58,7 @@
               pButton
               type="button"
               *ngFor="let option of group.options"
-              [label]="option.name + ' + ' + storefront.formatMoney(option.base_price)"
+              [label]="theme.resolveText(option.translations || option.name) + ' + ' + storefront.formatMoney(option.base_price)"
               [severity]="isSelected(group.id, option.id) ? undefined : 'secondary'"
               (click)="toggleOption(group, option.id)"
             ></button>
@@ -80,6 +78,7 @@
             styleClass="detail-actions__submit"
             [loading]="addToCartLoading()"
             (click)="addToCart()"
+            icon="pi pi-shopping-cart"
           ></button>
         </div>
       </div>
@@ -91,19 +90,16 @@
           <span class="eyebrow">{{ ui.t('product.reviews') }}</span>
           <h2 class="section-title">{{ ui.t('product.reviewTitle') }}</h2>
         </div>
+        
+        <div class="review-filters">
+           <button pButton icon="pi pi-filter" class="p-button-text p-button-rounded" (click)="reviewRatingFilter.set(null)" [severity]="reviewRatingFilter() === null ? undefined : 'secondary'"></button>
+           <button *ngFor="let rate of [5, 4, 3, 2, 1]" pButton [label]="rate + ' ★'" class="p-button-text p-button-sm" (click)="reviewRatingFilter.set(rate)" [severity]="reviewRatingFilter() === rate ? undefined : 'secondary'"></button>
+        </div>
       </div>
 
       <div class="review-form" *ngIf="auth.isAuthenticated()">
         <div class="review-stars">
-          <button
-            type="button"
-            *ngFor="let star of [1, 2, 3, 4, 5]"
-            class="review-stars__button"
-            [class.is-active]="star <= reviewModel.rating"
-            (click)="setRating(star)"
-          >
-            ★
-          </button>
+           <p-rating [(ngModel)]="reviewModel.rating"></p-rating>
         </div>
         <textarea pTextarea rows="4" [(ngModel)]="reviewModel.comment" [placeholder]="ui.t('product.writeReview')"></textarea>
         <div class="review-form__actions">
@@ -115,14 +111,76 @@
         </div>
       </div>
 
-      <article class="review-card" *ngFor="let review of reviews()">
-        <div class="review-card__head">
-          <strong>{{ review.is_anonymous ? ui.t('product.anonymous') : review.user?.name || ui.t('product.customer') }}</strong>
-          <span>{{ review.rating }} ★</span>
+      <div class="reviews-list">
+        <article class="review-card" *ngFor="let review of pagedReviews()">
+          <div class="review-card__head">
+            <div class="reviewer-info">
+              <div class="reviewer-avatar">
+                <i class="pi" [class.pi-user]="!review.is_anonymous" [class.pi-eye-slash]="review.is_anonymous"></i>
+              </div>
+              <div class="reviewer-details">
+                <strong>{{ review.is_anonymous ? ui.t('product.anonymous') : (review.user?.name || ui.t('product.customer')) }}</strong>
+                <p-rating [ngModel]="review.rating" [disabled]="true" class="card-stars"></p-rating>
+              </div>
+            </div>
+            <small class="review-date" *ngIf="review.created_at">{{ review.created_at | date: 'mediumDate' }}</small>
+          </div>
+          <p class="review-text">{{ review.comment || ui.t('product.noComment') }}</p>
+        </article>
+
+        @if (pagedReviews().length < filteredReviews().length) {
+            <div class="load-more-wrap">
+                <button pButton class="p-button-text" (click)="reviewPage.set(reviewPage() + 1)">{{ ui.t('product.loadMore') }}</button>
+            </div>
+        }
+
+        @if (filteredReviews().length === 0) {
+            <div class="empty-reviews">
+                <i class="pi pi-comments"></i>
+                <p>{{ ui.t('product.noReviews') }}</p>
+            </div>
+        }
+      </div>
+    </div>
+
+    <!-- AI Suggested Products Section -->
+    <div class="product-suggestions glass-panel section-panel" *ngIf="aiSuggestions().length > 0">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow ai-badge"><i class="pi pi-sparkles"></i> {{ ui.t('product.aiBadge') }}</span>
+          <h2 class="section-title">{{ ui.t('product.suggestions') }}</h2>
+          <p class="section-copy" style="max-width: 600px;">{{ ui.t('product.suggestionsSubtitle') }}</p>
         </div>
-        <p>{{ review.comment || ui.t('product.noComment') }}</p>
-        <small *ngIf="review.created_at">{{ review.created_at | date: 'medium' }}</small>
-      </article>
+      </div>
+
+      <div class="surface-grid three-columns ai-recommendation-grid">
+        <article class="best-seller" *ngFor="let suggestion of aiSuggestions()">
+          <div class="best-seller__media">
+            <img
+              [src]="runtime.resolveAsset(suggestion.main_image_path, 'http://127.0.0.1:8000/storage/products/burger.png')"
+              [alt]="suggestion.name"
+            />
+          </div>
+          <div class="best-seller__content" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
+            <div class="best-seller__meta">
+              <i class="pi pi-star-fill"></i>
+              <span>{{ suggestion.rating_summary.average || 0 }}</span>
+              <span class="reviews-count">({{ suggestion.rating_summary.count || 0 }})</span>
+              <span class="purchases-count" *ngIf="suggestion.purchases_count">
+                <i class="pi pi-shopping-bag"></i> {{ suggestion.purchases_count }} {{ ui.locale() === 'ar' ? 'شراء' : 'Buys' }}
+              </span>
+            </div>
+            <h3>{{ theme.resolveText(suggestion.translations || suggestion.name) }}</h3>
+            <p>{{ theme.resolveText(suggestion.short_description_translations || suggestion.short_description) || ui.t('menu.noDescription') }}</p>
+            <div class="best-seller__footer">
+              <strong>{{ storefront.formatMoney(suggestion.base_price) }}</strong>
+              <a pButton severity="primary" [routerLink]="['/products', suggestion.id]" icon="pi pi-shopping-cart" iconPos="right" class="details-btn">
+                {{ ui.t('menu.details') }}
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
     </div>
   </section>
 }

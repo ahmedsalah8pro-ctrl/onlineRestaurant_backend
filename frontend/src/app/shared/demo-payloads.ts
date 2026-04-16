@@ -11,6 +11,7 @@ export const DEFAULT_CATALOG_PAYLOADS: Record<string, Record<string, unknown>> =
     category_ids: [],
     tag_ids: [],
     branch_ids: [],
+    main_image_path: '',
     media: [],
     sizes: [],
     addon_groups: [],

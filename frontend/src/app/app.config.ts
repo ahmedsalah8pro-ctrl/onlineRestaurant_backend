@@ -13,6 +13,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { routes } from './app.routes';
 import { authTokenInterceptor } from './core/interceptors/auth-token-interceptor';
 import { apiBaseInterceptor } from './core/interceptors/api-base-interceptor';
+import { loadingInterceptor } from './core/interceptors/loading-interceptor';
 import { AuthService } from './core/services/auth';
 
 export const appConfig: ApplicationConfig = {
@@ -25,7 +26,7 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled',
       }),
     ),
-    provideHttpClient(withInterceptors([apiBaseInterceptor, authTokenInterceptor])),
+    provideHttpClient(withInterceptors([apiBaseInterceptor, authTokenInterceptor, loadingInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({
       ripple: true,

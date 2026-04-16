@@ -43,7 +43,7 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'name' => ['sometimes', 'array'],
-            'slug' => ['sometimes', 'string', Rule::unique('products', 'slug')->ignore($product->id)],
+            'slug' => ['sometimes', 'string', 'max:150'],
             'description' => ['nullable', 'array'],
             'short_description' => ['nullable', 'array'],
             'base_price' => ['nullable', 'numeric', 'min:0'],
@@ -107,7 +107,9 @@ class ProductController extends Controller
         if ($replace) {
             $product->media()->delete();
             $product->sizes()->delete();
-            $product->addonGroups()->each(fn ($group) => $group->options()->delete());
+            foreach ($product->addonGroups as $group) {
+                $group->options()->delete();
+            }
             $product->addonGroups()->delete();
         }
 

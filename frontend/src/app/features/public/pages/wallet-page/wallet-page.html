@@ -1,26 +1,310 @@
-<section class="page-shell surface-grid two-columns">
-  <div class="glass-panel wallet-card">
-    <span class="eyebrow">{{ ui.t('wallet.eyebrow') }}</span>
-    <h1 class="section-title">{{ storefront.formatMoney(wallet()?.balance) }}</h1>
-    <p class="section-copy">{{ ui.t('wallet.copy') }}</p>
+<section class="page-shell wallet-page">
 
-    <div class="coupon-box">
-      <input pInputText [ngModel]="redeemCode()" (ngModelChange)="redeemCode.set($event)" [placeholder]="ui.t('wallet.code')" />
-      <button pButton type="button" [label]="ui.t('wallet.redeem')" [loading]="loading()" (click)="confirmRedeem()"></button>
+  <!-- ============== WALLET HOME ============== -->
+  @if (section() === 'home') {
+    <!-- Balance Hero -->
+    <div class="wallet-hero glass-panel">
+      <div class="balance-hero__content">
+        <span class="eyebrow"><i class="pi pi-wallet"></i> {{ ui.t('wallet.eyebrow') }}</span>
+        <div class="balance-amount">{{ storefront.formatMoney(wallet()?.balance) }}</div>
+        <p class="balance-hint">{{ ui.t('wallet.copy') }}</p>
+      </div>
+      <div class="balance-hero__glow"></div>
     </div>
-  </div>
 
-  <div class="glass-panel wallet-card">
-    <span class="eyebrow">{{ ui.t('wallet.transactions') }}</span>
-    <div class="transaction-row" *ngFor="let transaction of transactions()">
-      <div>
-        <strong>{{ ui.transactionType(transaction.type) }}</strong>
-        <p>{{ ui.transactionNote(transaction) }}</p>
+    <!-- Quick Actions Redesigned -->
+    <div class="wallet-menu-grid">
+      <div class="wallet-menu-item animate-fade-in" style="--delay: 1" (click)="navigate('/wallet/deposit')">
+        <div class="menu-item__icon-container blue">
+            <i class="pi pi-plus-circle"></i>
+        </div>
+        <div class="menu-item__content">
+            <h3>{{ ui.t('wallet.deposit') }}</h3>
+            <p>{{ ui.locale() === 'ar' ? 'إضافة رصيد جديد لمحفظتك' : 'Add new balance to your wallet' }}</p>
+        </div>
+        <i class="pi pi-chevron-left arrow-icon" *ngIf="ui.locale() === 'ar'"></i>
+        <i class="pi pi-chevron-right arrow-icon" *ngIf="ui.locale() === 'en'"></i>
       </div>
-      <div class="transaction-row__meta">
-        <strong>{{ storefront.formatMoney(transaction.amount) }}</strong>
-        <small>{{ transaction.created_at | date: 'medium' }}</small>
+
+      <div class="wallet-menu-item animate-fade-in" style="--delay: 2" (click)="navigate('/wallet/giftcard')">
+        <div class="menu-item__icon-container green">
+            <i class="pi pi-gift"></i>
+        </div>
+        <div class="menu-item__content">
+            <h3>{{ ui.t('wallet.giftcard') }}</h3>
+            <p>{{ ui.locale() === 'ar' ? 'استخدام كود بطاقة هدية' : 'Use a gift card code' }}</p>
+        </div>
+        <i class="pi pi-chevron-left arrow-icon" *ngIf="ui.locale() === 'ar'"></i>
+        <i class="pi pi-chevron-right arrow-icon" *ngIf="ui.locale() === 'en'"></i>
+      </div>
+
+      <div class="wallet-menu-item animate-fade-in" style="--delay: 3" (click)="navigate('/wallet/Transactions')">
+        <div class="menu-item__icon-container teal">
+            <i class="pi pi-history"></i>
+        </div>
+        <div class="menu-item__content">
+            <h3>{{ ui.t('wallet.transactions') }}</h3>
+            <p>{{ ui.locale() === 'ar' ? 'سجل الحركات المالية' : 'Financial transactions history' }}</p>
+        </div>
+        <i class="pi pi-chevron-left arrow-icon" *ngIf="ui.locale() === 'ar'"></i>
+        <i class="pi pi-chevron-right arrow-icon" *ngIf="ui.locale() === 'en'"></i>
       </div>
     </div>
-  </div>
+  }
+
+  <!-- ============== TRANSACTIONS LIST ============== -->
+  @if (section() === 'transactions') {
+    <div class="section-nav">
+      <button pButton icon="pi pi-arrow-left" severity="secondary" class="p-button-text" (click)="goHome()" [label]="ui.locale() === 'ar' ? 'العودة' : 'Back'"></button>
+      <span class="eyebrow">{{ ui.t('wallet.transactions') }}</span>
+    </div>
+
+    <div class="glass-panel wallet-card">
+      <div class="balance-mini">
+        <i class="pi pi-wallet"></i>
+        <span>{{ storefront.formatMoney(wallet()?.balance) }}</span>
+      </div>
+
+      <div class="transaction-list">
+        <div class="transaction-row animate-fade-in"
+             *ngFor="let t of transactions()"
+             (click)="openTransaction(t)">
+          <div class="tx-icon" [class]="t.type">
+            <i class="pi" [class]="transactionIcon(t)"></i>
+          </div>
+          <div class="tx-details">
+            <strong class="tx-type-label">{{ ui.transactionType(t.type) }}</strong>
+            <p class="tx-notes">{{ ui.transactionNote(t) }}</p>
+          </div>
+          <div class="transaction-row__meta">
+            <strong [class.credit]="t.amount > 0" [class.debit]="t.amount <= 0">
+              {{ t.amount > 0 ? '+' : '' }}{{ storefront.formatMoney(t.amount) }}
+            </strong>
+            <small class="tx-time">{{ ui.timeAgo(t.created_at) }}</small>
+          </div>
+          <i class="pi tx-chevron" [class.pi-chevron-left]="ui.locale() === 'ar'" [class.pi-chevron-right]="ui.locale() === 'en'"></i>
+        </div>
+
+        <div *ngIf="transactions().length === 0 && !loading()" class="empty-state">
+          <i class="pi pi-receipt"></i>
+          <p>{{ ui.locale() === 'ar' ? 'لا توجد حركات بعد.' : 'No transactions yet.' }}</p>
+        </div>
+      </div>
+
+      <p-paginator
+        [rows]="rows()"
+        [totalRecords]="total()"
+        (onPageChange)="onPageChange($event)"
+        [hidden]="total() <= rows()"
+        styleClass="tx-paginator"
+      ></p-paginator>
+    </div>
+  }
+
+  <!-- ============== TRANSACTION DETAIL ============== -->
+  @if (section() === 'transaction-detail') {
+    <div class="section-nav">
+      <button pButton icon="pi pi-arrow-left" severity="secondary" class="p-button-text" (click)="navigate('/wallet/Transactions')" [label]="ui.locale() === 'ar' ? 'الحركات' : 'Transactions'"></button>
+      <span class="eyebrow">{{ ui.transactionType(selectedTransaction()?.type ?? '') }}</span>
+    </div>
+
+    @if (selectedTransaction(); as t) {
+      <div class="glass-panel tx-detail-card">
+        <div class="tx-detail-hero" [class.credit]="t.amount > 0" [class.debit]="t.amount <= 0">
+          <div class="tx-detail-icon">
+            <i class="pi" [class]="transactionIcon(t)"></i>
+          </div>
+          <div class="tx-detail-amount">
+            {{ t.amount > 0 ? '+' : '' }}{{ storefront.formatMoney(t.amount) }}
+          </div>
+          <p class="tx-detail-label">{{ ui.transactionType(t.type) }}</p>
+        </div>
+
+        <div class="tx-detail-rows">
+          <div class="tx-detail-row">
+            <span>{{ ui.locale() === 'ar' ? 'الحالة' : 'Status' }}</span>
+            <strong class="status-badge success">{{ ui.locale() === 'ar' ? 'مكتمل' : 'Completed' }}</strong>
+          </div>
+          <div class="tx-detail-row">
+            <span>{{ ui.locale() === 'ar' ? 'التاريخ' : 'Date' }}</span>
+            <strong>{{ t.created_at | date: 'medium' }}</strong>
+          </div>
+          <div class="tx-detail-row" *ngIf="t.notes">
+            <span>{{ ui.locale() === 'ar' ? 'الملاحظات' : 'Notes' }}</span>
+            <strong>{{ t.notes }}</strong>
+          </div>
+          <div class="tx-detail-row">
+            <span>{{ ui.locale() === 'ar' ? 'رقم المعاملة' : 'Transaction ID' }}</span>
+            <strong>#{{ t.id }}</strong>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="glass-panel" style="padding: 2rem; text-align: center; color: #86868b;">
+        <i class="pi pi-spinner pi-spin"></i>
+        <p>{{ ui.locale() === 'ar' ? 'جاري التحميل...' : 'Loading...' }}</p>
+      </div>
+    }
+  }
+
+  <!-- ============== GIFT CARD ============== -->
+  @if (section() === 'giftcard') {
+    <div class="section-nav">
+      <button pButton icon="pi pi-arrow-left" severity="secondary" class="p-button-text" (click)="goHome()" [label]="ui.locale() === 'ar' ? 'العودة' : 'Back'"></button>
+      <span class="eyebrow">{{ ui.t('wallet.giftcardTitle') }}</span>
+    </div>
+
+    <div class="glass-panel wallet-card giftcard-panel">
+      <div class="giftcard-hero">
+        <div class="giftcard-icon-wrap">
+          <i class="pi pi-gift"></i>
+        </div>
+        <h2>{{ ui.t('wallet.giftcardTitle') }}</h2>
+        <p>{{ ui.t('wallet.giftcardCopy') }}</p>
+      </div>
+
+      <div class="giftcard-form">
+        <div class="field-stack">
+          <label>{{ ui.t('wallet.code') }}</label>
+          <input pInputText [ngModel]="redeemCode()" (ngModelChange)="redeemCode.set($event)"
+                 [placeholder]="ui.locale() === 'ar' ? 'XXXX-XXXX-XXXX' : 'XXXX-XXXX-XXXX'"
+                 class="giftcard-input" />
+        </div>
+        <button pButton type="button" class="w-full"
+                [label]="ui.t('wallet.redeem')"
+                [loading]="loading()"
+                [disabled]="!redeemCode()"
+                (click)="confirmRedeem()"
+                icon="pi pi-check">
+        </button>
+      </div>
+
+      <div class="current-balance-hint">
+        <i class="pi pi-wallet"></i>
+        {{ ui.locale() === 'ar' ? 'رصيدك الحالي' : 'Current balance' }}:
+        <strong>{{ storefront.formatMoney(wallet()?.balance) }}</strong>
+      </div>
+    </div>
+  }
+
+  <!-- ============== DEPOSIT ============== -->
+  @if (section() === 'deposit') {
+    <div class="section-nav">
+      <button pButton icon="pi pi-arrow-left" severity="secondary" class="p-button-text" (click)="goHome()" [label]="ui.locale() === 'ar' ? 'العودة' : 'Back'"></button>
+      <span class="eyebrow">{{ ui.t('wallet.depositTitle') }}</span>
+    </div>
+
+    <div class="glass-panel wallet-card deposit-panel">
+      <!-- Step indicator -->
+      <div class="deposit-steps">
+        <div class="step" [class.active]="depositStep() >= 1" [class.done]="depositStep() > 1">
+          <span>1</span>
+          <small>{{ ui.locale() === 'ar' ? 'المبلغ' : 'Amount' }}</small>
+        </div>
+        <div class="step-line" [class.done]="depositStep() > 1"></div>
+        <div class="step" [class.active]="depositStep() >= 2" [class.done]="depositStep() > 2">
+          <span>2</span>
+          <small>{{ ui.locale() === 'ar' ? 'الدفع' : 'Payment' }}</small>
+        </div>
+        <div class="step-line" [class.done]="depositStep() > 2"></div>
+        <div class="step" [class.active]="depositStep() >= 3">
+          <span>3</span>
+          <small>{{ ui.locale() === 'ar' ? 'التأكيد' : 'Confirm' }}</small>
+        </div>
+      </div>
+
+      <!-- Step 1: Amount -->
+      @if (depositStep() === 1) {
+        <div class="deposit-form animate-fade-in">
+          <h3>{{ ui.locale() === 'ar' ? 'كم تريد إضافة؟' : 'How much do you want to add?' }}</h3>
+          <div class="amount-presets">
+            @for (preset of [50, 100, 200, 500]; track preset) {
+              <button class="preset-btn" [class.selected]="depositAmount() === preset" (click)="depositAmount.set(preset)">
+                {{ storefront.formatMoney(preset) }}
+              </button>
+            }
+          </div>
+          <div class="field-stack">
+            <label>{{ ui.locale() === 'ar' ? 'أو أدخل مبلغاً مخصصاً' : 'Or enter custom amount' }}</label>
+            <input pInputText type="number" [ngModel]="depositAmount()" (ngModelChange)="depositAmount.set($event)"
+                   [placeholder]="ui.locale() === 'ar' ? '0.00' : '0.00'" min="1" />
+          </div>
+          <button pButton type="button"
+                  [label]="ui.locale() === 'ar' ? 'التالي' : 'Next'"
+                  [disabled]="!depositAmount() || depositAmount()! <= 0"
+                  (click)="nextDepositStep()"
+                  icon="pi pi-arrow-right"
+                  iconPos="right">
+          </button>
+        </div>
+      }
+
+      <!-- Step 2: Payment Method -->
+      @if (depositStep() === 2) {
+        <div class="deposit-form animate-fade-in">
+          <h3>{{ ui.locale() === 'ar' ? 'اختر طريقة الدفع' : 'Choose payment method' }}</h3>
+          <div class="payment-methods">
+            @for (m of depositMethods(); track m.value) {
+              <button class="payment-method-card" [class.selected]="depositMethod() === m.value" (click)="depositMethod.set(m.value)">
+                <i [class]="m.icon"></i>
+                <span>{{ m.label }}</span>
+                <div class="check" *ngIf="depositMethod() === m.value"><i class="pi pi-check"></i></div>
+              </button>
+            }
+          </div>
+          <div class="deposit-summary">
+            <div class="summary-line">
+              <span>{{ ui.locale() === 'ar' ? 'المبلغ' : 'Amount' }}</span>
+              <strong>{{ storefront.formatMoney(depositAmount()) }}</strong>
+            </div>
+          </div>
+          <div class="deposit-btn-row">
+            <button pButton type="button" severity="secondary"
+                    [label]="ui.locale() === 'ar' ? 'رجوع' : 'Back'"
+                    (click)="prevDepositStep()"
+                    icon="pi pi-arrow-left">
+            </button>
+            <button pButton type="button"
+                    [label]="ui.locale() === 'ar' ? 'المتابعة للدفع' : 'Proceed to Pay'"
+                    (click)="nextDepositStep()"
+                    icon="pi pi-arrow-right"
+                    iconPos="right">
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Step 3: Coming Soon -->
+      @if (depositStep() === 3) {
+        <div class="deposit-form deposit-soon animate-fade-in">
+          <div class="soon-icon">
+            <i class="pi pi-hammer"></i>
+          </div>
+          <h3>{{ ui.t('wallet.depositComingSoon') }}</h3>
+          <p>{{ ui.t('wallet.depositComingSoonDetail') }}</p>
+          <div class="soon-features">
+            <div class="soon-feature">
+              <i class="pi pi-shield"></i>
+              <span>{{ ui.locale() === 'ar' ? 'دفع آمن ومشفر' : 'Secure & encrypted' }}</span>
+            </div>
+            <div class="soon-feature">
+              <i class="pi pi-bolt"></i>
+              <span>{{ ui.locale() === 'ar' ? 'إيداع فوري' : 'Instant deposit' }}</span>
+            </div>
+            <div class="soon-feature">
+              <i class="pi pi-credit-card"></i>
+              <span>{{ ui.locale() === 'ar' ? 'كافة طرق الدفع' : 'All payment methods' }}</span>
+            </div>
+          </div>
+          <button pButton type="button" severity="primary"
+                  [label]="ui.locale() === 'ar' ? 'العودة للمحفظة' : 'Back to Wallet'"
+                  (click)="resetDeposit(); goHome()"
+                  icon="pi pi-wallet">
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="wallet-bottom-spacer"></div>
 </section>

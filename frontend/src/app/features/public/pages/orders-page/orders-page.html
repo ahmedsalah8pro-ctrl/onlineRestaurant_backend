@@ -1,54 +1,89 @@
-<section class="page-shell glass-panel orders-card">
-  <span class="eyebrow">Orders</span>
-  <h1 class="section-title">Customer Tracking</h1>
+<section class="page-shell">
+  @if (!selectedOrder()) {
+    <div class="glass-panel orders-card">
+      <span class="eyebrow">{{ ui.t('nav.orders') }}</span>
+      <h1 class="section-title">{{ ui.t('orders.title') }}</h1>
 
-  <div class="order-row" *ngFor="let order of orders()">
-    <div>
-      <strong>#{{ order.id }}</strong>
-      <p>{{ order.status }} · {{ order.placed_at | date: 'medium' }}</p>
-    </div>
-    <div class="order-row__meta">
-      <strong>{{ storefront.formatMoney(order.total) }}</strong>
-      <button pButton type="button" label="Details" severity="secondary" (click)="openOrder(order.id)"></button>
-    </div>
-  </div>
-
-  <p-dialog
-    header="Order Detail"
-    [visible]="detailVisible()"
-    [modal]="true"
-    appendTo="body"
-    [draggable]="false"
-    [dismissableMask]="true"
-    styleClass="surface-dialog"
-    [style]="{ width: 'min(920px, 95vw)' }"
-    (visibleChange)="detailVisible.set($event)"
-  >
-    @if (selectedOrder(); as order) {
-      <div class="surface-grid">
-        <div class="detail-grid">
-          <div><span>Status</span><strong>{{ order.status }}</strong></div>
-          <div><span>Total</span><strong>{{ storefront.formatMoney(order.total) }}</strong></div>
-          <div><span>Branch</span><strong>{{ order.branch?.name || 'N/A' }}</strong></div>
-          <div><span>Delivery</span><strong>{{ order.delivery_person_name || 'Pending' }}</strong></div>
+      <div class="order-row" *ngFor="let order of orders()">
+        <div>
+          <strong>#{{ order.id }}</strong>
+          <p>{{ ui.orderStatus(order.status) }} · {{ order.placed_at | date: 'medium' }}</p>
         </div>
-
-        <p-timeline [value]="order.status_logs">
-          <ng-template pTemplate="content" let-log>
-            <div class="timeline-card">
-              <strong>{{ log.to_status }}</strong>
-              <p>{{ log.notes || 'Status updated.' }}</p>
-              <small>{{ log.created_at | date: 'medium' }}</small>
-            </div>
-          </ng-template>
-        </p-timeline>
-
-        <textarea pTextarea rows="4" [ngModel]="noteDraft()" (ngModelChange)="noteDraft.set($event)" placeholder="Update notes if still within grace period"></textarea>
-        <div class="detail-actions">
-          <button pButton type="button" label="Save Notes" severity="secondary" (click)="saveNotes()"></button>
-          <button pButton type="button" label="Cancel Order" severity="danger" (click)="cancelOrder()"></button>
+        <div class="order-row__meta">
+          <strong>{{ storefront.formatMoney(order.total) }}</strong>
+          <button pButton type="button" [label]="ui.t('orders.details')" severity="secondary" (click)="openOrder(order.id)"></button>
         </div>
       </div>
-    }
-  </p-dialog>
+
+      <div *ngIf="orders().length === 0" class="orders-empty">
+        <i class="pi pi-list"></i>
+        <p>{{ ui.t('orders.noOrders') }}</p>
+      </div>
+    </div>
+  } @else {
+    <div class="order-tracker">
+      <div class="order-tracker__header">
+        <button pButton icon="pi pi-arrow-left" severity="secondary" class="p-button-rounded p-button-text" (click)="goBack()" [pTooltip]="ui.t('orders.back')"></button>
+        <h2>{{ ui.currentLocale() === 'ar' ? 'الطلب' : 'Order' }} #{{ selectedOrder()!.id }}</h2>
+        <p-tag [value]="ui.orderStatus(selectedOrder()!.status)" [severity]="selectedOrder()!.status === 'delivered' ? 'success' : (selectedOrder()!.status === 'cancelled' ? 'danger' : 'info')"></p-tag>
+      </div>
+
+      <div class="surface-grid two-columns">
+        <div class="glass-panel order-items-panel">
+          <h3>{{ ui.t('orders.items') }}</h3>
+          <div class="mini-order-items">
+            <div class="mini-item" *ngFor="let item of selectedOrder()!.items">
+                <div class="mini-item__main">
+                    <strong>{{ item.quantity }}x {{ theme.resolveText($any(item.product_snapshot).translations || $any(item.product_snapshot).name) }}</strong>
+                    <span>{{ storefront.formatMoney(item.line_subtotal) }}</span>
+                </div>
+                <div class="mini-item__addons" *ngIf="item.selected_addons.length">
+                    <span class="addon-tag" *ngFor="let addon of item.selected_addons">
+                        {{ theme.resolveText(addon.translations || addon.name) }} (+{{ storefront.formatMoney(addon.price) }})
+                    </span>
+                </div>
+            </div>
+          </div>
+
+          <div class="checkout-summary" style="margin-top: 1rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1rem;">
+            <div class="summary-row"><span>{{ ui.t('checkout.subtotal') }}</span><strong>{{ storefront.formatMoney(selectedOrder()!.subtotal) }}</strong></div>
+            <div class="summary-row"><span>{{ ui.t('checkout.deliveryFee') }}</span><strong>{{ storefront.formatMoney(selectedOrder()!.delivery_fee) }}</strong></div>
+            <div class="summary-row total"><span>{{ ui.t('menu.total') }}</span><strong>{{ storefront.formatMoney(selectedOrder()!.total) }}</strong></div>
+          </div>
+
+          <div style="margin-top: 1.5rem;" *ngIf="selectedOrder()!.status === 'created' || selectedOrder()!.status === 'pending'">
+            <hr style="opacity: 0.1; margin: 1rem 0;">
+            <label class="field-stack">
+              <strong style="font-size: 0.9rem;">{{ ui.t('orders.selfService') }}</strong>
+              <textarea pTextarea rows="2" [ngModel]="noteDraft()" (ngModelChange)="noteDraft.set($event)" [placeholder]="ui.t('orders.changeNote')"></textarea>
+            </label>
+            <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+                <button pButton type="button" [label]="ui.t('orders.saveNotes')" severity="secondary" (click)="saveNotes()" icon="pi pi-save"></button>
+                <button pButton type="button" [label]="ui.t('orders.cancelOrder')" severity="danger" class="p-button-text" (click)="cancelOrder()" icon="pi pi-times"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel timeline-panel">
+          <h3>{{ ui.t('orders.tracking') }}</h3>
+          <p-timeline [value]="selectedOrder()!.status_logs">
+            <ng-template pTemplate="content" let-log>
+              <div class="timeline-card">
+                <strong>{{ ui.orderStatus(log.to_status) }}</strong>
+                <p>{{ log.notes || ui.t('orders.statusUpdated') }}</p>
+                <small>{{ log.created_at | date: 'shortTime' }}</small>
+              </div>
+            </ng-template>
+          </p-timeline>
+
+          <div class="branch-contact">
+             <strong>{{ ui.t('orders.branchContact') }}</strong>
+             <p>{{ selectedOrder()!.branch?.name }}</p>
+             <a [href]="'tel:' + selectedOrder()!.branch?.phone" pButton icon="pi pi-phone" severity="secondary"
+                [label]="selectedOrder()!.branch?.phone || ui.t('orders.callBranch')" class="p-button-text"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </section>

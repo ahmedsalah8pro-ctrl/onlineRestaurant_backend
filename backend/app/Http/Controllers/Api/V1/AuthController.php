@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\Auth\RegisterRequest;
 use App\Http\Resources\Api\V1\Auth\UserResource;
 use App\Models\User;
 use App\Support\ApiResponse;
+use App\Services\Cart\CartService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,10 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(protected CartService $cartService)
+    {
+    }
 
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -32,13 +37,17 @@ class AuthController extends Controller
         foreach ($identityFragments as $fragment) {
             if ($fragment !== '' && str_contains($passwordLower, $fragment)) {
                 throw ValidationException::withMessages([
-                    'password' => ['Password must not contain personal account data.'],
+                    'password' => [__('Password must not contain personal account data.')],
                 ]);
             }
         }
 
         $user = User::create($data);
         $token = $user->createToken((string) $request->validated('device_name', 'api-token'))->plainTextToken;
+
+        if ($sessionId = $request->header('X-Session-Id')) {
+            $this->cartService->mergeGuestCart($user, $sessionId);
+        }
 
         return $this->successResponse([
             'user' => new UserResource($user->load('profile', 'roles')),
@@ -56,16 +65,20 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check((string) $request->validated('password'), $user->password)) {
             throw ValidationException::withMessages([
-                'email_or_username' => ['Invalid credentials.'],
+                'email_or_username' => [__('auth.failed')],
             ]);
         }
 
         if (! $user->is_active) {
-            return $this->errorResponse('Account is inactive.', 403);
+            return $this->errorResponse(__('Account is inactive.'), 403);
         }
 
         $user->forceFill(['last_login_at' => now()])->save();
         $token = $user->createToken((string) $request->validated('device_name', 'api-token'))->plainTextToken;
+
+        if ($sessionId = $request->header('X-Session-Id')) {
+            $this->cartService->mergeGuestCart($user, $sessionId);
+        }
 
         return $this->successResponse([
             'user' => new UserResource($user->load('profile', 'roles')),
@@ -95,5 +108,20 @@ class AuthController extends Controller
         $this->authUser($request)->tokens()->delete();
 
         return $this->successResponse(null, 'All devices logged out successfully.');
+    }
+    public function checkAvailability(Request $request): JsonResponse
+    {
+        $field = $request->query('field');
+        $value = $request->query('value');
+
+        if (! in_array($field, ['username', 'email', 'primary_phone'])) {
+            return $this->errorResponse(__('Invalid field.'));
+        }
+
+        $exists = User::where($field, $value)->exists();
+
+        return $this->successResponse([
+            'available' => ! $exists,
+        ], $exists ? __('Value already taken.') : __('Value available.'));
     }
 }

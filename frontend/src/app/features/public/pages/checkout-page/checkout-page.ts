@@ -4,8 +4,10 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 import { Address } from '../../../../core/models/api.models';
+import { AuthService } from '../../../../core/services/auth';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { StorefrontService } from '../../../../core/services/storefront';
+import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
@@ -18,6 +20,8 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 export class CheckoutPage implements OnInit {
   protected readonly storefront = inject(StorefrontService);
   protected readonly publicApi = inject(PublicApiService);
+  protected readonly auth = inject(AuthService);
+  protected readonly theme = inject(ThemeService);
   protected readonly ui = inject(UiTextService);
   private readonly message = inject(MessageService);
   private readonly router = inject(Router);
@@ -27,6 +31,9 @@ export class CheckoutPage implements OnInit {
   protected readonly loading = signal(false);
   protected readonly couponPreview = signal<Record<string, unknown> | null>(null);
   protected readonly feedback = signal<{ severity: 'success' | 'error'; text: string } | null>(null);
+  protected readonly showQuickAddress = signal(false);
+  protected readonly alternativePhoneModels = signal<string[]>([]);
+  protected readonly isGuest = computed(() => !this.auth.isAuthenticated());
 
   protected form = {
     branch_id: null as number | null,
@@ -38,12 +45,11 @@ export class CheckoutPage implements OnInit {
   };
 
   protected newAddress = {
-    label: 'Home',
+    label: '',
     recipient_name: '',
     phone: '',
-    country: 'Egypt',
-    city: 'Cairo',
-    area: '',
+    country: '',
+    delivery_zone_id: null as number | null,
     street: '',
     building: '',
     floor: '',
@@ -57,11 +63,28 @@ export class CheckoutPage implements OnInit {
     const branchId = this.form.branch_id;
     return this.storefront.branches().find((branch) => branch.id === branchId)?.delivery_zones ?? [];
   });
+
+  protected readonly checkoutTotal = computed(() => {
+    const subtotal = this.storefront.cart()?.subtotal ?? 0;
+    const delivery = this.selectedDeliveryFee();
+    const preview = this.couponPreview();
+    const discount = preview?.['valid'] ? Number(preview['discount_total']) : 0;
+    
+    return Math.max(0, subtotal + delivery - discount);
+  });
   protected readonly paymentOptions = computed(() => [
     { label: this.ui.t('checkout.payment.cash'), value: 'cash_on_delivery' },
     { label: this.ui.t('checkout.payment.wallet'), value: 'wallet' },
     { label: this.ui.t('checkout.payment.hybrid'), value: 'wallet_plus_cash_on_delivery' },
   ]);
+
+  protected readonly addressOptions = computed(() => {
+    const list = this.addresses().map(a => ({ 
+      label: a.label || a.street || `${this.ui.t('checkout.address')} #${a.id}`, 
+      value: a.id 
+    }));
+    return [{ label: this.ui.t('checkout.addNewAddress') || 'Add New Address', value: 'new' }, ...list];
+  });
 
   protected selectedDeliveryFee(): number {
     return this.zones().find((zone) => zone.id === this.form.delivery_zone_id)?.delivery_fee ?? 0;
@@ -69,17 +92,65 @@ export class CheckoutPage implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.storefront.refreshCart();
-    const [addresses, wallet] = await Promise.all([
-      firstValueFrom(this.publicApi.getAddresses()),
-      firstValueFrom(this.publicApi.getWallet()),
-    ]);
+    
+    if (this.auth.isAuthenticated()) {
+      const [addresses, wallet] = await Promise.all([
+        firstValueFrom(this.publicApi.getAddresses()),
+        firstValueFrom(this.publicApi.getWallet()),
+      ]);
 
-    this.addresses.set(addresses);
-    this.walletBalance.set(wallet.balance);
-    this.storefront.walletBalance.set(wallet.balance);
+      this.addresses.set(addresses);
+      this.walletBalance.set(wallet.balance);
+      this.storefront.walletBalance.set(wallet.balance);
+      
+      const defaultAddress = addresses.find((address) => address.is_default) || addresses[0];
+      if (defaultAddress) {
+        this.form.address_id = defaultAddress.id;
+        this.form.delivery_zone_id = defaultAddress.delivery_zone_id;
+        this.showQuickAddress.set(false);
+      } else {
+        this.form.address_id = 'new' as any;
+        this.showQuickAddress.set(true);
+      }
+    } else {
+        this.form.address_id = 'new' as any;
+        this.showQuickAddress.set(true);
+    }
+
     this.form.branch_id = this.storefront.cart()?.branch_id ?? this.storefront.branches()[0]?.id ?? null;
-    this.form.delivery_zone_id = this.zones()[0]?.id ?? null;
-    this.form.address_id = addresses.find((address) => address.is_default)?.id ?? addresses[0]?.id ?? null;
+    if (!this.form.delivery_zone_id) {
+        this.form.delivery_zone_id = this.zones()[0]?.id ?? null;
+    }
+  }
+
+  protected onAddressSelect(value: any): void {
+    if (value === 'new') {
+      this.showQuickAddress.set(true);
+    } else {
+      this.showQuickAddress.set(false);
+      const addr = this.addresses().find(a => a.id === value);
+      if (addr) {
+        this.form.delivery_zone_id = addr.delivery_zone_id;
+      }
+    }
+  }
+
+  protected addAlternativePhone(): void {
+    if (this.alternativePhoneModels().length < 3) {
+      this.alternativePhoneModels.set([...this.alternativePhoneModels(), '']);
+    }
+  }
+
+  protected removeAlternativePhone(index: number): void {
+    const current = [...this.alternativePhoneModels()];
+    current.splice(index, 1);
+    this.alternativePhoneModels.set(current);
+  }
+
+  protected updateAlternativePhone(index: number, value: string): void {
+    const current = [...this.alternativePhoneModels()];
+    current[index] = value;
+    this.alternativePhoneModels.set(current);
   }
 
   protected async previewCoupon(): Promise<void> {
@@ -100,9 +171,16 @@ export class CheckoutPage implements OnInit {
 
   protected async createAddress(): Promise<void> {
     try {
-      const created = await firstValueFrom(this.publicApi.createAddress(this.newAddress));
+      const payload = {
+        ...this.newAddress,
+        delivery_zone_id: this.form.delivery_zone_id,
+        alternative_phones: this.alternativePhoneModels().filter(p => !!p)
+      };
+      
+      const created = await firstValueFrom(this.publicApi.createAddress(payload));
       this.addresses.set([created, ...this.addresses()]);
       this.form.address_id = created.id;
+      this.showQuickAddress.set(false);
       this.message.add({
         severity: 'success',
         summary: this.ui.t('checkout.quickAddress'),

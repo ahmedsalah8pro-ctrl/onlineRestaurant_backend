@@ -1,90 +1,186 @@
-<section class="page-shell auth-grid">
-  <div class="glass-panel auth-card">
-    <span class="eyebrow">{{ ui.t('auth.eyebrow') }}</span>
-    <h1 class="section-title">{{ ui.t('auth.title') }}</h1>
-    <p class="section-copy">{{ ui.t('auth.copy') }}</p>
-
-    <p-selectbutton
-      [options]="[
-        { label: ui.t('auth.login'), value: 'login' },
-        { label: ui.t('auth.register'), value: 'register' }
-      ]"
-      [ngModel]="mode()"
-      (ngModelChange)="mode.set($event)"
-      optionLabel="label"
-      optionValue="value"
-    />
-
-    @if (error()) {
-      <p-message severity="error" [text]="error()"></p-message>
-    }
-
-    @if (mode() === 'login') {
-      <div class="form-grid">
-        <p-floatlabel>
-          <input pInputText id="identity" [(ngModel)]="loginModel.email_or_username" />
-          <label for="identity">{{ ui.t('auth.emailOrUsername') }}</label>
-        </p-floatlabel>
-
-        <p-floatlabel>
-          <p-password [(ngModel)]="loginModel.password" inputId="password" [feedback]="false" [toggleMask]="true" />
-          <label for="password">{{ ui.t('auth.password') }}</label>
-        </p-floatlabel>
-
-        <button pButton type="button" [label]="ui.t('auth.login')" [loading]="loading()" (click)="submitLogin()"></button>
+<div class="auth-container" [class.register-mode]="mode() === 'register'">
+  <!-- Background Elements -->
+  <div class="auth-visual">
+    <div class="visual-content login-visual animate-fade-in">
+      <img src="http://127.0.0.1:8000/storage/branding/auth-bg.png" class="bg-img" alt="Login Background">
+      <div class="visual-overlay"></div>
+      <div class="visual-text">
+        <span class="badge">{{ ui.t('auth.eyebrow') }}</span>
+        <h1>Experience <br><span>True Flavors</span></h1>
+        <p>{{ ui.t('public.footerAbout') }}</p>
       </div>
-    } @else {
-      <div class="form-grid">
-        <p-floatlabel>
-          <input pInputText id="register-name" [(ngModel)]="registerModel.name" />
-          <label for="register-name">{{ ui.t('account.name') }}</label>
-        </p-floatlabel>
-
-        <p-floatlabel>
-          <input pInputText id="register-username" [(ngModel)]="registerModel.username" />
-          <label for="register-username">{{ ui.t('account.username') }}</label>
-        </p-floatlabel>
-
-        <p-floatlabel>
-          <input pInputText id="register-email" [(ngModel)]="registerModel.email" />
-          <label for="register-email">{{ ui.t('account.email') }}</label>
-        </p-floatlabel>
-
-        <p-floatlabel>
-          <input pInputText id="register-phone" [(ngModel)]="registerModel.primary_phone" />
-          <label for="register-phone">{{ ui.t('account.phone') }}</label>
-        </p-floatlabel>
-
-        <p-floatlabel>
-          <p-password [(ngModel)]="registerModel.password" inputId="register-password" [feedback]="false" [toggleMask]="true" />
-          <label for="register-password">{{ ui.t('auth.password') }}</label>
-        </p-floatlabel>
-
-        <p-floatlabel>
-          <p-password
-            [(ngModel)]="registerModel.password_confirmation"
-            inputId="register-password-confirmation"
-            [feedback]="false"
-            [toggleMask]="true"
-          />
-          <label for="register-password-confirmation">{{ ui.t('auth.confirmPassword') }}</label>
-        </p-floatlabel>
-
-        <button pButton type="button" [label]="ui.t('auth.createAccount')" [loading]="loading()" (click)="submitRegister()"></button>
-      </div>
-    }
-  </div>
-
-  <div class="glass-panel demo-card">
-    <span class="eyebrow">{{ ui.t('auth.demoAccounts') }}</span>
-    <h2>{{ ui.t('auth.demoAccounts') }}</h2>
-    <div class="demo-row" *ngFor="let account of runtime.demoAccounts">
-      <div>
-        <strong>{{ account.label }}</strong>
-        <p>{{ account.identity }}</p>
-        <small>{{ account.password }}</small>
-      </div>
-      <button pButton type="button" [label]="ui.t('auth.use')" severity="secondary" (click)="useDemoAccount(account.identity, account.password)"></button>
     </div>
   </div>
-</section>
+
+  <!-- Form Section -->
+  <div class="auth-form-section">
+    <div class="auth-card-wrapper" [@formState]>
+      <div class="logo-box">
+        <div class="logo-icon"><i class="pi pi-prime"></i></div>
+        <span>RESTO</span>
+      </div>
+
+      <div class="form-header">
+        <h2 class="title">{{ mode() === 'login' ? ui.t('auth.welcomeTitle') : ui.t('auth.regTitle') }}</h2>
+        <p class="subtitle">
+          {{ mode() === 'login' ? ui.t('auth.welcomeSubtitle') : ui.t('auth.regSubtitle') }}
+        </p>
+      </div>
+
+      @if (error()) {
+        <div class="error-banner" [@shake]="'error'">
+          <i class="pi pi-lock"></i>
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <div class="form-content">
+        @if (mode() === 'login') {
+          <form [formGroup]="loginForm" class="form-grid" (submit)="submitLogin(); $event.preventDefault()">
+            <div class="input-group" [class.field-error]="isInvalid(loginForm, 'identity')" [class.field-success]="isValid(loginForm, 'identity')">
+              <label for="identity">{{ ui.t('auth.emailOrUsername') }}</label>
+              <div class="input-wrapper">
+                <i class="pi pi-user"></i>
+                <input pInputText id="identity" formControlName="identity" [placeholder]="ui.t('auth.identityPlaceholder')" autocomplete="username" />
+              </div>
+              @if (isInvalid(loginForm, 'identity')) {
+                <span class="error-text">{{ getFieldError(loginForm, 'identity') }}</span>
+              }
+            </div>
+
+            <div class="input-group" [class.field-error]="isInvalid(loginForm, 'password')" [class.field-success]="isValid(loginForm, 'password')">
+              <label for="password">{{ ui.t('auth.password') }}</label>
+              <div class="input-wrapper">
+                <i class="pi pi-lock"></i>
+                <p-password formControlName="password" [feedback]="false" [toggleMask]="true" [placeholder]="ui.t('auth.passwordPlaceholder')" autocomplete="current-password" />
+              </div>
+              @if (isInvalid(loginForm, 'password')) {
+                <span class="error-text">{{ getFieldError(loginForm, 'password') }}</span>
+              }
+            </div>
+
+            <div class="form-actions">
+              <button pButton type="submit" class="btn-primary" [loading]="loading()" [disabled]="loginForm.invalid">
+                <span>{{ ui.t('auth.login') }}</span>
+                <i class="pi pi-chevron-right"></i>
+              </button>
+            </div>
+          </form>
+        } @else {
+          <form [formGroup]="registerForm" class="form-grid register-grid" (submit)="submitRegister(); $event.preventDefault()">
+            <div class="input-row">
+              <div class="input-group" [class.field-error]="isInvalid(registerForm, 'name')" [class.field-success]="isValid(registerForm, 'name')">
+                <label for="reg-name">{{ ui.t('account.name') }}</label>
+                <div class="input-wrapper">
+                  <i class="pi pi-id-card"></i>
+                  <input pInputText id="reg-name" formControlName="name" [placeholder]="ui.t('account.name')" />
+                </div>
+                @if (isInvalid(registerForm, 'name')) {
+                  <span class="error-text">{{ getFieldError(registerForm, 'name') }}</span>
+                }
+              </div>
+
+              <div class="input-group" [class.field-error]="isInvalid(registerForm, 'username')" [class.field-success]="isValid(registerForm, 'username')">
+                <label for="reg-username">{{ ui.t('account.username') }}</label>
+                <div class="input-wrapper">
+                  <i class="pi pi-at"></i>
+                  <input pInputText id="reg-username" formControlName="username" [placeholder]="ui.t('account.username')" />
+                </div>
+                @if (isInvalid(registerForm, 'username')) {
+                  <span class="error-text">{{ getFieldError(registerForm, 'username') }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="input-group" [class.field-error]="isInvalid(registerForm, 'email')" [class.field-success]="isValid(registerForm, 'email')">
+              <label for="reg-email">{{ ui.t('account.email') }} (Optional)</label>
+              <div class="input-wrapper">
+                <i class="pi pi-envelope"></i>
+                <input pInputText id="reg-email" formControlName="email" [placeholder]="ui.t('account.email')" />
+              </div>
+              @if (isInvalid(registerForm, 'email')) {
+                <span class="error-text">{{ getFieldError(registerForm, 'email') }}</span>
+              }
+            </div>
+
+            <div class="input-group" [class.field-error]="isInvalid(registerForm, 'primary_phone')" [class.field-success]="isValid(registerForm, 'primary_phone')">
+              <label for="reg-phone">{{ ui.t('account.phone') }}</label>
+              <div class="input-wrapper">
+                <i class="pi pi-phone"></i>
+                <input pInputText id="reg-phone" formControlName="primary_phone" placeholder="01XXXXXXXXX" />
+              </div>
+              @if (isInvalid(registerForm, 'primary_phone')) {
+                <span class="error-text">{{ getFieldError(registerForm, 'primary_phone') }}</span>
+              }
+            </div>
+
+            <div class="input-row">
+              <div class="input-group" [class.field-error]="isInvalid(registerForm, 'password')" [class.field-success]="isValid(registerForm, 'password')">
+                <label for="reg-password">{{ ui.t('auth.password') }}</label>
+                <div class="input-wrapper">
+                  <i class="pi pi-lock"></i>
+                  <p-password formControlName="password" [feedback]="false" [toggleMask]="true" [placeholder]="ui.t('auth.password')" />
+                </div>
+                @if (isInvalid(registerForm, 'password')) {
+                  <span class="error-text">{{ getFieldError(registerForm, 'password') }}</span>
+                }
+              </div>
+
+              <div class="input-group" [class.field-error]="isInvalid(registerForm, 'password_confirmation') || (registerForm.errors?.['mismatch'] && registerForm.get('password_confirmation')?.touched)" [class.field-success]="isValid(registerForm, 'password_confirmation') && !registerForm.errors?.['mismatch']">
+                <label for="reg-confirm">{{ ui.t('auth.confirmPassword') }}</label>
+                <div class="input-wrapper">
+                  <i class="pi pi-check-circle"></i>
+                  <p-password formControlName="password_confirmation" [feedback]="false" [toggleMask]="true" [placeholder]="ui.t('auth.confirmPassword')" />
+                </div>
+                @if (registerForm.errors?.['mismatch'] && registerForm.get('password_confirmation')?.touched) {
+                  <span class="error-text">{{ ui.t('validation.mismatch') }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button pButton type="submit" class="btn-primary" [loading]="loading()" [disabled]="registerForm.invalid">
+                <span>{{ ui.t('auth.createAccount') }}</span>
+                <i class="pi pi-user-plus"></i>
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+
+      <div class="form-footer">
+        @if (mode() === 'login') {
+          <p>{{ ui.t('auth.noAccount') }} <a (click)="switchMode('register')">{{ ui.t('auth.createOne') }}</a></p>
+        } @else {
+          <p>{{ ui.t('auth.haveAccount') }} <a (click)="switchMode('login')">{{ ui.t('auth.signInInstead') }}</a></p>
+        }
+      </div>
+
+      <div class="demo-section">
+        <button pButton type="button" class="btn-ghost" icon="pi pi-info-circle" [label]="ui.t('auth.quickAccess')" (click)="op.toggle($event)"></button>
+        <p-popover #op>
+          <div class="demo-panel">
+            <h3>Quick Access</h3>
+            <div class="demo-list">
+              <div class="demo-item" *ngFor="let account of runtime.demoAccounts">
+                <div class="demo-info">
+                  <strong>{{ account.label }}</strong>
+                  <span>{{ account.identity }}</span>
+                </div>
+                <button 
+                  pButton 
+                  type="button"
+                  icon="pi pi-arrow-right" 
+                  class="p-button-rounded" 
+                  severity="danger"
+                  (click)="useDemoAccount(account.identity, account.password, op)"
+                ></button>
+              </div>
+            </div>
+          </div>
+        </p-popover>
+      </div>
+    </div>
+  </div>
+</div>
+

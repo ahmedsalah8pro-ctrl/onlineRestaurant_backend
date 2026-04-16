@@ -1,19 +1,309 @@
+.access-container {
+  display: grid;
+  gap: 1.25rem;
+}
+
+/* Tab switcher */
+.access-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.access-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(15, 23, 42, 0.38);
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.access-tab:hover {
+  border-color: rgba(148, 163, 184, 0.25);
+  color: #94a3b8;
+}
+
+.access-tab.active {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(14, 165, 233, 0.14));
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #86efac;
+}
+
 .access-card {
-  padding: 1.25rem;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.access-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 1.25rem;
+}
+
+/* Action buttons */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 160ms ease;
+  white-space: nowrap;
+}
+
+.action-btn--primary {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.85), rgba(16, 185, 129, 0.8));
+  color: #fff;
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.action-btn--primary:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 1), rgba(16, 185, 129, 1));
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+}
+
+.action-btn--secondary {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+}
+
+.action-btn--secondary:hover {
+  background: rgba(30, 41, 59, 0.7);
+  color: #e2e8f0;
+}
+
+.action-btn--danger {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.action-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.action-btn--sm {
+  padding: 0.45rem 0.8rem;
+  font-size: 0.82rem;
+}
+
+/* Row actions */
+.row-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Member avatar cell */
+.member-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.member-avatar {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(14, 165, 233, 0.3));
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.78rem;
+  color: #86efac;
+  flex-shrink: 0;
+}
+
+/* Role badge */
+.role-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(14, 165, 233, 0.14);
+  color: #7dd3fc;
+  font-weight: 700;
+  font-size: 0.78rem;
+  border: 1px solid rgba(14, 165, 233, 0.25);
+}
+
+.role-badge--none {
+  background: rgba(148, 163, 184, 0.08);
+  color: #475569;
+  border-color: transparent;
+}
+
+/* Role cards */
+.role-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(15, 23, 42, 0.35);
+  flex-wrap: wrap;
+  transition: border-color 160ms ease;
+}
+
+.role-card:hover {
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.role-card__left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.role-card__icon {
+  font-size: 1.5rem;
+}
+
+.role-card__name {
+  font-weight: 700;
+  color: #f1f5f9;
+  font-size: 0.95rem;
+}
+
+.role-card__perm-count {
+  font-size: 0.78rem;
+  color: #475569;
+  margin-top: 0.15rem;
+}
+
+.role-card__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Permission checklist */
+.perm-checker {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.perm-checker__head {
+  font-weight: 600;
+  color: #64748b;
+}
+
+.perm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.4rem;
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.15) transparent;
+}
+
+.perm-grid--loose {
+  grid-template-columns: repeat(3, 1fr);
+  max-height: none;
+}
+
+.perm-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(15, 23, 42, 0.3);
+  font-size: 0.82rem;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.perm-checkbox:hover {
+  border-color: rgba(34, 197, 94, 0.25);
+  background: rgba(34, 197, 94, 0.06);
+}
+
+.perm-checkbox input[type='checkbox']:checked ~ span {
+  color: #86efac;
+}
+
+.perm-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.18);
+  color: #86efac;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.perm-pill__icon {
+  font-size: 0.9rem;
+}
+
+/* Member form */
+.member-form {
   display: grid;
   gap: 1rem;
 }
 
-.role-row {
+/* Common */
+.dialog-footer {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.9rem 0;
-  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  justify-content: flex-end;
 }
 
-.permission-grid {
+.toggle-row {
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(15, 23, 42, 0.25);
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.empty-row {
+  text-align: center;
+  color: #334155;
+  padding: 2rem !important;
+  font-size: 0.9rem;
+}
+
+.empty-state {
+  text-align: center;
+  color: #334155;
+  padding: 2rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .access-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .perm-grid--loose {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

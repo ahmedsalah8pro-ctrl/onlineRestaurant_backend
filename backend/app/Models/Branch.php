@@ -28,6 +28,7 @@ class Branch extends Model
     {
         return [
             'name' => 'array',
+            'address' => 'array',
             'working_hours' => 'array',
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',

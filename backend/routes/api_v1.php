@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('auth')->group(function (): void {
     Route::post('register', [AuthController::class, 'register'])->middleware('throttle:10,1');
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:15,1');
+    Route::get('check-availability', [AuthController::class, 'checkAvailability'])->middleware('throttle:30,1');
 
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('me', [AuthController::class, 'me']);
@@ -56,6 +57,13 @@ Route::get('profiles/{username}', [ProfileController::class, 'publicShow']);
 Route::get('branches', [BranchController::class, 'index']);
 Route::get('branches/{branch}', [BranchController::class, 'show']);
 Route::get('branches/{branch}/zones', [BranchController::class, 'zones']);
+
+Route::get('cart', [CartController::class, 'show']);
+Route::post('cart/items', [CartController::class, 'store']);
+Route::patch('cart/items/{item}', [CartController::class, 'update']);
+Route::delete('cart/items/{item}', [CartController::class, 'destroy']);
+Route::delete('cart', [CartController::class, 'clear']);
+Route::post('cart/preview-coupon', [CartController::class, 'previewCoupon']);
 
 Route::get('categories', [CategoryController::class, 'index']);
 
@@ -74,13 +82,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::patch('addresses/{address}', [AddressController::class, 'update'])->middleware('can:update,address');
     Route::delete('addresses/{address}', [AddressController::class, 'destroy'])->middleware('can:delete,address');
     Route::patch('addresses/{address}/default', [AddressController::class, 'setDefault'])->middleware('can:update,address');
-
-    Route::get('cart', [CartController::class, 'show']);
-    Route::post('cart/items', [CartController::class, 'store']);
-    Route::patch('cart/items/{item}', [CartController::class, 'update']);
-    Route::delete('cart/items/{item}', [CartController::class, 'destroy']);
-    Route::delete('cart', [CartController::class, 'clear']);
-    Route::post('cart/preview-coupon', [CartController::class, 'previewCoupon']);
 
     Route::get('orders', [OrderController::class, 'index']);
     Route::post('orders/checkout', [OrderController::class, 'checkout']);
@@ -120,6 +121,12 @@ Route::prefix('admin')
         Route::get('delivery-zones/{deliveryZone}', [AdminDeliveryZoneController::class, 'show'])->middleware('permission:delivery-zones.view');
         Route::patch('delivery-zones/{deliveryZone}', [AdminDeliveryZoneController::class, 'update'])->middleware('permission:delivery-zones.update');
         Route::delete('delivery-zones/{deliveryZone}', [AdminDeliveryZoneController::class, 'destroy'])->middleware('permission:delivery-zones.delete');
+
+        Route::get('addon-groups', [\App\Http\Controllers\Api\V1\Admin\AddonGroupController::class, 'index']);
+        Route::post('addon-groups', [\App\Http\Controllers\Api\V1\Admin\AddonGroupController::class, 'store']);
+        Route::get('addon-groups/{addonGroup}', [\App\Http\Controllers\Api\V1\Admin\AddonGroupController::class, 'show']);
+        Route::patch('addon-groups/{addonGroup}', [\App\Http\Controllers\Api\V1\Admin\AddonGroupController::class, 'update']);
+        Route::delete('addon-groups/{addonGroup}', [\App\Http\Controllers\Api\V1\Admin\AddonGroupController::class, 'destroy']);
 
         Route::get('products', [AdminProductController::class, 'index'])->middleware('can:viewAny,'.Product::class);
         Route::post('products', [AdminProductController::class, 'store'])->middleware('can:create,'.Product::class);
@@ -176,4 +183,9 @@ Route::prefix('admin')
         Route::post('roles', [AdminRoleController::class, 'store'])->middleware('permission:roles.create');
         Route::patch('roles/{role}', [AdminRoleController::class, 'update'])->middleware('permission:roles.update');
         Route::delete('roles/{role}', [AdminRoleController::class, 'destroy'])->middleware('permission:roles.delete');
+
+        Route::get('users', [\App\Http\Controllers\Api\V1\Admin\UserController::class, 'index'])->middleware('permission:roles.view');
+        Route::post('users', [\App\Http\Controllers\Api\V1\Admin\UserController::class, 'store'])->middleware('permission:roles.create');
+        Route::patch('users/{user}', [\App\Http\Controllers\Api\V1\Admin\UserController::class, 'update'])->middleware('permission:roles.update');
+        Route::delete('users/{user}', [\App\Http\Controllers\Api\V1\Admin\UserController::class, 'destroy'])->middleware('permission:roles.delete');
     });

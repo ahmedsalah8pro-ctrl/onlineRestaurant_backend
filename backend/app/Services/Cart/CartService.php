@@ -18,15 +18,23 @@ class CartService
     {
     }
 
-    public function getOrCreate(User $user): Cart
+    public function getOrCreate(?User $user, ?string $sessionId = null): Cart
     {
-        return $user->loadMissing('wallet')->cart()->firstOrCreate();
+        if ($user) {
+            return $user->loadMissing('wallet')->cart()->firstOrCreate();
+        }
+        
+        if (!$sessionId) {
+            throw ValidationException::withMessages(['session_id' => 'Guest cart requires a session ID.']);
+        }
+
+        return Cart::firstOrCreate(['session_id' => $sessionId, 'user_id' => null]);
     }
 
-    public function addItem(User $user, array $payload): Cart
+    public function addItem(?User $user, ?string $sessionId, array $payload): Cart
     {
-        return DB::transaction(function () use ($user, $payload) {
-            $cart = $user->cart()->firstOrCreate();
+        return DB::transaction(function () use ($user, $sessionId, $payload) {
+            $cart = $this->getOrCreate($user, $sessionId);
             $product = Product::with(['sizes', 'addonGroups.options', 'categories', 'branches'])->findOrFail($payload['product_id']);
             $branchId = $payload['branch_id'] ?? $cart->branch_id;
 
@@ -73,9 +81,9 @@ class CartService
         });
     }
 
-    public function updateItem(User $user, int $itemId, array $payload): Cart
+    public function updateItem(?User $user, ?string $sessionId, int $itemId, array $payload): Cart
     {
-        $cart = $user->cart()->firstOrFail();
+        $cart = $this->getOrCreate($user, $sessionId);
         $item = $cart->items()->with(['product.sizes', 'product.addonGroups.options'])->findOrFail($itemId);
 
         $size = array_key_exists('product_size_id', $payload)
@@ -102,25 +110,53 @@ class CartService
         return $cart->fresh(['items.product.categories', 'items.productSize']);
     }
 
-    public function removeItem(User $user, int $itemId): Cart
+    public function removeItem(?User $user, ?string $sessionId, int $itemId): Cart
     {
-        $cart = $user->cart()->firstOrFail();
+        $cart = $this->getOrCreate($user, $sessionId);
         $cart->items()->findOrFail($itemId)->delete();
 
         return $cart->fresh(['items.product.categories', 'items.productSize']);
     }
 
-    public function clear(User $user): void
+    public function clear(?User $user, ?string $sessionId = null): void
     {
-        $user->cart?->items()->delete();
+        if ($user) {
+            $user->cart?->items()->delete();
+        } elseif ($sessionId) {
+            Cart::where('session_id', $sessionId)->whereNull('user_id')->first()?->items()->delete();
+        }
     }
 
-    public function setBranch(User $user, int $branchId): Cart
+    public function setBranch(?User $user, ?string $sessionId, int $branchId): Cart
     {
-        $cart = $user->cart()->firstOrCreate();
+        $cart = $this->getOrCreate($user, $sessionId);
         $cart->update(['branch_id' => $branchId]);
 
         return $cart->fresh(['items.product.categories', 'items.productSize']);
+    }
+
+    public function mergeGuestCart(User $user, string $sessionId): void
+    {
+        $guestCart = Cart::with(['items.product.addonGroups.options'])->where('session_id', $sessionId)->whereNull('user_id')->first();
+        if (!$guestCart || $guestCart->items->isEmpty()) {
+            return;
+        }
+
+        $userCart = $this->getOrCreate($user);
+
+        foreach ($guestCart->items as $item) {
+            $existing = $userCart->items()->where('configuration_hash', $item->configuration_hash)->first();
+
+            if ($existing) {
+                $existing->increment('quantity', $item->quantity);
+            } else {
+                $newItem = $item->replicate(['cart_id']);
+                $newItem->cart_id = $userCart->id;
+                $newItem->save();
+            }
+        }
+
+        $guestCart->delete();
     }
 
     public function ensureBranchAvailability(Cart $cart, int $branchId): void

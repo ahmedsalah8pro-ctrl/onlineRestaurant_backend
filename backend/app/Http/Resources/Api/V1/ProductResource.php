@@ -16,8 +16,9 @@ class ProductResource extends JsonResource
             'translations' => $this->name,
             'slug' => $this->slug,
             'short_description' => $this->short_description ? Translatable::get($this->short_description) : null,
+            'short_description_translations' => $this->short_description,
             'base_price' => $this->base_price !== null ? (float) $this->base_price : null,
-            'main_image_path' => $this->main_image_path,
+            'main_image_path' => $this->main_image_path ? \Illuminate\Support\Facades\Storage::url($this->main_image_path) : null,
             'is_active' => $this->is_active,
             'is_best_seller_pinned' => $this->is_best_seller_pinned,
             'best_seller_rank' => $this->best_seller_rank,
@@ -26,6 +27,7 @@ class ProductResource extends JsonResource
                 'count' => (int) ($this->reviews_count ?? 0),
             ],
             'addon_groups_count' => (int) ($this->addon_groups_count ?? 0),
+            'purchases_count' => (int) ($this->purchases_count ?? 0),
         ];
     }
 }

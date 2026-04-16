@@ -7,39 +7,60 @@
     </div>
 
     <div class="menu-branch-picker">
-      <button
-        pButton
-        type="button"
-        *ngFor="let branch of storefront.branches()"
-        [label]="branch.name"
-        [severity]="filters.branch_id === branch.id ? undefined : 'secondary'"
-        (click)="setBranch(branch.id)"
-      ></button>
+      <div class="scroll-pills">
+        <button
+          *ngFor="let branch of storefront.branches()"
+          class="branch-pill"
+          [class.active]="filters.branch_id === branch.id"
+          (click)="setBranch(branch.id)"
+        >
+          <i class="pi pi-map-marker"></i>
+          <span>{{ theme.resolveText(branch.translations || branch.name) }}</span>
+        </button>
+      </div>
     </div>
 
     <div class="menu-toolbar__filters" *ngIf="filters.branch_id; else chooseBranchFirst">
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input pInputText [placeholder]="ui.t('menu.search')" [(ngModel)]="filters.search" (ngModelChange)="onFiltersChanged()" />
-      </span>
+      <div class="filter-group-main">
+        <div class="search-box">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            [placeholder]="ui.t('menu.search')" 
+            [(ngModel)]="filters.search" 
+            (ngModelChange)="onFiltersChanged()" 
+          />
+        </div>
 
-      <p-select
-        [options]="storefront.categories()"
-        [(ngModel)]="filters.category_id"
-        optionLabel="name"
-        optionValue="id"
-        [placeholder]="ui.t('menu.category')"
-        (ngModelChange)="onFiltersChanged()"
-      />
+        <div class="dropdown-pair">
+          <p-select
+            [options]="storefront.categories()"
+            [(ngModel)]="filters.category_id"
+            optionValue="id"
+            [placeholder]="ui.t('menu.category')"
+            [showClear]="true"
+            (ngModelChange)="onFiltersChanged()"
+            styleClass="filter-select"
+          >
+            <ng-template pTemplate="selectedItem" let-selectedOption>
+              {{ theme.resolveText(selectedOption?.translations || selectedOption?.name) }}
+            </ng-template>
+            <ng-template pTemplate="item" let-category>
+              {{ theme.resolveText(category?.translations || category?.name) }}
+            </ng-template>
+          </p-select>
 
-      <p-select
-        [options]="sortOptions"
-        [(ngModel)]="filters.sort"
-        optionLabel="label"
-        optionValue="value"
-        [placeholder]="ui.t('menu.sort')"
-        (ngModelChange)="onFiltersChanged()"
-      />
+          <p-select
+            [options]="sortOptions()"
+            [(ngModel)]="filters.sort"
+            optionLabel="label"
+            optionValue="value"
+            [placeholder]="ui.t('menu.sort')"
+            (ngModelChange)="onFiltersChanged()"
+            styleClass="filter-select"
+          />
+        </div>
+      </div>
     </div>
   </div>
 
@@ -56,10 +77,11 @@
     </div>
   } @else if (filters.branch_id) {
     <div class="menu-grid">
-      <article class="menu-card glass-panel" *ngFor="let product of products()" (click)="openPreview(product.id)">
+      <article class="menu-card glass-panel" *ngFor="let product of products()" (click)="quickAdd(product)">
         <img
-          [src]="runtime.resolveAsset(product.main_image_path, 'https://placehold.co/480x320/111827/ffffff?text=Menu')"
-          [alt]="product.name"
+          [src]="runtime.resolveAsset(product.main_image_path, 'http://127.0.0.1:8000/storage/products/pizza.png')"
+          [alt]="theme.resolveText(product.translations || product.name)"
+          class="product-image"
         />
 
         <button
@@ -73,17 +95,22 @@
 
         <div class="menu-card__body">
           <div class="menu-card__header">
-            <h3>{{ product.name }}</h3>
+            <h3>{{ theme.resolveText(product.translations || product.name) }}</h3>
             <p-tag *ngIf="product.is_best_seller_pinned" [value]="ui.t('menu.mostOrdered')" severity="warn"></p-tag>
           </div>
-          <p>{{ product.short_description || ui.t('menu.noDescription') }}</p>
+          <p>{{ theme.resolveText(product.short_description_translations || product.short_description) || ui.t('menu.noDescription') }}</p>
           <div class="menu-card__meta">
-            <span>{{ storefront.formatMoney(product.base_price) }}</span>
-            <span>{{ product.rating_summary.average }} &#9733;</span>
+            <div class="rating-badge">
+              <i class="pi pi-star-fill"></i>
+              <span>{{ product.rating_summary.average }}</span>
+               <span class="reviews-count">({{ product.rating_summary.count }} {{ ui.t('product.reviews_count') }})</span>
+            </div>
+            <strong class="price-text">{{ storefront.formatMoney(product.base_price) }}</strong>
           </div>
           <div class="menu-card__actions">
-            <button pButton type="button" [label]="ui.t('menu.fastAdd')" severity="secondary" (click)="quickAdd(product, $event)"></button>
-            <a pButton severity="secondary" [routerLink]="['/products', product.id]" (click)="$event.stopPropagation()">{{ ui.t('menu.details') }}</a>
+            <a pButton severity="primary" [routerLink]="['/products', product.id]" (click)="$event.stopPropagation()" icon="pi pi-shopping-cart" iconPos="right" class="details-btn">
+              {{ ui.t('menu.details') }}
+            </a>
           </div>
         </div>
       </article>
@@ -116,23 +143,57 @@
     } @else if (previewProduct(); as current) {
       <div class="preview-modal">
         <img
-          [src]="runtime.resolveAsset(current.main_image_path, current.media[0]?.url || 'https://placehold.co/640x520/111827/ffffff?text=Preview')"
-          [alt]="current.name"
+          [src]="runtime.resolveAsset(current.main_image_path, (current.media && current.media.length > 0) ? (current.media[0].url || '') : 'https://placehold.co/640x520/111827/ffffff?text=Preview')"
+          [alt]="theme.resolveText(current.translations || current.name)"
         />
-        <div class="preview-modal__body">
-          <span class="eyebrow">{{ ui.t('menu.previewTitle') }}</span>
-          <h2>{{ current.name }}</h2>
-          <p>{{ current.short_description || current.description || ui.t('menu.noDescription') }}</p>
-          <div class="preview-modal__meta">
-            <span>{{ storefront.formatMoney(current.base_price) }}</span>
-            <span>{{ current.rating_summary.average }} &#9733;</span>
-            <span>{{ current.sizes.length }} {{ ui.t('product.sizes') }}</span>
+          <div class="preview-modal__body">
+            <span class="eyebrow">{{ ui.t('menu.previewTitle') }}</span>
+            <h2>{{ theme.resolveText(current.translations || current.name) }}</h2>
+            <p>{{ theme.resolveText(current.short_description_translations || current.short_description) || theme.resolveText(current.description_translations || current.description) || ui.t('menu.noDescription') }}</p>
+            
+            <div class="preview-config">
+              <!-- Sizes -->
+              <div class="config-section" *ngIf="current.sizes && current.sizes.length">
+                <h3>{{ ui.t('product.sizes') }}</h3>
+                <div class="config-row">
+                  <button pButton type="button" *ngFor="let size of current.sizes" 
+                    [label]="theme.resolveText(size.translations || size.name) + ' • ' + storefront.formatMoney(size.price)"
+                    [severity]="selectedSizeId() === size.id ? undefined : 'secondary'"
+                    (click)="selectSize(size.id)"></button>
+                </div>
+              </div>
+
+              <!-- Addons -->
+              <div class="config-section" *ngFor="let group of current.addon_groups || []">
+                <h3>{{ theme.resolveText(group.translations || group.name) }}</h3>
+                <div class="config-row">
+                  <button pButton type="button" *ngFor="let option of group.options"
+                    [label]="theme.resolveText(option.translations || option.name) + ' + ' + storefront.formatMoney(option.base_price)"
+                    [severity]="isSelected(group.id, option.id) ? undefined : 'secondary'"
+                    (click)="toggleOption(group, option.id)"></button>
+                </div>
+              </div>
+
+              <!-- Quantity -->
+              <div class="config-section detail-actions__field">
+                <h3>{{ ui.t('product.quantity') }}</h3>
+                <p-inputnumber [ngModel]="quantity()" (ngModelChange)="quantity.set($event)" [min]="1" [showButtons]="true"></p-inputnumber>
+              </div>
+            </div>
+
+            <div class="preview-modal__actions">
+              <button 
+                pButton 
+                type="button" 
+                [label]="addedSuccessfully() === current.id ? ui.t('checkout.feedbackSuccess') : ui.t('product.addToCart') + ' • ' + storefront.formatMoney(totalPrice())" 
+                [severity]="addedSuccessfully() === current.id ? 'success' : undefined"
+                [loading]="quickAddLoadingId() === current.id"
+                [icon]="addedSuccessfully() === current.id ? 'pi pi-check' : 'pi pi-shopping-cart'"
+                (click)="quickAdd(current, $event)"
+              ></button>
+              <a pButton severity="secondary" [routerLink]="['/products', current.id]" (click)="closePreview()" icon="pi pi-external-link">{{ ui.t('menu.fullDetails') }}</a>
+            </div>
           </div>
-          <div class="preview-modal__actions">
-            <button pButton type="button" [label]="ui.t('menu.fastAdd')" (click)="quickAdd(current, $event)"></button>
-            <a pButton severity="secondary" [routerLink]="['/products', current.id]" (click)="closePreview()">{{ ui.t('menu.fullDetails') }}</a>
-          </div>
-        </div>
       </div>
     }
   </p-dialog>

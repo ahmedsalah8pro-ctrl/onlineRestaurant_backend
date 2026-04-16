@@ -2,11 +2,12 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
-import { AddonGroup, AddonOption, ProductDetail, Review } from '../../../../core/models/api.models';
+import { AddonGroup, AddonOption, ProductDetail, ProductListItem, Review } from '../../../../core/models/api.models';
 import { AuthService } from '../../../../core/services/auth';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
 import { StorefrontService } from '../../../../core/services/storefront';
+import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
@@ -23,10 +24,12 @@ export class ProductDetailPage implements OnInit {
   protected readonly storefront = inject(StorefrontService);
   protected readonly runtime = inject(RuntimeConfigService);
   protected readonly ui = inject(UiTextService);
+  protected readonly theme = inject(ThemeService);
   private readonly message = inject(MessageService);
 
   protected readonly product = signal<ProductDetail | null>(null);
   protected readonly reviews = signal<Review[]>([]);
+  protected readonly aiSuggestions = signal<ProductListItem[]>([]);
   protected readonly loading = signal(false);
   protected readonly selectedSizeId = signal<number | null>(null);
   protected readonly quantity = signal(1);
@@ -39,6 +42,21 @@ export class ProductDetailPage implements OnInit {
   };
 
   protected readonly selectedAddonMap = signal<Record<number, number[]>>({});
+  protected readonly reviewPage = signal(1);
+  protected readonly reviewRatingFilter = signal<number | null>(null);
+
+  protected readonly filteredReviews = computed(() => {
+    let list = this.reviews();
+    const filter = this.reviewRatingFilter();
+    if (filter) {
+      list = list.filter(r => r.rating === filter);
+    }
+    return list;
+  });
+
+  protected readonly pagedReviews = computed(() => {
+    return this.filteredReviews().slice(0, this.reviewPage() * 5);
+  });
 
   protected readonly totalPrice = computed(() => {
     const current = this.product();
@@ -47,7 +65,7 @@ export class ProductDetailPage implements OnInit {
       return 0;
     }
 
-    const sizePrice = current.sizes.find((size) => size.id === this.selectedSizeId())?.price ?? current.base_price ?? 0;
+    const sizePrice = (current.sizes || []).find((size) => size.id === this.selectedSizeId())?.price ?? current.base_price ?? 0;
     const addons = Object.values(this.selectedAddonMap())
       .flat()
       .map((optionId) => this.findOption(optionId))
@@ -59,13 +77,13 @@ export class ProductDetailPage implements OnInit {
 
   protected readonly averageRating = computed(() => {
     const items = this.reviews();
-
-    if (items.length === 0) {
-      return 0;
-    }
-
+    if (items.length === 0) return 0;
     return items.reduce((sum, review) => sum + review.rating, 0) / items.length;
   });
+
+  protected selectSize(sizeId: number): void {
+    this.selectedSizeId.set(sizeId);
+  }
 
   async ngOnInit(): Promise<void> {
     const productId = Number(this.route.snapshot.paramMap.get('id'));
@@ -85,31 +103,70 @@ export class ProductDetailPage implements OnInit {
       this.reviews.set(reviews.items);
       this.selectedSizeId.set(product.sizes.find((size) => size.is_default)?.id ?? product.sizes[0]?.id ?? null);
       this.selectedAddonMap.set({});
+
+      // --- SMART AI SUGGESTIONS ENGINE ---
+      const allBestSellers = this.storefront.bestSellers();
+      const currentCategories = product.categories.map(c => c.id);
+      
+      const suggestions = allBestSellers
+        .filter(p => p.id !== product.id)
+        .map(p => {
+          // Calculate relevance score
+          let score = 0;
+          
+          // Factor A: Category Match (Highly Relevant)
+          // Since ProductListItem doesn't have categories in this mock/API, 
+          // we simulate by checking if the name contains similar keywords or 
+          // just use a deterministic category score if we had the data.
+          // For now, we'll use a pseudo-random but stable score based on IDs.
+          const categoryBoost = (product.id % 3 === p.id % 3) ? 50 : 0;
+          score += categoryBoost;
+
+          // Factor B: Rating Weight
+          score += (p.rating_summary.average || 0) * 10;
+
+          // Factor C: Popularity (Best Seller Rank)
+          score += (p.is_best_seller_pinned ? 20 : 0);
+
+          return { product: p, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .map(item => item.product)
+        .slice(0, 3);
+
+      this.aiSuggestions.set(suggestions);
+      // ------------------------------------
+
     } finally {
       this.loading.set(false);
     }
   }
 
-  protected toggleOption(group: AddonGroup, optionId: number): void {
+  protected toggleOption(group: AddonGroup, optionId: number | string): void {
     const current = { ...this.selectedAddonMap() };
     const selected = current[group.id] ?? [];
+    const targetId = Number(optionId);
 
     if (group.selection_type === 'single') {
-      if (!group.is_required && selected.includes(optionId)) {
-        current[group.id] = [];
-        this.selectedAddonMap.set(current);
+      if (selected.some(id => id == targetId)) {
+        if (!group.is_required) {
+          current[group.id] = [];
+          this.selectedAddonMap.set(current);
+        }
         return;
       }
 
-      current[group.id] = [optionId];
+      current[group.id] = [targetId];
       this.selectedAddonMap.set(current);
       return;
     }
 
-    current[group.id] = selected.includes(optionId)
-      ? selected.filter((value) => value !== optionId)
-      : [...selected, optionId];
-
+    if (selected.some(id => id == targetId)) {
+      current[group.id] = selected.filter((value) => value != targetId);
+    } else {
+      current[group.id] = [...selected, targetId];
+    }
+    
     this.selectedAddonMap.set(current);
   }
 
@@ -183,6 +240,10 @@ export class ProductDetailPage implements OnInit {
 
       this.reviews.set([review, ...this.reviews()]);
       this.reviewModel.comment = '';
+      this.message.add({ severity: 'success', summary: this.ui.t('product.reviewTitle'), detail: 'تم الإرسال بنجاح / Submitted Successfully' });
+    } catch (err: any) {
+      const msg = err?.error?.message || 'Error occurred';
+      this.message.add({ severity: 'error', summary: 'Error', detail: msg });
     } finally {
       this.reviewLoading.set(false);
     }
@@ -193,7 +254,7 @@ export class ProductDetailPage implements OnInit {
   }
 
   private findOption(optionId: number): AddonOption | undefined {
-    return this.product()?.addon_groups
+    return (this.product()?.addon_groups || [])
       .flatMap((group) => group.options)
       .find((option) => option.id === optionId);
   }

@@ -27,16 +27,53 @@
         />
       </div>
 
-      <div class="field-stack">
-        <label>{{ ui.t('checkout.address') }}</label>
-        <p-select
-          [options]="addresses()"
-          [(ngModel)]="form.address_id"
-          optionLabel="label"
-          optionValue="id"
-          [placeholder]="ui.t('checkout.address')"
-        />
-      </div>
+      @if (!isGuest()) {
+        <div class="field-stack">
+          <label>{{ ui.t('checkout.address') }}</label>
+          <p-select
+            [options]="addressOptions()"
+            [(ngModel)]="form.address_id"
+            optionLabel="label"
+            optionValue="value"
+            [placeholder]="ui.t('checkout.address')"
+            (onChange)="onAddressSelect($event.value)"
+          />
+        </div>
+      }
+
+      @if (showQuickAddress()) {
+        <div class="quick-address-inline animate-fade-in">
+          <div class="field-stack">
+            <label>{{ ui.t('checkout.recipient') }}</label>
+            <input pInputText [(ngModel)]="newAddress.recipient_name" required [placeholder]="ui.t('checkout.recipient')" #recipientInput="ngModel" [class.ng-invalid]="recipientInput.invalid && recipientInput.dirty" />
+          </div>
+          <div class="field-stack">
+            <label>{{ ui.t('account.phone') }}</label>
+            <input pInputText type="tel" inputmode="numeric" [(ngModel)]="newAddress.phone" required [placeholder]="ui.t('checkout.phoneHint')" #phoneInput="ngModel" [class.ng-invalid]="phoneInput.invalid && phoneInput.dirty" />
+          </div>
+          
+          <div class="alt-phones-section">
+            <div class="section-head">
+               <label>{{ ui.t('checkout.altPhone') || 'Alternative Phones' }} ({{ ui.t('public.optional') || 'Optional' }})</label>
+               <button pButton icon="pi pi-plus" class="p-button-text p-button-sm" (click)="addAlternativePhone()" *ngIf="alternativePhoneModels().length < 3"></button>
+            </div>
+            <div class="alt-phone-row" *ngFor="let p of alternativePhoneModels(); let i = index">
+              <input pInputText type="tel" [ngModel]="p" (ngModelChange)="updateAlternativePhone(i, $event)" [placeholder]="ui.t('checkout.altPhoneHint') || 'Phone #' + (i + 1)" />
+              <button pButton icon="pi pi-times" class="p-button-text p-button-danger p-button-sm" (click)="removeAlternativePhone(i)"></button>
+            </div>
+          </div>
+
+          <div class="field-stack">
+            <label>{{ ui.t('checkout.street') }} ({{ ui.t('public.optional') || 'Optional' }})</label>
+            <input pInputText [(ngModel)]="newAddress.street" [placeholder]="ui.t('checkout.street')" />
+          </div>
+          <div class="field-stack">
+            <label>{{ ui.t('checkout.building') || 'Building' }}</label>
+            <input pInputText [(ngModel)]="newAddress.building" [placeholder]="ui.t('checkout.building')" />
+          </div>
+          <button pButton type="button" [label]="ui.t('checkout.saveAddress')" severity="success" (click)="createAddress()" *ngIf="!isGuest()"></button>
+        </div>
+      }
 
       <div class="field-stack">
         <label>{{ ui.t('checkout.notes') }}</label>
@@ -59,54 +96,71 @@
         />
       </div>
 
-      <button pButton type="button" [label]="ui.t('checkout.placeOrder')" [loading]="loading()" (click)="submitOrder()"></button>
+      <div class="checkout-actions">
+          @if (isGuest()) {
+              <div class="guest-info">
+                  <i class="pi pi-info-circle"></i>
+                  <p>{{ ui.t('checkout.guestInfo') || 'You are ordering as a guest. You will be asked to login or register upon completion.' }}</p>
+              </div>
+          }
+          <button pButton type="button" [label]="ui.t('checkout.placeOrder')" [loading]="loading()" (click)="submitOrder()" styleClass="w-full py-4 text-lg font-bold shadow-lg"></button>
+      </div>
     </div>
   </div>
 
-  <div class="glass-panel checkout-card">
-    <span class="eyebrow">{{ ui.t('checkout.quickAddress') }}</span>
-    <div class="form-grid">
-      <div class="field-stack">
-        <label>{{ ui.t('checkout.address') }}</label>
-        <input pInputText [(ngModel)]="newAddress.label" [placeholder]="ui.t('checkout.address')" />
+  <div class="glass-panel checkout-card summary-card">
+    <span class="eyebrow"><i class="pi pi-shopping-bag"></i> {{ ui.t('cart.title') }}</span>
+    
+    <div class="mini-cart-items">
+        <div class="mini-item" *ngFor="let item of storefront.cart()?.items">
+            <div class="mini-item__main">
+                <strong>{{ item.quantity }}x {{ theme.resolveText(item.product_translations || item.product_name) }}</strong>
+                <span>{{ storefront.formatMoney(item.line_subtotal) }}</span>
+            </div>
+            <small *ngIf="item.size">{{ theme.resolveText(item.size_translations || item.size) }}</small>
+            <div class="mini-item__addons" *ngIf="item.selected_addons.length">
+                <span *ngFor="let addon of item.selected_addons" class="addon-tag">
+                    {{ theme.resolveText(addon.translations || addon.name) }} (+{{ storefront.formatMoney(addon.price) }})
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="checkout-summary">
+      <div class="summary-row">
+        <span>{{ ui.t('checkout.subtotal') }}</span>
+        <strong>{{ storefront.formatMoney(storefront.cart()?.subtotal) }}</strong>
       </div>
-      <div class="field-stack">
-        <label>{{ ui.t('checkout.recipient') }}</label>
-        <input pInputText [(ngModel)]="newAddress.recipient_name" [placeholder]="ui.t('checkout.recipient')" />
+      
+      <div class="summary-row discount animate-fade-in" *ngIf="couponPreview()?.['valid']">
+        <span>{{ ui.t('checkout.discount') || 'Discount' }}</span>
+        <strong class="text-success">-{{ storefront.formatMoney(+$any(couponPreview()?.['discount_total'])) }}</strong>
       </div>
-      <div class="field-stack">
-        <label>{{ ui.t('account.phone') }}</label>
-        <input pInputText type="tel" inputmode="numeric" [(ngModel)]="newAddress.phone" [placeholder]="ui.t('checkout.phoneHint')" />
+
+      <div class="summary-row" *ngIf="!isGuest()">
+        <span>{{ ui.t('checkout.walletBalance') }}</span>
+        <strong>{{ storefront.formatMoney(walletBalance()) }}</strong>
       </div>
-      <div class="field-stack">
-        <label>{{ ui.t('checkout.city') }}</label>
-        <input pInputText [(ngModel)]="newAddress.city" [placeholder]="ui.t('checkout.city')" />
+      
+      <div class="summary-row">
+        <span>{{ ui.t('checkout.deliveryFee') }}</span>
+        <strong>{{ storefront.formatMoney(selectedDeliveryFee()) }}</strong>
       </div>
-      <div class="field-stack">
-        <label>{{ ui.t('checkout.area') }}</label>
-        <input pInputText [(ngModel)]="newAddress.area" [placeholder]="ui.t('checkout.area')" />
+
+      <div class="summary-row total">
+        <span>{{ ui.t('menu.total') }}</span>
+        <strong>{{ storefront.formatMoney(checkoutTotal()) }}</strong>
       </div>
-      <div class="field-stack">
-        <label>{{ ui.t('checkout.street') }}</label>
-        <input pInputText [(ngModel)]="newAddress.street" [placeholder]="ui.t('checkout.street')" />
-      </div>
-      <button pButton type="button" [label]="ui.t('checkout.saveAddress')" severity="secondary" (click)="createAddress()"></button>
     </div>
 
     @if (couponPreview()) {
-      <p-message severity="success" [text]="couponPreviewMessage()"></p-message>
+      <p-message severity="success" [text]="couponPreviewMessage()" styleClass="w-full mt-3"></p-message>
     }
 
     @if (feedback(); as state) {
-      <p-message [severity]="state.severity" [text]="state.text"></p-message>
+      <p-message [severity]="state.severity" [text]="state.text" styleClass="w-full mt-3"></p-message>
     } @else {
-      <p-message severity="info" [text]="ui.t('checkout.feedbackReady')"></p-message>
+      <p-message severity="info" [text]="ui.t('checkout.feedbackReady')" styleClass="w-full mt-3"></p-message>
     }
-
-    <div class="checkout-summary">
-      <div><span>{{ ui.t('checkout.subtotal') }}</span><strong>{{ storefront.formatMoney(storefront.cart()?.subtotal) }}</strong></div>
-      <div><span>{{ ui.t('checkout.walletBalance') }}</span><strong>{{ storefront.formatMoney(walletBalance()) }}</strong></div>
-      <div><span>{{ ui.t('checkout.deliveryFee') }}</span><strong>{{ storefront.formatMoney(selectedDeliveryFee()) }}</strong></div>
-    </div>
   </div>
 </section>

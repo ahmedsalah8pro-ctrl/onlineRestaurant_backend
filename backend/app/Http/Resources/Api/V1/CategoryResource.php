@@ -17,6 +17,7 @@ class CategoryResource extends JsonResource
             'translations' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description ? Translatable::get($this->description) : null,
+            'description_translations' => $this->description,
             'is_active' => $this->is_active,
             'children' => self::collection($this->whenLoaded('children')),
         ];

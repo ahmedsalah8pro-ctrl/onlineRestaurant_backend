@@ -1,129 +1,183 @@
-<div class="admin-shell-theme admin-layout" [class.is-sidebar-collapsed]="sidebarCollapsed">
-  <p-toast position="top-center"></p-toast>
-  <p-confirmdialog></p-confirmdialog>
+<div class="admin-layout" [class.sidebar-collapsed]="sidebarCollapsed" [attr.lang]="ui.currentLocale()">
 
-  <!-- Desktop sidebar -->
-  <aside *ngIf="!isMobile()" class="admin-sidebar admin-sidebar--desktop">
+  <!-- ═══════════════════════════════════════════
+       DESKTOP SIDEBAR
+  ═══════════════════════════════════════════ -->
+  <aside class="admin-sidebar" *ngIf="!isMobile()">
     <div class="admin-sidebar__inner">
+
+      <!-- Brand -->
       <div class="admin-brand">
-        <span class="eyebrow">{{ ui.t('admin.section.branding') }}</span>
-        <h2>{{ storefront.siteName() }}</h2>
-        <p>{{ adminName() }}</p>
-      </div>
-
-      <nav class="admin-nav">
-        <section class="admin-nav-group">
-          <a
-            *ngFor="let item of navItems"
-            [routerLink]="item.path"
-            routerLinkActive="is-active"
-            [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
-          >
-            {{ ui.t(item.labelKey) }}
-          </a>
-        </section>
-      </nav>
-
-      <div class="admin-sidebar__footer">
-        <a routerLink="/">{{ ui.t('nav.storefront') }}</a>
-        <div class="admin-domains">
-          <span>{{ runtime.frontendBaseUrl }}</span>
-          <span>{{ runtime.apiBaseUrl }}</span>
+        <div class="admin-brand__logo">🍽️</div>
+        <div class="admin-brand__text">
+          <h2 class="admin-brand__name">{{ storefront.siteName() }}</h2>
+          <p class="admin-brand__sub">{{ ui.t('admin.title') }}</p>
         </div>
-        <button pButton type="button" [label]="ui.t('admin.logout')" severity="secondary" (click)="logout()"></button>
       </div>
 
-      <!-- Sidebar collapse toggle at the bottom -->
-      <button class="sidebar-toggle" type="button" (click)="toggleMenu()" [title]="sidebarCollapsed ? 'توسيع' : 'طي'">
-        <i class="pi pi-chevron-right"></i>
-      </button>
+      <!-- Language Switch -->
+      <div class="admin-lang-switcher">
+        <button class="lang-pill" [class.active]="ui.currentLocale() === 'ar'" (click)="switchLocale('ar')">AR</button>
+        <button class="lang-pill" [class.active]="ui.currentLocale() === 'en'" (click)="switchLocale('en')">EN</button>
+      </div>
+
+      <!-- Nav Menu Container with Transition -->
+      <div class="admin-nav-container">
+        
+        <!-- MAIN MENU -->
+        <div class="menu-view" [class.active]="menuMode() === 'main'" [class.slide-out]="menuMode() !== 'main'">
+          <nav class="admin-nav">
+            <a class="admin-nav__item" *ngFor="let item of navItems"
+               [routerLink]="item.path" routerLinkActive="active"
+               [routerLinkActiveOptions]="{ exact: item.path === '/admin' }">
+              <span class="admin-nav__icon">{{ item.icon }}</span>
+              <span class="admin-nav__label">{{ ui.t(item.labelKey) }}</span>
+              <i class="pi pi-chevron-left sub-indicator" *ngIf="item.hasSub && ui.currentLocale() === 'ar'"></i>
+              <i class="pi pi-chevron-right sub-indicator" *ngIf="item.hasSub && ui.currentLocale() === 'en'"></i>
+            </a>
+          </nav>
+        </div>
+
+        <!-- CATALOG SUBMENU -->
+        <div class="menu-view sub-menu" [class.active]="menuMode() === 'catalog'" [class.slide-in]="menuMode() === 'catalog'">
+          <div class="menu-back" [routerLink]="['/admin']">
+            <i class="pi" [class.pi-arrow-right]="ui.currentLocale() === 'ar'" [class.pi-arrow-left]="ui.currentLocale() === 'en'"></i>
+            <span>{{ ui.t('admin.back') }}</span>
+          </div>
+          <div class="sub-menu-header">
+            <i class="pi pi-th-large"></i>
+            <span>{{ ui.t('admin.catalog.title') }}</span>
+          </div>
+          <nav class="admin-nav">
+            <a class="admin-nav__item" *ngFor="let item of catalogItems"
+               [routerLink]="item.path" routerLinkActive="active">
+              <span class="admin-nav__icon">{{ item.icon }}</span>
+              <span class="admin-nav__label">{{ ui.t(item.labelKey) }}</span>
+            </a>
+          </nav>
+        </div>
+
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="admin-sidebar__btm">
+        <div class="admin-user-badge">
+          <span class="admin-user-badge__avatar">👤</span>
+          <span class="admin-user-badge__name">{{ adminName() }}</span>
+        </div>
+        <a class="admin-sidebar__link" routerLink="/">🏪 {{ ui.t('nav.storefront') }}</a>
+        <button class="admin-sidebar__logout" type="button" (click)="logout()">
+          🚪 {{ ui.t('admin.logout') }}
+        </button>
+      </div>
     </div>
   </aside>
 
-  <!-- Mobile drawer -->
-  <p-drawer *ngIf="isMobile()" [(visible)]="mobileMenuOpen" position="right" [modal]="true" styleClass="admin-drawer">
-    <div class="admin-sidebar admin-sidebar--drawer">
-      <div class="admin-sidebar__inner">
-        <div class="admin-brand">
-          <span class="eyebrow">{{ ui.t('admin.menu') }}</span>
-          <h2>{{ storefront.siteName() }}</h2>
-          <p>{{ adminName() }}</p>
+  <!-- ═══════════════════════════════════════════
+       MOBILE DRAWER
+  ═══════════════════════════════════════════ -->
+  <p-drawer *ngIf="isMobile()" [(visible)]="mobileMenuOpen" [modal]="true" [position]="ui.currentLocale() === 'ar' ? 'right' : 'left'" styleClass="admin-mobile-drawer">
+    <div class="admin-sidebar--mobile">
+      <div class="admin-brand">
+        <div class="admin-brand__logo">🍽️</div>
+        <div>
+          <h2 class="admin-brand__name">{{ storefront.siteName() }}</h2>
         </div>
+      </div>
+      
+      <!-- Mobile Menu Switcher (Simple List for Mobile) -->
+      <div class="admin-nav-container mobile-nav">
+          <!-- Back button if in sub-menu -->
+          <div class="menu-back" *ngIf="menuMode() === 'catalog'" [routerLink]="['/admin']" (click)="closeMenu()">
+            <i class="pi" [class.pi-arrow-right]="ui.currentLocale() === 'ar'" [class.pi-arrow-left]="ui.currentLocale() === 'en'"></i>
+            <span>{{ ui.t('admin.back') }}</span>
+          </div>
 
-        <nav class="admin-nav">
-          <section class="admin-nav-group">
-            <a
-              *ngFor="let item of navItems"
-              [routerLink]="item.path"
-              routerLinkActive="is-active"
-              [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
-              (click)="closeMenu()"
-            >
-              {{ ui.t(item.labelKey) }}
+          <nav class="admin-nav" *ngIf="menuMode() === 'main'">
+            <a class="admin-nav__item" *ngFor="let item of navItems"
+               [routerLink]="item.path" routerLinkActive="active"
+               [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
+               (click)="closeMenu()">
+              <span class="admin-nav__icon">{{ item.icon }}</span>
+              <span class="admin-nav__label">{{ ui.t(item.labelKey) }}</span>
             </a>
-          </section>
-        </nav>
+          </nav>
 
-        <div class="admin-sidebar__footer">
-          <a routerLink="/" (click)="closeMenu()">{{ ui.t('nav.storefront') }}</a>
-          <button pButton type="button" [label]="ui.t('admin.logout')" severity="secondary" (click)="logout()"></button>
+          <nav class="admin-nav" *ngIf="menuMode() === 'catalog'">
+            <div class="sub-menu-header" style="padding: 0 1rem 1rem;">
+                <i class="pi pi-th-large" style="margin-inline-end: 0.5rem"></i>
+                <span>{{ ui.t('admin.catalog.title') }}</span>
+            </div>
+            <a class="admin-nav__item" *ngFor="let item of catalogItems"
+               [routerLink]="item.path" routerLinkActive="active"
+               (click)="closeMenu()">
+              <span class="admin-nav__icon">{{ item.icon }}</span>
+              <span class="admin-nav__label">{{ ui.t(item.labelKey) }}</span>
+            </a>
+          </nav>
+      </div>
+
+      <div class="admin-sidebar__btm">
+        <div class="admin-lang-switcher" style="padding: 0; border: none; margin-bottom: 1rem;">
+            <button class="lang-pill" [class.active]="ui.currentLocale() === 'ar'" (click)="switchLocale('ar')">AR</button>
+            <button class="lang-pill" [class.active]="ui.currentLocale() === 'en'" (click)="switchLocale('en')">EN</button>
         </div>
+        <a class="admin-sidebar__link" routerLink="/" (click)="closeMenu()">🏪 {{ ui.t('nav.storefront') }}</a>
+        <button class="admin-sidebar__logout" type="button" (click)="logout()">🚪 {{ ui.t('admin.logout') }}</button>
       </div>
     </div>
   </p-drawer>
 
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════ -->
   <div class="admin-main">
-    <header class="admin-topbar glass-panel">
-      <div class="admin-topbar__heading">
-        <!-- Hamburger — shown always on mobile, toggles sidebar on desktop -->
-        <button
-          type="button"
-          class="admin-topbar__menu-btn"
-          (click)="toggleMenu()"
-          [attr.aria-label]="'Toggle menu'"
-        >
-          <i class="pi pi-bars"></i>
-        </button>
-        <div class="admin-topbar__title">
-          <span class="eyebrow">{{ currentSectionLabel() }}</span>
-          <h1>{{ storefront.siteName() }} {{ ui.t('admin.title') }}</h1>
-          <p class="section-copy">{{ ui.t('admin.subtitle') }}</p>
+
+    <!-- TOPBAR -->
+    <header class="admin-topbar">
+      <!-- Hamburger -->
+      <button class="admin-topbar__hamburger" type="button" (click)="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- Page breadcrumb -->
+      <div class="admin-topbar__breadcrumb">
+        <span class="admin-topbar__section-icon">{{ currentSectionIcon() }}</span>
+        <div>
+          <div class="admin-topbar__section-label">{{ currentSectionLabel() }}</div>
+          <div class="admin-topbar__site-name">{{ storefront.siteName() }}</div>
         </div>
       </div>
 
-      <div class="admin-topbar__actions">
-        <span class="admin-user-pill">
-          <i class="pi pi-user"></i>
-          {{ adminName() }}
-        </span>
-        <a class="admin-topbar__action-btn" routerLink="/">
-          <i class="pi pi-home"></i>
-          {{ ui.t('nav.storefront') }}
-        </a>
-        <button
-          type="button"
-          class="admin-topbar__action-btn admin-topbar__action-btn--danger"
-          (click)="logout()"
-        >
-          <i class="pi pi-sign-out"></i>
-          {{ ui.t('admin.logout') }}
-        </button>
+      <!-- Right actions -->
+      <div class="admin-topbar__right">
+        <!-- Lang pills (desktop only) -->
+        <div class="admin-topbar__lang" *ngIf="!isMobile()">
+          <button class="lang-pill lang-pill--sm" [class.active]="ui.currentLocale() === 'ar'" (click)="switchLocale('ar')">AR</button>
+          <button class="lang-pill lang-pill--sm" [class.active]="ui.currentLocale() === 'en'" (click)="switchLocale('en')">EN</button>
+        </div>
+
+        <a class="admin-topbar__action" routerLink="/" title="Storefront">🏪</a>
+        <div class="admin-topbar__user">
+          <span class="admin-topbar__avatar">👤</span>
+          <span class="admin-topbar__uname" *ngIf="!isMobile()">{{ adminName() }}</span>
+        </div>
+        <button class="admin-topbar__action admin-topbar__action--danger" type="button" (click)="logout()" title="Logout">🚪</button>
       </div>
     </header>
 
+    <!-- PAGE CONTENT -->
     <main class="admin-content">
       <router-outlet />
     </main>
 
-    <!-- Sticky centered footer -->
+    <!-- STICKY CENTERED FOOTER -->
     <footer class="admin-footer">
-      <div class="admin-footer__center">
-        <strong>{{ storefront.siteName() }}</strong>
-        <span class="admin-footer__sep">·</span>
-        <span>{{ currentSectionLabel() }}</span>
-        <span class="admin-footer__sep">·</span>
-        <span class="admin-footer__url">{{ runtime.frontendBaseUrl }}</span>
-      </div>
+      <span>🍽️ {{ storefront.siteName() }}</span>
+      <span class="admin-footer__sep">·</span>
+      <span>{{ currentSectionLabel() }}</span>
+      <span class="admin-footer__sep">·</span>
+      <span class="admin-footer__url">{{ runtime.frontendBaseUrl }}</span>
     </footer>
   </div>
 </div>

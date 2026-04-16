@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, debounceTime, firstValueFrom, takeUntil } from 'rxjs';
@@ -6,6 +6,7 @@ import { ProductDetail, ProductListItem } from '../../../../core/models/api.mode
 import { PublicApiService } from '../../../../core/services/public-api';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
 import { StorefrontService } from '../../../../core/services/storefront';
+import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
@@ -20,6 +21,7 @@ export class MenuPage implements OnInit, OnDestroy {
   protected readonly publicApi = inject(PublicApiService);
   protected readonly runtime = inject(RuntimeConfigService);
   protected readonly ui = inject(UiTextService);
+  protected readonly theme = inject(ThemeService);
   private readonly message = inject(MessageService);
   private readonly filtersChanged$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
@@ -33,6 +35,23 @@ export class MenuPage implements OnInit, OnDestroy {
   protected readonly previewLoading = signal(false);
   protected readonly previewProduct = signal<ProductDetail | null>(null);
   protected readonly quickAddLoadingId = signal<number | null>(null);
+  protected readonly addedSuccessfully = signal<number | null>(null);
+
+  protected readonly selectedSizeId = signal<number | null>(null);
+  protected readonly selectedAddonMap = signal<Record<number, number[]>>({});
+  protected readonly quantity = signal(1);
+
+  protected readonly totalPrice = computed(() => {
+    const current = this.previewProduct();
+    if (!current) return 0;
+    const sizePrice = (current.sizes || []).find(s => s.id === this.selectedSizeId())?.price ?? current.base_price ?? 0;
+    const addons = Object.values(this.selectedAddonMap())
+      .flat()
+      .map(id => (current.addon_groups || []).flatMap(g => g.options).find(o => o.id === id))
+      .filter((o): o is any => !!o)
+      .reduce((sum, o) => sum + (o?.base_price ?? 0), 0);
+    return (sizePrice + addons) * this.quantity();
+  });
 
   protected filters = {
     search: '',
@@ -41,7 +60,14 @@ export class MenuPage implements OnInit, OnDestroy {
     sort: 'default',
   };
 
-  protected sortOptions = this.buildSortOptions();
+  protected readonly sortOptions = computed(() => [
+    { label: this.ui.sortLabel('default'), value: 'default' },
+    { label: this.ui.sortLabel('price_asc'), value: 'price_asc' },
+    { label: this.ui.sortLabel('price_desc'), value: 'price_desc' },
+    { label: this.ui.sortLabel('rating_desc'), value: 'rating_desc' },
+    { label: this.ui.sortLabel('best_seller'), value: 'best_seller' },
+  ]);
+
 
   async ngOnInit(): Promise<void> {
     if (!this.storefront.settings()) {
@@ -51,8 +77,6 @@ export class MenuPage implements OnInit, OnDestroy {
     this.filtersChanged$
       .pipe(debounceTime(250), takeUntil(this.destroy$))
       .subscribe(() => void this.loadProducts(1));
-
-    this.sortOptions = this.buildSortOptions();
   }
 
   ngOnDestroy(): void {
@@ -115,10 +139,49 @@ export class MenuPage implements OnInit, OnDestroy {
     this.previewLoading.set(true);
 
     try {
-      this.previewProduct.set(await firstValueFrom(this.publicApi.getProduct(productId)));
+      const product = await firstValueFrom(this.publicApi.getProduct(productId));
+      this.previewProduct.set(product);
+      this.selectedSizeId.set(product.sizes.find(s => s.is_default)?.id ?? product.sizes[0]?.id ?? null);
+      this.selectedAddonMap.set({});
+      this.quantity.set(1);
     } finally {
       this.previewLoading.set(false);
     }
+  }
+
+  protected selectSize(sizeId: number): void {
+    this.selectedSizeId.set(sizeId);
+  }
+
+  protected toggleOption(group: import('../../../../core/models/api.models').AddonGroup, optionId: number | string): void {
+    const current = { ...this.selectedAddonMap() };
+    const selected = current[group.id] ?? [];
+    const targetId = Number(optionId);
+
+    if (group.selection_type === 'single') {
+      if (selected.some(id => id == targetId)) {
+        if (!group.is_required) {
+          current[group.id] = [];
+          this.selectedAddonMap.set(current);
+        }
+        return;
+      }
+
+      current[group.id] = [targetId];
+      this.selectedAddonMap.set(current);
+      return;
+    }
+
+    if (selected.some(id => id == targetId)) {
+      current[group.id] = selected.filter((value) => value != targetId);
+    } else {
+      current[group.id] = [...selected, targetId];
+    }
+    this.selectedAddonMap.set(current);
+  }
+
+  protected isSelected(groupId: number, optionId: number | string): boolean {
+    return (this.selectedAddonMap()[groupId] ?? []).some(id => id == optionId);
   }
 
   protected closePreview(): void {
@@ -141,34 +204,37 @@ export class MenuPage implements OnInit, OnDestroy {
     this.quickAddLoadingId.set(product.id);
 
     try {
+      const isConfigured = !!this.previewProduct() && this.previewProduct()?.id === product.id;
+      
       await firstValueFrom(
         this.publicApi.addCartItem({
           product_id: product.id,
           branch_id: this.filters.branch_id,
-          quantity: 1,
+          product_size_id: isConfigured ? this.selectedSizeId() : null,
+          addon_option_ids: isConfigured ? Object.values(this.selectedAddonMap()).flat() : [],
+          quantity: isConfigured ? this.quantity() : 1,
         }),
       );
+
+      if (isConfigured) {
+        this.addedSuccessfully.set(product.id);
+        await new Promise(r => setTimeout(r, 800));
+        this.closePreview();
+        this.addedSuccessfully.set(null);
+      }
 
       await this.storefront.refreshCart();
       this.message.add({
         severity: 'success',
         summary: this.ui.t('cart.title'),
-        detail: `${product.name} - ${this.ui.t('product.addToCart')}`,
+        detail: `${this.theme.resolveText(product.translations || product.name)} - ${this.ui.t('product.addToCart')}`,
       });
     } finally {
       this.quickAddLoadingId.set(null);
     }
   }
 
-  private buildSortOptions(): Array<{ label: string; value: string }> {
-    return [
-      { label: this.ui.sortLabel('default'), value: 'default' },
-      { label: this.ui.sortLabel('price_asc'), value: 'price_asc' },
-      { label: this.ui.sortLabel('price_desc'), value: 'price_desc' },
-      { label: this.ui.sortLabel('rating_desc'), value: 'rating_desc' },
-      { label: this.ui.sortLabel('best_seller'), value: 'best_seller' },
-    ];
-  }
+
 
   private smartAlternateSearch(value: string): string | null {
     const trimmed = value.trim();

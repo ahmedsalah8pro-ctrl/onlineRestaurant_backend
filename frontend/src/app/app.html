@@ -1,3 +1,12 @@
-<p-toast position="top-right" />
-<p-confirmdialog />
 <router-outlet />
+
+<!-- Global centered loading spinner -->
+@if (loading.isLoading()) {
+  <div class="global-spinner">
+    <div class="global-spinner__card">
+      <div class="spinner-ring"></div>
+      <span class="spinner-icon">🍽️</span>
+      <p class="spinner-label">{{ ui.t('common.loading') }}</p>
+    </div>
+  </div>
+}

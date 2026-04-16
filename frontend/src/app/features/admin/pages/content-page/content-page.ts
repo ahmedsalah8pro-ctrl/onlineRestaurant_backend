@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { AdminApiService } from '../../../../core/services/admin-api';
 import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
@@ -16,6 +17,7 @@ export class ContentPage implements OnInit {
   protected readonly adminApi = inject(AdminApiService);
   protected readonly ui = inject(UiTextService);
   protected readonly theme = inject(ThemeService);
+  private readonly message = inject(MessageService);
 
   protected readonly pages = signal<Array<Record<string, unknown>>>([]);
   protected readonly reviews = signal<Array<Record<string, unknown>>>([]);
@@ -111,18 +113,28 @@ export class ContentPage implements OnInit {
       payload = this.pageFormPayload();
     }
 
-    if (this.editingPageId()) {
-      await firstValueFrom(this.adminApi.updateResource('pages', this.editingPageId()!, payload));
-    } else {
-      await firstValueFrom(this.adminApi.createResource('pages', payload));
-    }
+    try {
+      if (this.editingPageId()) {
+        await firstValueFrom(this.adminApi.updateResource('pages', this.editingPageId()!, payload));
+      } else {
+        await firstValueFrom(this.adminApi.createResource('pages', payload));
+      }
 
-    this.pageDialogVisible.set(false);
-    await this.reload();
+      this.message.add({ severity: 'success', summary: this.ui.t('admin.content.pages'), detail: 'تم الحفظ بنجاح / Saved Successfully' });
+      this.pageDialogVisible.set(false);
+      await this.reload();
+    } catch (err: any) {
+      this.message.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Failed to save page' });
+    }
   }
 
   protected async toggleReview(review: Record<string, unknown>, visible: boolean): Promise<void> {
-    await firstValueFrom(this.adminApi.updateResource('reviews', Number(review['id']), { is_visible: visible }));
-    await this.reload();
+    try {
+      await firstValueFrom(this.adminApi.updateResource('reviews', Number(review['id']), { is_visible: visible }));
+      this.message.add({ severity: 'success', summary: this.ui.t('admin.content.reviews'), detail: 'تم التحديث / Updated' });
+      await this.reload();
+    } catch (err: any) {
+      this.message.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Failed to update review' });
+    }
   }
 }

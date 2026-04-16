@@ -14,7 +14,9 @@
     <ng-template pTemplate="body" let-order>
       <tr>
         <td>#{{ order.id }}</td>
-        <td>{{ ui.orderStatus(order.status) }}</td>
+        <td>
+          <p-tag [value]="ui.orderStatus(order.status)" [severity]="getStatusSeverity(order.status)"></p-tag>
+        </td>
         <td>{{ order.placed_at | date: 'medium' }}</td>
         <td>{{ storefront.formatMoney(order.total) }}</td>
         <td><button pButton type="button" [label]="ui.t('admin.orders.manage')" severity="secondary" (click)="openOrder(order.id)"></button></td>
@@ -44,6 +46,10 @@
 
         <div class="glass-panel order-panel">
           <h3>{{ ui.t('admin.orders.delivery') }}</h3>
+          
+          <p-select [options]="deliveryCrew()" optionLabel="name" [placeholder]="'اختر من المندوبين (Optional)'"
+                    (onChange)="fillDeliveryPerson($event.value)" styleClass="w-full mb-3"></p-select>
+
           <input pInputText [(ngModel)]="deliveryForm.delivery_person_name" [placeholder]="ui.t('admin.orders.driverName')" />
           <input pInputText [(ngModel)]="deliveryForm.delivery_person_phone" [placeholder]="ui.t('admin.orders.driverPhone')" />
           <button pButton type="button" [label]="ui.t('admin.orders.assign')" severity="secondary" (click)="assignDelivery()"></button>
@@ -55,7 +61,7 @@
           <h3>ملخص الطلب</h3>
           <div class="detail-list">
             <div><span>رقم الطلب</span><strong>#{{ order.id }}</strong></div>
-            <div><span>الحالة</span><strong>{{ ui.orderStatus(order.status) }}</strong></div>
+            <div><span>الحالة</span><strong><p-tag [value]="ui.orderStatus(order.status)" [severity]="getStatusSeverity(order.status)"></p-tag></strong></div>
             <div><span>الإجمالي</span><strong>{{ storefront.formatMoney(order.total) }}</strong></div>
             <div><span>الفرع</span><strong>{{ order.branch?.name || '—' }}</strong></div>
             <div><span>المنطقة</span><strong>{{ order.delivery_zone?.name || '—' }}</strong></div>
@@ -66,7 +72,7 @@
         <div class="glass-panel order-panel">
           <h3>العناصر</h3>
           <div class="detail-list" *ngFor="let item of order.items">
-            <div><span>{{ item.product_snapshot['name'] || item.product_snapshot['title'] || 'Product' }}</span><strong>x{{ item.quantity }}</strong></div>
+            <div><span>{{ getItemName(item) }}</span><strong>x{{ item.quantity }}</strong></div>
             <div><span>السعر</span><strong>{{ storefront.formatMoney(item.line_subtotal) }}</strong></div>
           </div>
         </div>

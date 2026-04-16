@@ -32,7 +32,12 @@ import { MessageModule } from 'primeng/message';
 import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { HighchartsChartComponent } from 'highcharts-angular';
+import { PopoverModule } from 'primeng/popover';
+import { RatingModule } from 'primeng/rating';
+import { TooltipModule } from 'primeng/tooltip';
+import { PaginatorModule } from 'primeng/paginator';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 @NgModule({
   imports: [
@@ -70,7 +75,12 @@ import { HighchartsChartComponent } from 'highcharts-angular';
     TimelineModule,
     ToastModule,
     ConfirmDialogModule,
-    HighchartsChartComponent,
+    PopoverModule,
+    RatingModule,
+    TooltipModule,
+    PaginatorModule,
+    MultiSelectModule,
+    RadioButtonModule,
   ],
   exports: [
     CommonModule,
@@ -107,7 +117,12 @@ import { HighchartsChartComponent } from 'highcharts-angular';
     TimelineModule,
     ToastModule,
     ConfirmDialogModule,
-    HighchartsChartComponent,
+    PopoverModule,
+    RatingModule,
+    TooltipModule,
+    PaginatorModule,
+    MultiSelectModule,
+    RadioButtonModule,
   ],
 })
 export class SharedUiModule {}

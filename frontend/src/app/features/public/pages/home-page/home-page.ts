@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
 import { StorefrontService } from '../../../../core/services/storefront';
 import { ThemeService } from '../../../../core/services/theme';
@@ -17,16 +18,7 @@ export class HomePage {
   protected readonly theme = inject(ThemeService);
   protected readonly runtime = inject(RuntimeConfigService);
   protected readonly ui = inject(UiTextService);
-
-  protected readonly metrics = computed(() => [
-    { label: this.ui.t('home.metrics.branches'), value: this.storefront.branches().length },
-    { label: this.ui.t('home.metrics.categories'), value: this.storefront.categories().length },
-    { label: this.ui.t('home.metrics.bestSellers'), value: this.storefront.bestSellers().length },
-    {
-      label: this.ui.t('home.metrics.reviews'),
-      value: this.storefront.bestSellers().reduce((sum, product) => sum + Number(product.rating_summary.count ?? 0), 0),
-    },
-  ]);
+  protected readonly auth = inject(AuthService);
 
   protected readonly capabilityCards = computed(() => [
     this.ui.t('home.capability.branches'),

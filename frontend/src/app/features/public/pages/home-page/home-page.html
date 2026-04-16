@@ -12,17 +12,16 @@
       </p>
 
       <div class="home-hero__actions">
-        <a pButton routerLink="/menu" [label]="ui.t('home.primaryAction')"></a>
-        <a pButton routerLink="/admin" [label]="ui.t('home.secondaryAction')" severity="secondary"></a>
+        <a pButton routerLink="/menu" [label]="ui.t('home.primaryAction')" icon="pi pi-compass"></a>
+        @if (auth.isAdmin()) {
+          <a pButton routerLink="/admin" [label]="ui.t('home.secondaryAction')" severity="secondary" icon="pi pi-shield"></a>
+        }
       </div>
     </div>
 
     <div class="home-hero__visual">
       <div class="hero-orb"></div>
-      <div class="hero-card metric-card" *ngFor="let metric of metrics()">
-        <div class="metric-card__label">{{ metric.label }}</div>
-        <div class="metric-card__value">{{ metric.value }}</div>
-      </div>
+      <img src="http://127.0.0.1:8000/storage/products/burger.png" class="hero-image" alt="Delicious Burger" />
     </div>
   </div>
 
@@ -43,27 +42,35 @@
           <span class="eyebrow">{{ ui.t('home.bestSellers') }}</span>
           <h2 class="section-title">{{ ui.t('home.bestSellersTitle') }}</h2>
         </div>
-        <a routerLink="/menu">{{ ui.t('home.fullMenu') }}</a>
+        <a routerLink="/menu" pButton severity="secondary" styleClass="w-full text-white bg-white/10 border-white/20 hover:bg-white/20 shadow-lg" icon="pi pi-th-large">
+          {{ ui.t('home.fullMenu') }}
+        </a>
       </div>
 
       <div class="surface-grid">
         <article class="best-seller" *ngFor="let product of storefront.bestSellers()">
           <div class="best-seller__media">
             <img
-              [src]="runtime.resolveAsset(product.main_image_path, 'https://placehold.co/320x220/f97316/ffffff?text=Menu')"
-              [alt]="product.name"
+              [src]="runtime.resolveAsset(product.main_image_path, 'http://127.0.0.1:8000/storage/products/burger.png')"
+              [alt]="theme.resolveText(product.translations || product.name)"
             />
           </div>
           <div class="best-seller__content">
             <div class="best-seller__meta">
-              <span>{{ product.rating_summary.average }} ★</span>
-              <span>{{ product.rating_summary.count }}</span>
+              <i class="pi pi-star-fill"></i>
+              <span>{{ product.rating_summary.average }}</span>
+              <span class="reviews-count">({{ product.rating_summary.count }} {{ ui.t('product.reviews_count') }})</span>
+              <span class="purchases-count" *ngIf="product.purchases_count">
+                <i class="pi pi-shopping-bag"></i> {{ product.purchases_count }} {{ ui.t('product.purchases_count') }}
+              </span>
             </div>
-            <h3>{{ product.name }}</h3>
-            <p>{{ product.short_description || ui.t('menu.noDescription') }}</p>
+            <h3>{{ theme.resolveText(product.translations || product.name) }}</h3>
+            <p>{{ theme.resolveText(product.short_description_translations || product.short_description) || ui.t('menu.noDescription') }}</p>
             <div class="best-seller__footer">
               <strong>{{ storefront.formatMoney(product.base_price) }}</strong>
-              <a [routerLink]="['/products', product.id]">{{ ui.t('menu.details') }}</a>
+              <a pButton severity="primary" [routerLink]="['/products', product.id]" icon="pi pi-arrow-right" iconPos="right" class="details-btn shadow-md">
+                {{ ui.t('menu.details') }}
+              </a>
             </div>
           </div>
         </article>
@@ -78,16 +85,13 @@
         </div>
       </div>
 
-      <div class="branch-card" *ngFor="let branch of storefront.branches()">
-        <div>
-          <h3>{{ branch.name }}</h3>
-          <p>{{ branch.address || ui.t('admin.subtitle') }}</p>
-        </div>
-        <p-tag [value]="branch.is_active ? ui.t('home.branchActive') : ui.t('home.branchDisabled')" [severity]="branch.is_active ? 'success' : 'warn'"></p-tag>
-        <div class="branch-zones">
-          <span *ngFor="let zone of branch.delivery_zones">
-            {{ zone.name }} • {{ storefront.formatMoney(zone.delivery_fee) }}
-          </span>
+      <div class="branch-grid">
+        <div class="branch-card" *ngFor="let branch of storefront.branches()">
+          <div class="branch-card__header">
+            <h3>{{ branch.name }}</h3>
+            <p-tag [value]="branch.is_active ? ui.t('home.branchActive') : ui.t('home.branchDisabled')" [severity]="branch.is_active ? 'success' : 'warn'"></p-tag>
+          </div>
+          <p class="branch-address"><i class="pi pi-map-marker"></i> {{ branch.address || ui.t('admin.subtitle') }}</p>
         </div>
       </div>
     </div>

@@ -7,7 +7,7 @@ import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
-type SettingsTab = 'general' | 'branding' | 'typography' | 'localization' | 'commerce' | 'notifications' | 'uploads' | 'advanced';
+type SettingsTab = 'general' | 'branding' | 'typography' | 'localization' | 'commerce' | 'notifications' | 'uploads' | 'social' | 'security' | 'advanced';
 
 @Component({
   selector: 'app-settings-page',
@@ -32,6 +32,8 @@ export class SettingsPage implements OnInit {
     { key: 'branding' as const, label: this.ui.t('admin.settings.branding') },
     { key: 'typography' as const, label: this.ui.t('admin.settings.typography') },
     { key: 'localization' as const, label: this.ui.t('admin.settings.localization') },
+    { key: 'social' as const, label: 'Social Login' },
+    { key: 'security' as const, label: 'Security & Captcha' },
     { key: 'commerce' as const, label: this.ui.t('admin.settings.commerce') },
     { key: 'notifications' as const, label: this.ui.t('admin.settings.notifications') },
     { key: 'uploads' as const, label: this.ui.t('admin.settings.uploads') },

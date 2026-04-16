@@ -1,43 +1,28 @@
-<section class="surface-grid two-columns">
-  <div class="glass-panel integrations-card">
-    <span class="eyebrow">{{ ui.t('admin.integrations.media') }}</span>
-    <input pInputText [ngModel]="directory()" (ngModelChange)="directory.set($event)" placeholder="Upload directory" />
-    <input type="file" (change)="upload($event)" />
-
-    @if (uploadResult(); as result) {
-      <div class="asset-card">
-        <div>
-          <strong>{{ result.filename }}</strong>
-          <p>{{ result.mime_type }}</p>
-          <small>{{ result.path }}</small>
-        </div>
-        <a [href]="result.url" target="_blank">Open</a>
-      </div>
-    }
-
-    <p-divider></p-divider>
-    <div class="domains-note">
-      <strong>Frontend</strong><span>{{ runtime.frontendBaseUrl }}</span>
-      <strong>API</strong><span>{{ runtime.apiBaseUrl }}</span>
-      <strong>CDN</strong><span>{{ runtime.cdnBaseUrl }}</span>
-    </div>
-  </div>
-
-  <div class="glass-panel integrations-card">
-    <span class="eyebrow">{{ ui.t('admin.integrations.logs') }}</span>
-    <p-table [value]="auditLogs()" [paginator]="true" [rows]="8" responsiveLayout="scroll">
+<section class="page-shell">
+  <div class="glass-panel integrations-card" style="width: 100%;">
+    <span class="eyebrow">📋 {{ ui.t('admin.integrations.logs') }}</span>
+    <h2 class="section-title">سجلات النظام / Audit Logs</h2>
+    
+    <p-table [value]="auditLogs()" [paginator]="true" [rows]="15" responsiveLayout="scroll">
       <ng-template pTemplate="header">
         <tr>
-          <th>النوع</th>
-          <th>المستخدم</th>
-          <th>التاريخ</th>
+          <th>الإجراء / Action</th>
+          <th>المستخدم / User</th>
+          <th>التاريخ / Date</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-log>
         <tr>
-          <td>{{ log['action'] || log['event'] }}</td>
-          <td>{{ log['user_name'] || log['causer_id'] || 'System' }}</td>
+          <td>
+            <p-tag [value]="log['action'] || log['event']" severity="info"></p-tag>
+          </td>
+          <td><strong>{{ log['user_name'] || log['causer_id'] || 'System' }}</strong></td>
           <td>{{ log['created_at'] | date: 'medium' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="3" class="empty-row" style="text-align: center; padding: 2rem;">لا توجد سجلات حالياً / No logs found</td>
         </tr>
       </ng-template>
     </p-table>

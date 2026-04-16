@@ -44,6 +44,9 @@
 .cart-row__info {
   display: grid;
   gap: 0.55rem;
+  
+  h3 { font-size: 1.25rem; font-weight: 800; color: #111827; }
+  p { font-size: 0.95rem; color: #6b7280; }
 }
 
 .cart-config {
@@ -52,65 +55,141 @@
   gap: 0.45rem;
 }
 
-.cart-config span {
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
-  background: rgba(148, 163, 184, 0.14);
-  font-size: 0.84rem;
+.addon-pill {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(178, 34, 34, 0.08);
+  border: 1px solid rgba(178, 34, 34, 0.15);
+  font-size: 0.75rem;
+  color: var(--brand-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+
+  .addon-price {
+    opacity: 0.8;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
 }
 
-.cart-row__info h3,
-.cart-row__info p {
-  margin: 0;
+.cart-row__controls {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 1.5rem;
+
+  .line-total {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #111827;
+      min-width: 100px;
+      text-align: right;
+  }
+
+  .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+  }
+}
+
+.empty-cart-state {
+    padding: 4rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+
+    i { font-size: 4rem; color: #d1d5db; }
+    p { font-size: 1.1rem; color: #6b7280; max-width: 320px; margin: 0 auto; }
 }
 
 .cart-summary {
   display: grid;
-  gap: 1rem;
+  gap: 1.5rem;
   align-content: start;
   position: sticky;
   top: 6rem;
+
+  .cart-total-price {
+      font-size: 2.75rem;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: -0.04em;
+  }
+
+  .checkout-btn {
+      width: 100%;
+      height: 60px;
+      border-radius: 12px !important;
+      font-weight: 700 !important;
+      font-size: 1.25rem !important;
+      background: var(--brand-primary) !important;
+      color: white !important;
+      border: none !important;
+      box-shadow: 0 8px 25px rgba(var(--brand-primary-rgb), 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(var(--brand-primary-rgb), 0.55);
+        filter: brightness(1.1);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(var(--brand-primary-rgb), 0.3);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .p-button-label, .p-button-icon {
+        color: white !important;
+        font-weight: 700;
+      }
+  }
+}
+
+.clear-btn {
+    transition: all 0.2s ease;
+    &:hover {
+        background: #ef4444 !important;
+        color: white !important;
+        border-color: #ef4444 !important;
+    }
 }
 
 .cart-summary__rows {
   display: grid;
-  gap: 0.75rem;
-}
-
-.cart-summary__rows div {
-  display: flex;
-  justify-content: space-between;
   gap: 1rem;
-  align-items: center;
+  padding: 1.5rem 0;
+  border-top: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+
+  div {
+      span { color: #6b7280; font-weight: 600; }
+      strong { color: #111827; font-weight: 700; }
+  }
 }
 
-.cart-editor {
-  display: grid;
-  gap: 1rem;
-}
-
-.cart-editor__head {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: end;
-}
-
-.cart-editor__qty {
-  display: grid;
-  gap: 0.4rem;
-}
-
-.cart-editor__section,
-.cart-editor__actions {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.loading-state {
-  min-height: 220px;
-  display: grid;
-  place-items: center;
+.coupon-box {
+    .p-inputtext {
+        height: 48px;
+        border-radius: 12px;
+    }
+    .p-button {
+        height: 48px;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+    }
 }
 
 @media (max-width: 960px) {
@@ -130,4 +209,6 @@
     align-items: stretch;
     flex-direction: column;
   }
+  
+  .cart-row__controls .line-total { text-align: left; }
 }

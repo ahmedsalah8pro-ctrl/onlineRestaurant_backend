@@ -1,30 +1,206 @@
-@if (index(); as roleIndex) {
-  <section class="surface-grid two-columns">
+<section class="access-container" [attr.lang]="ui.currentLocale()">
+  <!-- Tab Navigation -->
+  <div class="access-tabs">
+    <button class="access-tab" [class.active]="activeTab() === 'members'" (click)="activeTab.set('members')">
+      <span>👥</span> {{ ui.t('admin.access.members') }}
+    </button>
+    <button class="access-tab" [class.active]="activeTab() === 'roles'" (click)="activeTab.set('roles')">
+      <span>🔐</span> {{ ui.t('admin.access.roles') }}
+    </button>
+    <button class="access-tab" [class.active]="activeTab() === 'permissions'" (click)="activeTab.set('permissions')">
+      <span>🎯</span> {{ ui.t('admin.access.permissions') }}
+    </button>
+  </div>
+
+  <!-- ═══════════ MEMBERS TAB ═══════════ -->
+  @if (activeTab() === 'members') {
     <div class="glass-panel access-card">
-      <span class="eyebrow">{{ ui.t('admin.access.roles') }}</span>
-      <div class="role-row" *ngFor="let role of roleIndex.roles">
+      <div class="panel-head">
         <div>
-          <strong>{{ role.name }}</strong>
-          <p>{{ role.permissions.length }} {{ ui.t('admin.access.permissions') }}</p>
+          <span class="eyebrow">👥 {{ ui.t('admin.access.members') }}</span>
+          <h2>{{ ui.t('admin.access.members') }}</h2>
         </div>
-        <div class="settings-actions">
-          <button pButton type="button" [label]="ui.t('admin.catalog.edit')" severity="secondary" (click)="editRole(role)"></button>
-          <button pButton type="button" [label]="ui.t('admin.catalog.delete')" severity="danger" (click)="removeRole(role.id)"></button>
-        </div>
+        <button class="action-btn action-btn--primary" type="button" (click)="openMemberForm()">
+          ➕ {{ ui.t('admin.access.addMember') }}
+        </button>
       </div>
+
+      <p-table [value]="members()" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>#</th>
+            <th>{{ ui.t('admin.access.name') }}</th>
+            <th>{{ ui.t('admin.access.email') }}</th>
+            <th>الرصيد / Balance</th>
+            <th>{{ ui.t('admin.access.role') }}</th>
+            <th>{{ ui.t('admin.access.status') }}</th>
+            <th>إجراءات</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-member>
+          <tr>
+            <td>#{{ member.id }}</td>
+            <td>
+              <div class="member-cell">
+                <span class="member-avatar">{{ getInitials(member.name) }}</span>
+                <span>{{ member.name }}</span>
+              </div>
+            </td>
+            <td>{{ member.email }}</td>
+            <td><strong>{{ member.balance || 0 | currency: 'EGP' : 'symbol' : '1.0-2' }}</strong></td>
+            <td>
+              <span class="role-badge" *ngIf="member.roles?.length">{{ member.roles[0]?.name }}</span>
+              <span class="role-badge role-badge--none" *ngIf="!member.roles?.length">—</span>
+            </td>
+            <td>
+              <p-tag [value]="member.is_active !== false ? 'مفعل' : 'غير مفعل'"
+                     [severity]="member.is_active !== false ? 'success' : 'warn'"></p-tag>
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="action-btn action-btn--secondary action-btn--sm" type="button" (click)="openMemberForm(member)">✏️</button>
+                <button class="action-btn action-btn--danger action-btn--sm" type="button" (click)="deleteMember(member.id)">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="empty-row">👤 لا يوجد أعضاء مسجلون حتى الآن</td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
 
-    <div class="glass-panel access-card">
-      <span class="eyebrow">{{ ui.t('admin.access.permissions') }}</span>
-      <input pInputText [(ngModel)]="form.name" placeholder="Role name" />
-      <textarea pTextarea rows="14" [(ngModel)]="form.permissionsText" placeholder="One permission per line"></textarea>
-      <button pButton type="button" [label]="ui.t('admin.access.save')" (click)="saveRole()"></button>
-
-      <p-divider></p-divider>
-      <h3>{{ ui.t('admin.access.permissions') }}</h3>
-      <div class="permission-grid">
-        <p-chip *ngFor="let permission of roleIndex.permissions" [label]="permission.name"></p-chip>
+    <!-- Member Edit Dialog -->
+    <p-dialog [header]="editingMemberId() ? ui.t('admin.access.editMember') : ui.t('admin.access.addMember')"
+              [visible]="memberDialogVisible()" [modal]="true" appendTo="body"
+              [draggable]="false" [dismissableMask]="true" styleClass="admin-dialog"
+              [style]="{ width: 'min(600px, 95vw)' }" (visibleChange)="memberDialogVisible.set($event)">
+      <div class="member-form" *ngIf="memberDialogVisible()">
+        <label class="field-stack">
+          <span>👤 {{ ui.t('admin.access.name') }}</span>
+          <input pInputText [(ngModel)]="memberForm.name" [placeholder]="ui.t('admin.access.name')" />
+        </label>
+        <label class="field-stack">
+          <span>📧 {{ ui.t('admin.access.email') }}</span>
+          <input pInputText [(ngModel)]="memberForm.email" type="email" [placeholder]="ui.t('admin.access.email')" />
+        </label>
+        <label class="field-stack">
+          <span>🔑 كلمة المرور</span>
+          <input pInputText [(ngModel)]="memberForm.password" type="password" [placeholder]="editingMemberId() ? 'اتركها فارغة للمحافظة على نفس كلمة المرور / Leave blank to keep current' : '••••••••'" />
+        </label>
+        <label class="field-stack">
+          <span>💰 الرصيد / Balance</span>
+          <p-inputnumber [(ngModel)]="memberForm.balance" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"></p-inputnumber>
+        </label>
+        <div class="toggle-row">
+          <span>🛡️ {{ ui.t('admin.access.role') }} (Staff Member)</span>
+          <p-toggleswitch [(ngModel)]="memberForm.isStaff"></p-toggleswitch>
+        </div>
+        <label class="field-stack" *ngIf="memberForm.isStaff">
+          <span>🎭 {{ ui.t('admin.access.accessLevel') }}</span>
+          <p-select [options]="roleOptions()" [(ngModel)]="memberForm.roleId" optionLabel="label" optionValue="value"
+                    [placeholder]="'Select a role'"></p-select>
+        </label>
+        <div class="toggle-row">
+          <span>✅ مفعّل</span>
+          <p-toggleswitch [(ngModel)]="memberForm.is_active"></p-toggleswitch>
+        </div>
       </div>
-    </div>
-  </section>
-}
+      <div class="dialog-footer">
+        <button class="action-btn action-btn--primary" type="button" (click)="saveMember()">💾 {{ ui.t('admin.access.save') }}</button>
+        <button class="action-btn action-btn--secondary" type="button" (click)="memberDialogVisible.set(false)">إلغاء</button>
+      </div>
+    </p-dialog>
+  }
+
+  <!-- ═══════════ ROLES TAB ═══════════ -->
+  @if (activeTab() === 'roles') {
+    @if (index(); as roleIndex) {
+      <div class="access-two-col">
+        <!-- Roles Table -->
+        <div class="glass-panel access-card">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">🔐 {{ ui.t('admin.access.roles') }}</span>
+              <h2>{{ ui.t('admin.access.roles') }}</h2>
+            </div>
+            <button class="action-btn action-btn--primary" type="button" (click)="newRole()">
+              ➕ {{ ui.t('admin.access.createRole') }}
+            </button>
+          </div>
+
+          <div class="role-card" *ngFor="let role of roleIndex.roles">
+            <div class="role-card__left">
+              <div class="role-card__icon">🎭</div>
+              <div>
+                <div class="role-card__name">{{ role.name }}</div>
+                <div class="role-card__perm-count">{{ role.permissions.length }} {{ ui.t('admin.access.permissions') }}</div>
+              </div>
+            </div>
+            <div class="role-card__actions">
+              <button class="action-btn action-btn--secondary action-btn--sm" type="button" (click)="editRole(role)">✏️ {{ ui.t('admin.catalog.edit') }}</button>
+              <button class="action-btn action-btn--danger action-btn--sm" type="button" (click)="removeRole(role.id)">🗑️ {{ ui.t('admin.catalog.delete') }}</button>
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="roleIndex.roles.length === 0">
+            🔐 لا توجد أدوار حتى الآن
+          </div>
+        </div>
+
+        <!-- Role Editor -->
+        <div class="glass-panel access-card">
+          <span class="eyebrow">✏️ {{ form.id ? ui.t('admin.catalog.edit') : ui.t('admin.access.createRole') }}</span>
+          <h2>{{ ui.t('admin.access.roleName') }}</h2>
+
+          <label class="field-stack">
+            <span>🎭 {{ ui.t('admin.access.roleName') }}</span>
+            <input pInputText [(ngModel)]="form.name" [placeholder]="ui.t('admin.access.roleName')" />
+          </label>
+
+          <div class="perm-checker">
+            <div class="perm-checker__head">
+              <span class="field-stack">
+                <span>🎯 {{ ui.t('admin.access.permissions') }}</span>
+              </span>
+            </div>
+            <div class="perm-grid">
+              <label class="perm-checkbox" *ngFor="let permission of roleIndex.permissions">
+                <input type="checkbox"
+                       [checked]="selectedPermissions().includes(permission.name)"
+                       (change)="togglePermission(permission.name, $event)" />
+                <span>{{ permission.name }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="dialog-footer">
+            <button class="action-btn action-btn--primary" type="button" (click)="saveRole()">💾 {{ ui.t('admin.access.save') }}</button>
+            <button class="action-btn action-btn--secondary" type="button" *ngIf="form.id" (click)="newRole()">إلغاء التعديل</button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ═══════════ PERMISSIONS TAB ═══════════ -->
+  @if (activeTab() === 'permissions') {
+    @if (index(); as roleIndex) {
+      <div class="glass-panel access-card">
+        <span class="eyebrow">🎯 {{ ui.t('admin.access.permissions') }}</span>
+        <h2>{{ ui.t('admin.access.permissions') }}</h2>
+        <div class="perm-grid perm-grid--loose">
+          <div class="perm-pill" *ngFor="let permission of roleIndex.permissions">
+            <span class="perm-pill__icon">🔑</span>
+            <span>{{ permission.name }}</span>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="roleIndex.permissions.length === 0">
+          🎯 لا توجد صلاحيات مسجلة
+        </div>
+      </div>
+    }
+  }
+</section>

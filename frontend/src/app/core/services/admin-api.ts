@@ -17,8 +17,8 @@ import { ApiService } from './api';
 export class AdminApiService {
   private readonly api = inject(ApiService);
 
-  listResource<T>(resource: string): Observable<T[]> {
-    return this.api.getData(`/admin/${resource}`);
+  listResource<T>(resource: string, params?: Record<string, unknown>): Observable<T[]> {
+    return this.api.getData(`/admin/${resource}`, params);
   }
 
   showResource<T>(resource: string, id: number | string): Observable<T> {
@@ -39,6 +39,10 @@ export class AdminApiService {
 
   listOrders(params?: Record<string, unknown>): Observable<ApiListResponse<OrderSummary>> {
     return this.api.getPaginated('/admin/orders', params);
+  }
+
+  listUsers(params?: Record<string, unknown>): Observable<ApiListResponse<Record<string, unknown>>> {
+    return this.api.getPaginated('/admin/users', params);
   }
 
   showOrder(orderId: number): Observable<OrderDetail> {

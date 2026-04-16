@@ -95,6 +95,19 @@ export class AuthService {
     this.establishSession(response.data.user, response.data.token);
   }
 
+  async checkAvailability(field: 'username' | 'email' | 'primary_phone', value: string): Promise<boolean> {
+      try {
+          const response = await firstValueFrom(
+              this.http.get<AuthEnvelope<{ available: boolean }>>(`${this.runtime.apiBaseUrl}/auth/check-availability`, {
+                  params: { field, value }
+              })
+          );
+          return response.data.available;
+      } catch {
+          return true; // fail-open to not block if there's a temporary network issue, validation will run on submit anyway.
+      }
+  }
+
   async logout(): Promise<void> {
     if (this.token()) {
       try {

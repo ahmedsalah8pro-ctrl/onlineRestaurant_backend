@@ -21,27 +21,52 @@
       <button pButton type="button" [label]="ui.t('admin.catalog.create')" (click)="openCreate(activeSection())"></button>
     </div>
 
-    <p-table [value]="records()[activeSection()] || []" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+    <!-- Delivery zone branch filter -->
+    @if (isDeliveryZones()) {
+      <div class="branch-filter-bar">
+        <i class="pi pi-filter"></i>
+        <span>الفرع:</span>
+        <button pButton type="button"
+          label="الكل"
+          [severity]="selectedFilterBranchId() === null ? undefined : 'secondary'"
+          (click)="selectedFilterBranchId.set(null)">
+        </button>
+        <button pButton type="button"
+          *ngFor="let b of branchOptions()"
+          [label]="b.label"
+          [severity]="selectedFilterBranchId() === b.id ? undefined : 'secondary'"
+          (click)="selectedFilterBranchId.set(b.id)">
+        </button>
+      </div>
+    }
+
+    <p-table [value]="filteredRecords()" [paginator]="true" [rows]="10" responsiveLayout="scroll">
       <ng-template pTemplate="header">
         <tr>
           <th>#</th>
-          <th>الاسم</th>
-          <th>تفاصيل</th>
-          <th>الحالة</th>
-          <th>إجراءات</th>
+          <th>{{ ui.t('admin.catalog.name') }}</th>
+          @if (isDeliveryZones()) {
+            <th>الفرع</th>
+          }
+          <th>{{ ui.t('admin.catalog.details') }}</th>
+          <th>{{ ui.t('admin.catalog.status') }}</th>
+          <th>{{ ui.t('admin.catalog.actions') }}</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-record>
         <tr>
           <td>{{ recordId(record) }}</td>
           <td>{{ displayName(record) }}</td>
+          @if (isDeliveryZones()) {
+            <td><span class="branch-chip">{{ branchLabel(record) }}</span></td>
+          }
           <td>{{ displayMeta(record) }}</td>
           <td>
-            <p-tag [value]="record['is_active'] === false ? 'غير مفعل' : 'مفعل'" [severity]="record['is_active'] === false ? 'warn' : 'success'"></p-tag>
+            <p-tag [value]="record['is_active'] === false ? ui.t('admin.catalog.inactive') : ui.t('admin.catalog.active')" [severity]="record['is_active'] === false ? 'warn' : 'success'"></p-tag>
           </td>
           <td class="catalog-record__actions">
             <button pButton type="button" [label]="ui.t('admin.catalog.edit')" severity="secondary" (click)="openEdit(activeSection(), record)"></button>
-            <button pButton type="button" [label]="ui.t('admin.catalog.delete')" severity="danger" (click)="remove(activeSection(), recordId(record))"></button>
+            <button pButton type="button" [label]="ui.t('admin.catalog.delete')" severity="danger" (click)="confirmRemove(activeSection(), recordId(record))"></button>
           </td>
         </tr>
       </ng-template>
@@ -64,11 +89,11 @@
       <!-- Common name fields -->
       <div class="form-grid two-columns" *ngIf="hasField('name')">
         <label class="field-stack">
-          <span>الاسم (عربي)</span>
+          <span>{{ ui.t('admin.catalog.arName') }}</span>
           <input pInputText [ngModel]="getNestedValue('name', 'ar')" (ngModelChange)="setNestedValue('name', 'ar', $event)" />
         </label>
         <label class="field-stack">
-          <span>Name (English)</span>
+          <span>{{ ui.t('admin.catalog.enName') }}</span>
           <input pInputText [ngModel]="getNestedValue('name', 'en')" (ngModelChange)="setNestedValue('name', 'en', $event)" />
         </label>
       </div>
@@ -76,11 +101,11 @@
       <!-- Product-specific: title (for pages) -->
       <div class="form-grid two-columns" *ngIf="hasField('title')">
         <label class="field-stack">
-          <span>العنوان (عربي)</span>
+          <span>{{ ui.t('admin.catalog.arTitle') }}</span>
           <input pInputText [ngModel]="getNestedValue('title', 'ar')" (ngModelChange)="setNestedValue('title', 'ar', $event)" />
         </label>
         <label class="field-stack">
-          <span>Title (English)</span>
+          <span>{{ ui.t('admin.catalog.enTitle') }}</span>
           <input pInputText [ngModel]="getNestedValue('title', 'en')" (ngModelChange)="setNestedValue('title', 'en', $event)" />
         </label>
       </div>
@@ -94,11 +119,11 @@
       <!-- Description -->
       <div class="form-grid two-columns" *ngIf="hasField('description')">
         <label class="field-stack">
-          <span>الوصف (عربي)</span>
+          <span>{{ ui.t('admin.catalog.arDescription') }}</span>
           <textarea pTextarea rows="3" [ngModel]="getNestedValue('description', 'ar')" (ngModelChange)="setNestedValue('description', 'ar', $event)"></textarea>
         </label>
         <label class="field-stack">
-          <span>Description (English)</span>
+          <span>{{ ui.t('admin.catalog.enDescription') }}</span>
           <textarea pTextarea rows="3" [ngModel]="getNestedValue('description', 'en')" (ngModelChange)="setNestedValue('description', 'en', $event)"></textarea>
         </label>
       </div>
@@ -117,7 +142,7 @@
 
       <!-- Price -->
       <label class="field-stack" *ngIf="hasField('base_price')">
-        <span>السعر الأساسي</span>
+        <span>{{ ui.t('admin.catalog.price') }}</span>
         <p-inputnumber [ngModel]="getFieldValue('base_price')" (ngModelChange)="setFieldValue('base_price', $event)" mode="decimal" [min]="0"></p-inputnumber>
       </label>
 
@@ -139,6 +164,46 @@
         <p-inputnumber [ngModel]="getFieldValue('value')" (ngModelChange)="setFieldValue('value', $event)" mode="decimal"></p-inputnumber>
       </label>
 
+      <!-- Main Image -->
+      <label class="field-stack" *ngIf="hasField('main_image_path')">
+        <span>رابط الصورة الرئيسية / Main Image URL</span>
+        <div class="p-inputgroup" style="display: flex;">
+          <input pInputText [ngModel]="getFieldValue('main_image_path')" (ngModelChange)="setFieldValue('main_image_path', $event)" placeholder="https://..." style="flex: 1;" />
+          <p-fileupload mode="basic" [auto]="true" [customUpload]="true" (uploadHandler)="uploadMainImage($event)" chooseIcon="pi pi-upload" chooseLabel="رفع / Upload"></p-fileupload>
+        </div>
+      </label>
+
+      <!-- Media list -->
+      <div class="field-stack" *ngIf="hasField('media')">
+        <span style="font-weight: 600; margin-bottom: 0.5rem; display: block;">الميديا الفرعية / Sub Media Files & URLs</span>
+        <div class="media-list">
+          <div *ngFor="let m of mediaList(); let i = index" class="media-item" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <p-select [options]="mediaTypes" [(ngModel)]="m.media_type" (ngModelChange)="updateMediaList()" optionLabel="label" optionValue="value" style="width: 140px;"></p-select>
+            <input pInputText [(ngModel)]="m.url" (ngModelChange)="updateMediaList()" placeholder="رابط الملف / Video ID / URL" style="flex:1" />
+            <button pButton icon="pi pi-trash" severity="danger" (click)="removeMedia(i)"></button>
+          </div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+            <button pButton label="Add URL" severity="secondary" icon="pi pi-link" (click)="addMediaItem()"></button>
+            <p-fileupload mode="basic" [auto]="true" [customUpload]="true" (uploadHandler)="uploadSubMedia($event)" chooseIcon="pi pi-upload" chooseLabel="Upload File"></p-fileupload>
+          </div>
+        </div>
+      </div>
+
+      <!-- Branch selector (delivery zones) -->
+      @if (hasField('branch_id')) {
+        <label class="field-stack">
+          <span>الفرع</span>
+          <p-select
+            [options]="branchOptions()"
+            [ngModel]="getFieldValue('branch_id')"
+            (ngModelChange)="setFieldValue('branch_id', $event)"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="اختر الفرع..."
+          ></p-select>
+        </label>
+      }
+
       <!-- Delivery fee -->
       <label class="field-stack" *ngIf="hasField('delivery_fee')">
         <span>رسوم التوصيل</span>
@@ -148,11 +213,11 @@
       <!-- Phone / email (branches) -->
       <div class="form-grid two-columns" *ngIf="hasField('phone')">
         <label class="field-stack">
-          <span>الهاتف</span>
+          <span>{{ ui.t('admin.catalog.phone') }}</span>
           <input pInputText [ngModel]="getFieldValue('phone')" (ngModelChange)="setFieldValue('phone', $event)" />
         </label>
         <label class="field-stack">
-          <span>البريد الإلكتروني</span>
+          <span>{{ ui.t('admin.catalog.email') }}</span>
           <input pInputText [ngModel]="getFieldValue('email')" (ngModelChange)="setFieldValue('email', $event)" type="email" />
         </label>
       </div>
@@ -165,7 +230,7 @@
 
       <!-- Active toggle -->
       <div class="toggle-row" *ngIf="hasField('is_active')">
-        <span>مفعّل</span>
+        <span>{{ ui.t('admin.catalog.status') }}</span>
         <p-toggleswitch [ngModel]="getFieldValue('is_active')" (ngModelChange)="setFieldValue('is_active', $event)"></p-toggleswitch>
       </div>
 
@@ -178,7 +243,7 @@
 
     <div class="catalog-dialog-footer">
       <button pButton type="button" [label]="ui.t('admin.settings.save')" (click)="save()"></button>
-      <button pButton type="button" [label]="'إلغاء'" severity="secondary" (click)="dialogVisible.set(false)"></button>
+      <button pButton type="button" [label]="ui.t('admin.catalog.cancel')" severity="secondary" (click)="dialogVisible.set(false)"></button>
     </div>
   </p-dialog>
 </section>

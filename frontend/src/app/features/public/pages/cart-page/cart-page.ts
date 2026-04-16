@@ -1,10 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 import { AddonGroup, ProductDetail } from '../../../../core/models/api.models';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { StorefrontService } from '../../../../core/services/storefront';
+import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
@@ -18,7 +19,9 @@ export class CartPage implements OnInit {
   protected readonly storefront = inject(StorefrontService);
   protected readonly publicApi = inject(PublicApiService);
   protected readonly ui = inject(UiTextService);
+  protected readonly theme = inject(ThemeService);
   private readonly message = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   protected readonly loading = signal(false);
   protected readonly couponCode = signal('');
@@ -45,6 +48,21 @@ export class CartPage implements OnInit {
     await firstValueFrom(this.publicApi.removeCartItem(itemId));
     await this.storefront.refreshCart();
     this.message.add({ severity: 'success', summary: this.ui.t('cart.title'), detail: this.ui.t('cart.removed') });
+  }
+
+  protected confirmClearCart(event: Event): void {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to clear your cart? All items will be removed.',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon: "none",
+      rejectIcon: "none",
+      rejectButtonStyleClass: "p-button-text",
+      accept: () => {
+        this.clearCart();
+      }
+    });
   }
 
   protected async clearCart(): Promise<void> {
@@ -110,30 +128,36 @@ export class CartPage implements OnInit {
     this.editingItemId.set(null);
   }
 
-  protected toggleOption(group: AddonGroup, optionId: number): void {
+  protected toggleOption(group: AddonGroup, optionId: number | string): void {
     const current = { ...this.selectedAddonMap() };
     const selected = current[group.id] ?? [];
+    const targetId = Number(optionId);
 
     if (group.selection_type === 'single') {
-      if (!group.is_required && selected.includes(optionId)) {
-        current[group.id] = [];
-        this.selectedAddonMap.set(current);
+      if (selected.some(id => id == targetId)) {
+        if (!group.is_required) {
+          current[group.id] = [];
+          this.selectedAddonMap.set(current);
+        }
         return;
       }
 
-      current[group.id] = [optionId];
+      current[group.id] = [targetId];
       this.selectedAddonMap.set(current);
       return;
     }
 
-    current[group.id] = selected.includes(optionId)
-      ? selected.filter((value) => value !== optionId)
-      : [...selected, optionId];
+    if (selected.some(id => id == targetId)) {
+      current[group.id] = selected.filter((value) => value != targetId);
+    } else {
+      current[group.id] = [...selected, targetId];
+    }
+    
     this.selectedAddonMap.set(current);
   }
 
-  protected isSelected(groupId: number, optionId: number): boolean {
-    return (this.selectedAddonMap()[groupId] ?? []).includes(optionId);
+  protected isSelected(groupId: number, optionId: number | string): boolean {
+    return (this.selectedAddonMap()[groupId] ?? []).some(id => id == optionId);
   }
 
   protected async saveEditor(): Promise<void> {
