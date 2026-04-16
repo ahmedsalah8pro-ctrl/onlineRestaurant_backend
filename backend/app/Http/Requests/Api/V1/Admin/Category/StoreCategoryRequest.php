@@ -19,7 +19,7 @@ class StoreCategoryRequest extends FormRequest
             'name' => ['required', 'array'],
             'name.ar' => ['required', 'string', 'max:255'],
             'name.en' => ['nullable', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:100', Rule::unique('categories', 'slug')],
+            'slug' => ['nullable', 'string', 'max:100', Rule::unique('categories', 'slug')],
             'description' => ['nullable', 'array'],
             'sort_order' => ['sometimes', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],

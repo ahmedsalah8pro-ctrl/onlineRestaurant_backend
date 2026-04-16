@@ -64,29 +64,6 @@
         </div>
       </article>
 
-      <article class="editor-card" *ngIf="showSlugField() || showCodeField()">
-        <div class="editor-card__head">
-          <div>
-            <span class="editor-card__eyebrow">{{ copy('المعرفات', 'Identifiers') }}</span>
-            <h2 class="editor-card__title">{{ copy('روابط ومراجع داخلية', 'URL and Internal References') }}</h2>
-          </div>
-        </div>
-
-        <div class="field-grid field-grid--two">
-          <label class="field-stack" *ngIf="showSlugField()">
-            <span>Slug</span>
-            <input pInputText [(ngModel)]="form.slug" [placeholder]="copy('مثال: family-meals', 'e.g. family-meals')" />
-            <small>{{ copy('يُستخدم في الروابط والمعرفات المقروءة.', 'Used in readable URLs and references.') }}</small>
-          </label>
-
-          <label class="field-stack" *ngIf="showCodeField()">
-            <span>{{ copy('الكود الداخلي', 'Internal Code') }}</span>
-            <input pInputText [(ngModel)]="form.code" [placeholder]="copy('مثال: CAT_01', 'e.g. CAT_01')" />
-            <small>{{ copy('مفيد للربط الداخلي أو التصنيف الإداري.', 'Useful for internal mapping and admin-side referencing.') }}</small>
-          </label>
-        </div>
-      </article>
-
       <article class="editor-card" *ngIf="showBranchDetails()">
         <div class="editor-card__head">
           <div>
@@ -287,7 +264,6 @@
           ></p-select>
         </label>
       </article>
-
     </aside>
   </div>
 </div>

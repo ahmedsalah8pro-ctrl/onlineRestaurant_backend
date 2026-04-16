@@ -37,7 +37,7 @@ class CategoryController extends Controller
         $data = $request->validate([
             'parent_id' => ['nullable', 'integer', 'exists:categories,id'],
             'name' => ['sometimes', 'array'],
-            'slug' => ['sometimes', 'string', Rule::unique('categories', 'slug')->ignore($category->id)],
+            'slug' => ['nullable', 'string', Rule::unique('categories', 'slug')->ignore($category->id)],
             'description' => ['nullable', 'array'],
             'sort_order' => ['sometimes', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],

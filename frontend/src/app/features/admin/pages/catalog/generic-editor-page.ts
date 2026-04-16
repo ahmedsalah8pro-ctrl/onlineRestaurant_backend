@@ -28,10 +28,6 @@ export class GenericEditorPage implements OnInit {
   protected readonly saving = signal(false);
   protected readonly isEdit = computed(() => this.id() !== null);
 
-  protected readonly showSlugField = computed(() => this.resourceType() !== 'delivery-zones');
-  protected readonly showCodeField = computed(() =>
-    ['categories', 'tags', 'coupons', 'gift-cards'].includes(this.resourceType()),
-  );
   protected readonly showBranchDetails = computed(() => this.resourceType() === 'branches');
   protected readonly showAddonGroupRules = computed(() => this.resourceType() === 'addon-groups');
   protected readonly showDeliveryZoneRules = computed(() => this.resourceType() === 'delivery-zones');
@@ -307,6 +303,11 @@ export class GenericEditorPage implements OnInit {
         ...this.form,
         name: this.form.translations,
       };
+
+      if (['categories', 'tags', 'branches', 'addon-groups', 'delivery-zones'].includes(this.resourceType())) {
+        delete payload['slug'];
+        delete payload['code'];
+      }
 
       if (this.showBranchDetails()) {
         payload['address'] = this.form.address_translations;

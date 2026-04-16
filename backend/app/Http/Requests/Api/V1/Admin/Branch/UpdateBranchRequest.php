@@ -20,7 +20,7 @@ class UpdateBranchRequest extends FormRequest
             'name' => ['sometimes', 'array'],
             'name.ar' => ['sometimes', 'required', 'string', 'max:255'],
             'name.en' => ['nullable', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:100', Rule::unique('branches', 'slug')->ignore($branchId)],
+            'slug' => ['nullable', 'string', 'max:100', Rule::unique('branches', 'slug')->ignore($branchId)],
             'phone' => ['sometimes', 'nullable', 'string', 'max:30'],
             'email' => ['sometimes', 'nullable', 'email', 'max:255'],
             'address' => ['sometimes', 'nullable', 'array'],

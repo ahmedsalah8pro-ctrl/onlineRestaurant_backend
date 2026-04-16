@@ -331,10 +331,6 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                         <span>Database ID / معرف المنتج</span>
                         <input pInputText [value]="id() || 'New'" disabled />
                       </label>
-                      <label class="field-stack">
-                        <span>Auto Identifier / المعرف التلقائي</span>
-                        <input pInputText [value]="identifierPreview()" disabled />
-                      </label>
                   </div>
 
                   <div class="advanced-danger-zone mt-12 pt-8 border-t border-slate-800">

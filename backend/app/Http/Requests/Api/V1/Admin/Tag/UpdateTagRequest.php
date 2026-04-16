@@ -22,7 +22,7 @@ class UpdateTagRequest extends FormRequest
             'name' => ['sometimes', 'array'],
             'name.ar' => ['sometimes', 'string', 'max:255'],
             'name.en' => ['nullable', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:100', Rule::unique('tags', 'slug')->ignore($tag->id)],
+            'slug' => ['nullable', 'string', 'max:100', Rule::unique('tags', 'slug')->ignore($tag->id)],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

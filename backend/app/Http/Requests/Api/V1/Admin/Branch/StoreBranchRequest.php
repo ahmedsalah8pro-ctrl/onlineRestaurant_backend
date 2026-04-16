@@ -18,7 +18,7 @@ class StoreBranchRequest extends FormRequest
             'name' => ['required', 'array'],
             'name.ar' => ['required', 'string', 'max:255'],
             'name.en' => ['nullable', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:100', Rule::unique('branches', 'slug')],
+            'slug' => ['nullable', 'string', 'max:100', Rule::unique('branches', 'slug')],
             'phone' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
             'address' => ['nullable', 'array'],

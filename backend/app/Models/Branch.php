@@ -7,10 +7,47 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Branch extends Model
 {
     use HasFactory;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($branch) {
+            if (blank($branch->slug)) {
+                $name = data_get($branch->name, 'en')
+                    ?? data_get($branch->name, 'ar')
+                    ?? 'branch';
+
+                $branch->slug = Str::slug((string) $name);
+            } elseif ($branch->isDirty('slug')) {
+                $branch->slug = Str::slug((string) $branch->slug);
+            }
+
+            if (blank($branch->slug)) {
+                $branch->slug = 'branch';
+            }
+
+            $branch->slug = static::makeUniqueSlug($branch->slug, $branch->id);
+        });
+    }
+
+    protected static function makeUniqueSlug(string $slug, $id = null): string
+    {
+        $original = $slug;
+        $count = 2;
+
+        while (static::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+            $slug = "{$original}-{$count}";
+            $count++;
+        }
+
+        return $slug;
+    }
 
     protected $fillable = [
         'name',
