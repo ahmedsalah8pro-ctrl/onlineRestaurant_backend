@@ -8,11 +8,13 @@ FRONTEND_DIR = os.path.join(ROOT_DIR, "frontend")
 BACKEND_DIR = os.path.join(ROOT_DIR, "backend")
 
 def resolve_php() -> str:
-    # Prefer a PATH php, otherwise fall back to the known WinGet install path.
+    fallback = r"C:\Users\PC\AppData\Local\Microsoft\WinGet\Packages\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe\php.exe"
+    if os.path.exists(fallback):
+        return fallback
+    # Fall back to PATH when the preferred PHP 8.3 binary is unavailable.
     php = shutil.which("php")
     if php:
         return php
-    fallback = r"C:\Users\PC\AppData\Local\Microsoft\WinGet\Packages\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe\php.exe"
     return fallback
 
 def run_backend():

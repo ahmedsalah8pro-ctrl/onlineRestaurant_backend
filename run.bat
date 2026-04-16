@@ -5,16 +5,17 @@ echo [BACKEND] Starting Laravel server...
 echo [FRONTEND] Starting Angular server...
 echo.
 
-REM Prefer system PHP if available; otherwise fall back to the user's WinGet PHP path if present.
-set "PHP_BIN=php"
-where php >nul 2>nul
-if errorlevel 1 (
-  set "PHP_BIN=C:\Users\PC\AppData\Local\Microsoft\WinGet\Packages\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe\php.exe"
-)
-
+REM Prefer PHP 8.3+ explicitly for Laravel 13, then fall back to PATH if needed.
+set "PHP_BIN=C:\Users\PC\AppData\Local\Microsoft\WinGet\Packages\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe\php.exe"
 if not exist "%PHP_BIN%" (
-  echo [ERROR] PHP binary not found. Ensure php is in PATH or update PHP_BIN in run.bat
-  exit /b 1
+  set "PHP_BIN="
+  where php >nul 2>nul
+  if errorlevel 1 (
+    echo [ERROR] PHP 8.3+ not found. Install PHP 8.3 or update PHP_BIN in run.bat
+    exit /b 1
+  ) else (
+    set "PHP_BIN=php"
+  )
 )
 
 REM Start backend (port 8000)

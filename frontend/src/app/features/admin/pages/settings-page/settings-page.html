@@ -118,7 +118,7 @@
             <p>{{ ui.fontTypeLabel(font.font_type || 'both') }} • {{ ui.fontScopeLabel(font.scope || 'shared') }}</p>
             <small>{{ font.file_path }}</small>
           </div>
-          <button pButton type="button" [label]="ui.t('admin.catalog.delete')" severity="danger" (click)="removeFont(i)"></button>
+          <button pButton type="button" [label]="ui.t('admin.catalog.delete')" severity="danger" (click)="confirmRemoveFont(i, font)"></button>
         </div>
 
         <div class="form-grid two-columns">

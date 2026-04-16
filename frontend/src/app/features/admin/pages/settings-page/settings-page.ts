@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 import { FontLibraryItem, PublicSettings, SettingsSchema } from '../../../../core/models/api.models';
 import { AdminApiService } from '../../../../core/services/admin-api';
@@ -19,6 +19,7 @@ export class SettingsPage implements OnInit {
   protected readonly adminApi = inject(AdminApiService);
   protected readonly theme = inject(ThemeService);
   protected readonly ui = inject(UiTextService);
+  private readonly confirm = inject(ConfirmationService);
   private readonly message = inject(MessageService);
 
   protected readonly schema = signal<SettingsSchema | null>(null);
@@ -176,11 +177,35 @@ export class SettingsPage implements OnInit {
     });
   }
 
-  protected removeFont(index: number): void {
+  protected confirmRemoveFont(index: number, font: FontLibraryItem): void {
+    const isArabic = this.ui.currentLocale() === 'ar';
+    const label = font.name || font.font_family || `#${index + 1}`;
+
+    this.confirm.confirm({
+      header: isArabic ? 'تأكيد حذف الخط' : 'Confirm Font Removal',
+      message: isArabic
+        ? `هل تريد حذف الخط "${label}" من المكتبة؟`
+        : `Are you sure you want to remove "${label}" from the font library?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: this.ui.t('admin.catalog.delete'),
+      rejectLabel: this.ui.t('admin.catalog.cancel'),
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept: () => this.removeFont(index),
+    });
+  }
+
+  private removeFont(index: number): void {
     this.updateValue(
       'typography',
       'font_library',
       this.fontLibrary().filter((_, currentIndex) => currentIndex !== index),
     );
+
+    this.message.add({
+      severity: 'success',
+      summary: this.ui.t('admin.catalog.delete'),
+      detail: this.ui.currentLocale() === 'ar' ? 'تم حذف الخط من القائمة الحالية.' : 'The font was removed from the current list.',
+    });
   }
 }

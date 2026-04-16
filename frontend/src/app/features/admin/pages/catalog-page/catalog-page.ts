@@ -231,19 +231,24 @@ export class CatalogPage implements OnInit {
   }
 
   protected confirmRemove(section: string, id: number): void {
-    const title = this.ui.t('admin.catalog.delete');
-    const msg =
-      this.ui.t('admin.catalog.deleteConfirm') !== 'admin.catalog.deleteConfirm'
-        ? this.ui.t('admin.catalog.deleteConfirm')
+    const isArabic = this.ui.currentLocale() === 'ar';
+    const title = isArabic ? 'تأكيد الحذف' : 'Delete Confirmation';
+    const msg = isArabic ? 'هل أنت متأكد أنك تريد حذف هذا العنصر نهائيًا؟' : 'Are you sure you want to permanently delete this item?';
+    /*
+      ? 'هل أنت متأكد أنك تريد حذف هذا العنصر نهائيًا؟'
+      : 'Are you sure you want to permanently delete this item?';
         : 'هل أنت متأكد أنك تريد حذف هذا العنصر؟';
 
+    */
     this.confirm.confirm({
       header: title,
       message: msg,
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: this.ui.t('admin.catalog.delete'),
-      rejectLabel:
+      rejectLabel: this.ui.t('admin.catalog.cancel'),
+      /*
         this.ui.t('admin.catalog.cancel') !== 'admin.catalog.cancel' ? this.ui.t('admin.catalog.cancel') : 'إلغاء',
+      */
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-secondary',
       accept: async () => {
@@ -252,16 +257,18 @@ export class CatalogPage implements OnInit {
           await this.loadSection(section);
           this.message.add({
             severity: 'success',
-            summary: title,
-            detail:
+            summary: this.ui.t('admin.catalog.delete'),
+            detail: isArabic ? 'تم الحذف بنجاح.' : 'Deleted successfully.',
+            /*
               this.ui.t('admin.catalog.deleted') !== 'admin.catalog.deleted'
                 ? this.ui.t('admin.catalog.deleted')
                 : 'تم الحذف بنجاح.',
+            */
           });
         } catch {
           this.message.add({
             severity: 'error',
-            summary: title,
+            summary: this.ui.t('admin.catalog.delete'),
             detail: 'تعذر الحذف الآن.',
           });
         }

@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 import { AdminRoleIndex } from '../../../../core/models/api.models';
 import { AdminApiService } from '../../../../core/services/admin-api';
@@ -17,6 +17,7 @@ type Tab = 'members' | 'roles' | 'permissions';
 export class AccessPage implements OnInit {
   protected readonly adminApi = inject(AdminApiService);
   protected readonly ui = inject(UiTextService);
+  private readonly confirm = inject(ConfirmationService);
   private readonly message = inject(MessageService);
 
   protected readonly activeTab = signal<Tab>('members');
@@ -126,13 +127,41 @@ export class AccessPage implements OnInit {
     }
   }
 
-  protected async deleteMember(id: unknown): Promise<void> {
+  protected confirmDeleteMember(member: Record<string, unknown>): void {
+    const isArabic = this.ui.currentLocale() === 'ar';
+    const label = String(member['name'] ?? member['email'] ?? `#${member['id']}`);
+
+    this.confirm.confirm({
+      header: isArabic ? 'تأكيد الحذف' : 'Delete Confirmation',
+      message: isArabic
+        ? `هل تريد حذف العضو "${label}" نهائيًا؟`
+        : `Are you sure you want to delete the member "${label}"?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: this.ui.t('admin.catalog.delete'),
+      rejectLabel: this.ui.t('admin.catalog.cancel'),
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept: async () => {
+        await this.deleteMember(member['id']);
+      },
+    });
+  }
+
+  private async deleteMember(id: unknown): Promise<void> {
     try {
       await firstValueFrom(this.adminApi.deleteResource('users', Number(id)));
-      this.message.add({ severity: 'info', summary: 'Success', detail: 'User deleted' });
+      this.message.add({
+        severity: 'success',
+        summary: this.ui.t('admin.catalog.delete'),
+        detail: this.ui.currentLocale() === 'ar' ? 'تم حذف العضو بنجاح.' : 'Member deleted successfully.',
+      });
       await this.reload();
     } catch (err: any) {
-      this.message.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Delete failed' });
+      this.message.add({
+        severity: 'error',
+        summary: this.ui.t('admin.catalog.delete'),
+        detail: err?.error?.message || (this.ui.currentLocale() === 'ar' ? 'تعذر حذف العضو.' : 'Delete failed.'),
+      });
     }
   }
 
@@ -179,8 +208,40 @@ export class AccessPage implements OnInit {
     await this.reload();
   }
 
-  protected async removeRole(roleId: number): Promise<void> {
-    await firstValueFrom(this.adminApi.deleteRole(roleId));
-    await this.reload();
+  protected confirmRemoveRole(role: { id: number; name: string }): void {
+    const isArabic = this.ui.currentLocale() === 'ar';
+
+    this.confirm.confirm({
+      header: isArabic ? 'تأكيد الحذف' : 'Delete Confirmation',
+      message: isArabic
+        ? `هل تريد حذف الدور "${role.name}" نهائيًا؟`
+        : `Are you sure you want to delete the role "${role.name}"?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: this.ui.t('admin.catalog.delete'),
+      rejectLabel: this.ui.t('admin.catalog.cancel'),
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept: async () => {
+        await this.removeRole(role.id);
+      },
+    });
+  }
+
+  private async removeRole(roleId: number): Promise<void> {
+    try {
+      await firstValueFrom(this.adminApi.deleteRole(roleId));
+      this.message.add({
+        severity: 'success',
+        summary: this.ui.t('admin.catalog.delete'),
+        detail: this.ui.currentLocale() === 'ar' ? 'تم حذف الدور بنجاح.' : 'Role deleted successfully.',
+      });
+      await this.reload();
+    } catch (err: any) {
+      this.message.add({
+        severity: 'error',
+        summary: this.ui.t('admin.catalog.delete'),
+        detail: err?.error?.message || (this.ui.currentLocale() === 'ar' ? 'تعذر حذف الدور.' : 'Delete failed.'),
+      });
+    }
   }
 }

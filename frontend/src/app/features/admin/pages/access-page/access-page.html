@@ -59,7 +59,7 @@
             <td>
               <div class="row-actions">
                 <button class="action-btn action-btn--secondary action-btn--sm" type="button" (click)="openMemberForm(member)">✏️</button>
-                <button class="action-btn action-btn--danger action-btn--sm" type="button" (click)="deleteMember(member.id)">🗑️</button>
+                <button class="action-btn action-btn--danger action-btn--sm" type="button" (click)="confirmDeleteMember(member)">🗑️</button>
               </div>
             </td>
           </tr>
@@ -141,7 +141,7 @@
             </div>
             <div class="role-card__actions">
               <button class="action-btn action-btn--secondary action-btn--sm" type="button" (click)="editRole(role)">✏️ {{ ui.t('admin.catalog.edit') }}</button>
-              <button class="action-btn action-btn--danger action-btn--sm" type="button" (click)="removeRole(role.id)">🗑️ {{ ui.t('admin.catalog.delete') }}</button>
+              <button class="action-btn action-btn--danger action-btn--sm" type="button" (click)="confirmRemoveRole(role)">🗑️ {{ ui.t('admin.catalog.delete') }}</button>
             </div>
           </div>
 
