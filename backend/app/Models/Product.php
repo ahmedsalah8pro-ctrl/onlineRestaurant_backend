@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -17,9 +18,21 @@ class Product extends Model
         parent::boot();
 
         static::saving(function ($product) {
-            if ($product->isDirty('slug')) {
-                $product->slug = static::makeUniqueSlug($product->slug, $product->id);
+            if (blank($product->slug)) {
+                $name = data_get($product->name, 'en')
+                    ?? data_get($product->name, 'ar')
+                    ?? 'product';
+
+                $product->slug = Str::slug((string) $name);
+            } elseif ($product->isDirty('slug')) {
+                $product->slug = Str::slug((string) $product->slug);
             }
+
+            if (blank($product->slug)) {
+                $product->slug = 'product';
+            }
+
+            $product->slug = static::makeUniqueSlug($product->slug, $product->id);
         });
     }
 

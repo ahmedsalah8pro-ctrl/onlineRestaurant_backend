@@ -180,8 +180,8 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                         <div class="size-card-body">
                            <div class="form-grid three-columns">
                                <label class="field-stack">
-                                  <span title="Technical code for mapping, e.g. 'lg'">{{ ui.t('admin.catalog.code') }}</span>
-                                  <input pInputText [(ngModel)]="size.code" placeholder="large" />
+                                  <span title="Generated automatically from the size name">{{ ui.t('admin.catalog.code') }}</span>
+                                  <input pInputText [ngModel]="generatedSizeCode(size, i)" disabled />
                                </label>
                                <label class="field-stack">
                                   <span title="AR Name">{{ ui.t('admin.catalog.arName') }}</span>
@@ -249,9 +249,9 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                                     <span>{{ ui.t('admin.catalog.price_override') }}</span>
                                  </div>
                                  <div class="override-grid">
-                                    <div *ngFor="let size of form.sizes" class="size-price-input">
-                                       <span class="text-xs text-slate-400">{{ size.translations.en || size.code }}</span>
-                                       <p-inputnumber [(ngModel)]="opt.size_price_overrides[size.id || size.code]" 
+                                    <div *ngFor="let size of form.sizes; let sizeIndex = index" class="size-price-input">
+                                       <span class="text-xs text-slate-400">{{ size.translations.en || size.translations.ar || generatedSizeCode(size, sizeIndex) }}</span>
+                                       <p-inputnumber [(ngModel)]="opt.size_price_overrides[size.id || generatedSizeCode(size, sizeIndex)]" 
                                                       mode="decimal" [min]="0" 
                                                       class="p-inputnumber-sm" [placeholder]="opt.base_price || '0'"></p-inputnumber>
                                     </div>
@@ -332,8 +332,8 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                         <input pInputText [value]="id() || 'New'" disabled />
                       </label>
                       <label class="field-stack">
-                        <span>Technical Slug / الرابط</span>
-                        <input pInputText [(ngModel)]="form.slug" [placeholder]="suggestedSlug()" />
+                        <span>Auto Identifier / المعرف التلقائي</span>
+                        <input pInputText [value]="identifierPreview()" disabled />
                       </label>
                   </div>
 
@@ -786,21 +786,38 @@ export class ProductEditorPage implements OnInit {
     }
   }
 
+  private normalizeIdentifier(value: string, separator: '-' | '_' = '-'): string {
+    return value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s_-]/g, '')
+      .replace(/[\s-]+/g, separator)
+      .replace(/_+/g, separator === '_' ? '_' : '-')
+      .replace(new RegExp(`\\${separator}{2,}`, 'g'), separator)
+      .replace(new RegExp(`^\\${separator}|\\${separator}$`, 'g'), '');
+  }
+
   generateSlug() {
     const name = this.form.translations.en.name || this.form.translations.ar.name;
     if (name) {
-      this.form.slug = name
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
+      this.form.slug = this.normalizeIdentifier(name, '-') || 'product';
     }
   }
 
   suggestedSlug() {
     const name = this.form.translations.en.name || this.form.translations.ar.name;
-    return name ? name.toLowerCase().replace(/\s+/g, '-') : 'burger-classic';
+    return name ? this.normalizeIdentifier(name, '-') || (this.id() ? `product-${this.id()}` : 'product') : (this.id() ? `product-${this.id()}` : 'product');
+  }
+
+  identifierPreview() {
+    return this.form.slug || this.suggestedSlug();
+  }
+
+  generatedSizeCode(size: any, index: number) {
+    const existing = typeof size?.code === 'string' ? this.normalizeIdentifier(size.code, '_') : '';
+    const sourceName = size?.translations?.en || size?.translations?.ar || '';
+    const generated = this.normalizeIdentifier(sourceName, '_');
+
+    return existing || generated || `size_${index + 1}`;
   }
 
   addSize() {
@@ -879,7 +896,7 @@ export class ProductEditorPage implements OnInit {
      this.saving.set(true);
      try {
        const payload = {
-         slug: this.form.slug,
+         slug: this.form.slug || this.suggestedSlug(),
          base_price: this.form.base_price,
          is_active: this.form.is_active,
          is_available_in_all_branches: this.form.is_available_in_all_branches,
@@ -915,9 +932,9 @@ export class ProductEditorPage implements OnInit {
             }))
          })),
          
-         sizes: this.form.sizes.map(s => ({
+         sizes: this.form.sizes.map((s, index) => ({
             id: s.id,
-            code: s.code,
+            code: this.generatedSizeCode(s, index),
             price: s.price,
             is_default: s.is_default,
             name: s.translations.en,

@@ -11,7 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -43,7 +43,7 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'name' => ['sometimes', 'array'],
-            'slug' => ['sometimes', 'string', 'max:150'],
+            'slug' => ['nullable', 'string', 'max:150'],
             'description' => ['nullable', 'array'],
             'short_description' => ['nullable', 'array'],
             'base_price' => ['nullable', 'numeric', 'min:0'],
@@ -125,9 +125,14 @@ class ProductController extends Controller
             ]);
         }
 
+        $usedSizeCodes = [];
+
         foreach ($data['sizes'] ?? [] as $index => $size) {
             $product->sizes()->create([
-                'code' => $size['code'],
+                'code' => $this->makeUniqueSizeCode(
+                    $this->resolveSizeCode($size, $index),
+                    $usedSizeCodes,
+                ),
                 'name' => $size['name'],
                 'price' => $size['price'],
                 'is_default' => $size['is_default'] ?? false,
@@ -154,5 +159,44 @@ class ProductController extends Controller
                 ]);
             }
         }
+    }
+
+    protected function resolveSizeCode(array $size, int $index): string
+    {
+        $candidate = trim((string) ($size['code'] ?? ''));
+
+        if ($candidate !== '') {
+            $normalized = Str::slug($candidate, '_');
+
+            return $normalized !== '' ? $normalized : 'size_'.($index + 1);
+        }
+
+        $name = data_get($size, 'name.en')
+            ?? data_get($size, 'name.ar')
+            ?? data_get($size, 'translations.en')
+            ?? data_get($size, 'translations.ar')
+            ?? null;
+
+        $normalized = Str::slug((string) ($name ?? ''), '_');
+
+        return $normalized !== '' ? $normalized : 'size_'.($index + 1);
+    }
+
+    /**
+     * @param array<int, string> $usedCodes
+     */
+    protected function makeUniqueSizeCode(string $code, array &$usedCodes): string
+    {
+        $base = $code;
+        $counter = 2;
+
+        while (in_array($code, $usedCodes, true)) {
+            $code = "{$base}_{$counter}";
+            $counter++;
+        }
+
+        $usedCodes[] = $code;
+
+        return $code;
     }
 }

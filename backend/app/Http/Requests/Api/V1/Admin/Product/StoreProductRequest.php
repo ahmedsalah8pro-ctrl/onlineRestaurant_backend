@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Api\V1\Admin\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreProductRequest extends FormRequest
 {
@@ -18,7 +17,7 @@ class StoreProductRequest extends FormRequest
             'name' => ['required', 'array'],
             'name.ar' => ['required', 'string', 'max:255'],
             'name.en' => ['nullable', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:150'],
+            'slug' => ['nullable', 'string', 'max:150'],
             'description' => ['nullable', 'array'],
             'short_description' => ['nullable', 'array'],
             'base_price' => ['nullable', 'numeric', 'min:0'],
@@ -47,7 +46,7 @@ class StoreProductRequest extends FormRequest
             'media.*.is_primary' => ['sometimes', 'boolean'],
             'media.*.sort_order' => ['sometimes', 'integer', 'min:0'],
             'sizes' => ['nullable', 'array'],
-            'sizes.*.code' => ['required_with:sizes', 'string', 'max:100'],
+            'sizes.*.code' => ['nullable', 'string', 'max:100'],
             'sizes.*.name' => ['required_with:sizes', 'array'],
             'sizes.*.name.ar' => ['required_with:sizes', 'string', 'max:255'],
             'sizes.*.name.en' => ['nullable', 'string', 'max:255'],
