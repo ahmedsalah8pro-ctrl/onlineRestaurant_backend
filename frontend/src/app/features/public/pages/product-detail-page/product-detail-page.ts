@@ -188,7 +188,7 @@ export class ProductDetailPage implements OnInit {
     return Object.values(this.selectedAddonMap()).flat();
   }
 
-  protected async addToCart(): Promise<void> {
+  protected async addToCart(event?: Event): Promise<void> {
     const current = this.product();
 
     if (!current) {
@@ -198,6 +198,8 @@ export class ProductDetailPage implements OnInit {
     this.addToCartLoading.set(true);
 
     try {
+      if (event) this.storefront.triggerFlight(event);
+      
       await firstValueFrom(
         this.publicApi.addCartItem({
           product_id: current.id,

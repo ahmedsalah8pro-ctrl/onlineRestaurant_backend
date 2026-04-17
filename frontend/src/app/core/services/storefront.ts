@@ -22,6 +22,9 @@ export class StorefrontService {
   readonly unreadNotificationCount = signal(0);
   readonly loading = signal(false);
   readonly cartPulse = signal(false);
+  readonly cartOpen = signal(false);
+  readonly cartFlying = signal(false);
+  readonly flightPath = signal<{ x: number; y: number } | null>(null);
   readonly appliedCouponCode = signal('');
   readonly appliedCouponPreview = signal<CouponPreview | null>(null);
 
@@ -57,7 +60,32 @@ export class StorefrontService {
     this.cart.set(await firstValueFrom(this.publicApi.getCart()));
     
     this.cartPulse.set(true);
-    setTimeout(() => this.cartPulse.set(false), 800);
+    setTimeout(() => this.cartPulse.set(false), 1200);
+  }
+
+  triggerFlight(event: MouseEvent | TouchEvent | Event): void {
+    let clientX = 0, clientY = 0;
+    
+    if (event instanceof MouseEvent) {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    } else if (typeof TouchEvent !== 'undefined' && event instanceof TouchEvent) {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    }
+
+    if (clientX === 0 && clientY === 0) return;
+
+    this.flightPath.set({ x: clientX, y: clientY });
+    this.cartFlying.set(true);
+    
+    // Animation phases
+    setTimeout(() => this.cartOpen.set(true), 200);
+    setTimeout(() => {
+      this.cartFlying.set(false);
+      this.flightPath.set(null);
+    }, 1000);
+    setTimeout(() => this.cartOpen.set(false), 1400);
   }
 
   async refreshUnreadNotifications(): Promise<void> {

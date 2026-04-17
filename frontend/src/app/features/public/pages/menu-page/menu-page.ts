@@ -190,7 +190,9 @@ export class MenuPage implements OnInit, OnDestroy {
   }
 
   protected async quickAdd(product: ProductListItem, event?: Event): Promise<void> {
-    event?.stopPropagation();
+    if (event) {
+      event.stopPropagation();
+    }
 
     if (!this.filters.branch_id) {
       return;
@@ -199,6 +201,10 @@ export class MenuPage implements OnInit, OnDestroy {
     if ((product.addon_groups_count ?? 0) > 0) {
       await this.openPreview(product.id);
       return;
+    }
+
+    if (event) {
+      this.storefront.triggerFlight(event);
     }
 
     this.quickAddLoadingId.set(product.id);

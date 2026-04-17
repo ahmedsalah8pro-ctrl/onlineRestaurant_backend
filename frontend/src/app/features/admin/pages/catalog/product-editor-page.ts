@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
@@ -47,7 +47,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                     <div class="form-grid">
                        <label class="field-stack">
                          <span title="The base price if no size is chosen">{{ ui.t('admin.catalog.price') }}</span>
-                         <p-inputnumber [(ngModel)]="form.base_price" mode="decimal" [min]="0" styleClass="w-full" [placeholder]="ui.t('admin.catalog.price')"></p-inputnumber>
+                         <p-inputnumber [(ngModel)]="form.base_price" mode="decimal" [min]="0" styleClass="w-full" [placeholder]="ui.t('admin.catalog.price')" [required]="true" name="basePrice"></p-inputnumber>
                        </label>
                        
                        <div class="flex-column" style="gap: 1.25rem; margin-top: 1rem;">
@@ -82,15 +82,15 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                 </div>
 
                 <div class="form-section">
-                  <h3>{{ ui.t('admin.catalog.categories') }} & {{ ui.t('admin.catalog.tags') }}</h3>
+                  <h3 [title]="ui.t('admin.catalog.hint.catTags')">{{ ui.t('admin.catalog.categories') }} & {{ ui.t('admin.catalog.tags') }}</h3>
                   <div class="form-grid two-columns">
                      <label class="field-stack">
-                       <span title="Filter the menu for users by these categories">{{ ui.t('admin.catalog.categories') }}</span>
+                       <span [title]="ui.t('admin.catalog.hint.catTags')">{{ ui.t('admin.catalog.categories') }}</span>
                        <p-multiselect [options]="categories()" [(ngModel)]="selectedCategories" 
-                                     optionLabel="name" optionValue="id" [placeholder]="ui.t('admin.catalog.category')" appendTo="body"></p-multiselect>
+                                     optionLabel="name" optionValue="id" [placeholder]="ui.t('admin.catalog.category')" appendTo="body" [required]="true" name="catSelect"></p-multiselect>
                      </label>
                      <label class="field-stack">
-                       <span title="Apply visual labels or simple keywords">{{ ui.t('admin.catalog.tags') }}</span>
+                       <span [title]="ui.t('admin.catalog.hint.catTags')">{{ ui.t('admin.catalog.tags') }}</span>
                        <p-multiselect [options]="tags()" [(ngModel)]="selectedTags" 
                                      optionLabel="name" optionValue="id" [placeholder]="ui.t('admin.catalog.tag')" appendTo="body"></p-multiselect>
                      </label>
@@ -111,7 +111,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                                <div class="trans-grid">
                                   <label class="field-stack">
                                     <span>{{ ui.t('admin.catalog.name') }}</span>
-                                    <input pInputText [(ngModel)]="form.translations.ar.name" placeholder="مثلاً: بيف برجر عائلي" />
+                                    <input pInputText [(ngModel)]="form.translations.ar.name" placeholder="مثلاً: بيف برجر عائلي" required name="nameAr" />
                                   </label>
                                   <label class="field-stack">
                                     <span>{{ ui.t('admin.catalog.details') }} (SEO)</span>
@@ -132,7 +132,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                                <div class="trans-grid">
                                   <label class="field-stack">
                                     <span>{{ ui.t('admin.catalog.name') }}</span>
-                                    <input pInputText [(ngModel)]="form.translations.en.name" placeholder="e.g. Family Beef Burger" (blur)="onNameBlur()" />
+                                    <input pInputText [(ngModel)]="form.translations.en.name" placeholder="e.g. Family Beef Burger" (blur)="onNameBlur()" required name="nameEn" />
                                   </label>
                                   <label class="field-stack">
                                     <span>SEO Title</span>
@@ -330,6 +330,11 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                       <label class="field-stack">
                         <span>Database ID / معرف المنتج</span>
                         <input pInputText [value]="id() || 'New'" disabled />
+                      </label>
+                      <label class="field-stack">
+                        <span>URL Slug / اسم الرابط الثابت</span>
+                        <input pInputText [(ngModel)]="form.slug" [placeholder]="suggestedSlug() || 'e.g. italian-pizza'" />
+                        <small class="text-slate-500 mt-1">Leave empty to auto-generate from English name.</small>
                       </label>
                   </div>
 
@@ -608,6 +613,8 @@ export class ProductEditorPage implements OnInit {
   protected readonly id = signal<number | null>(null);
   protected readonly isEdit = computed(() => !!this.id());
   protected readonly saving = signal(false);
+  protected readonly submitted = signal(false);
+
 
   // Form State
   protected form = {
@@ -889,7 +896,20 @@ export class ProductEditorPage implements OnInit {
   }
 
   async save() {
-     this.saving.set(true);
+    this.submitted.set(true);
+    
+    // Core localized validation
+    if (!this.form.translations.ar.name && !this.form.translations.en.name) {
+       this.message.add({ 
+          severity: 'warn', 
+          summary: 'Missing Name', 
+          detail: 'Product must have a name in at least one language.', 
+          sticky: true 
+       });
+       return;
+    }
+
+    this.saving.set(true);
      try {
        const payload = {
          slug: this.form.slug || this.suggestedSlug(),
@@ -898,25 +918,26 @@ export class ProductEditorPage implements OnInit {
          is_available_in_all_branches: this.form.is_available_in_all_branches,
          main_image_path: this.form.main_image_path,
          
-         // Flat values out of nested translations to match backend expectations
-         name: this.form.translations.en.name,
-         translations: { ar: this.form.translations.ar.name, en: this.form.translations.en.name },
-         
-         title: this.form.translations.en.title,
-         title_translations: { ar: this.form.translations.ar.title, en: this.form.translations.en.title },
-         
-         short_description: this.form.translations.en.short_description,
-         short_description_translations: { ar: this.form.translations.ar.short_description, en: this.form.translations.en.short_description },
-         
-         description: this.form.translations.en.description,
-         description_translations: { ar: this.form.translations.ar.description, en: this.form.translations.en.description },
+         // Backend expects name, description etc to be the translation objects themselves
+         name: { 
+            ar: this.form.translations.ar.name || this.form.translations.en.name, 
+            en: this.form.translations.en.name || this.form.translations.ar.name 
+         },
+         description: { 
+            ar: this.form.translations.ar.description, 
+            en: this.form.translations.en.description 
+         },
+         short_description: { 
+            ar: this.form.translations.ar.short_description, 
+            en: this.form.translations.en.short_description 
+         },
          
          category_ids: this.selectedCategories,
          tag_ids: this.selectedTags,
          branch_ids: this.form.is_available_in_all_branches ? [] : this.selectedBranches,
          
          addon_groups: this.form.addon_groups.map(g => ({
-            name: { ar: g.name, en: g.name }, // Simple mapping for now
+            name: { ar: g.name, en: g.name },
             selection_type: g.selection_type,
             min_select: g.min_select,
             max_select: g.max_select,
@@ -933,8 +954,7 @@ export class ProductEditorPage implements OnInit {
             code: this.generatedSizeCode(s, index),
             price: s.price,
             is_default: s.is_default,
-            name: s.translations.en,
-            translations: { ar: s.translations.ar, en: s.translations.en }
+            name: { ar: s.translations.ar, en: s.translations.en }
          })),
          
          media: this.form.media.map(m => ({
@@ -953,10 +973,18 @@ export class ProductEditorPage implements OnInit {
 
        this.message.add({ severity: 'success', summary: 'Success', detail: 'Product saved successfully' });
        this.router.navigate(['/admin/catalog/products']);
-     } catch(err) {
-       this.message.add({ severity: 'error', summary: 'Error', detail: 'Save failed' });
-     } finally {
-       this.saving.set(false);
-     }
+      } catch(err: any) {
+        console.error('Save error', err);
+        let detail = 'Save failed';
+        if (err.error?.errors) {
+          const firstErr = Object.entries(err.error.errors)[0];
+          detail = `${String(firstErr[0]).toUpperCase()}: ${Array.isArray(firstErr[1]) ? firstErr[1][0] : firstErr[1]}`;
+        } else if (err.error?.message) {
+          detail = err.error.message;
+        }
+        this.message.add({ severity: 'error', summary: 'Persistence Error', detail, sticky: true });
+      } finally {
+        this.saving.set(false);
+      }
   }
 }

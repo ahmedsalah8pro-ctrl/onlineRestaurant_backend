@@ -76,8 +76,8 @@
       <p-progressspinner strokeWidth="3"></p-progressspinner>
     </div>
   } @else if (filters.branch_id) {
-    <div class="menu-grid">
-      <article class="menu-card glass-panel" *ngFor="let product of products()" (click)="quickAdd(product)">
+  <div class="menu-grid">
+      <article class="menu-card glass-panel" *ngFor="let product of products()" (click)="openPreview(product.id)">
         <img
           [src]="runtime.resolveAsset(product.main_image_path, 'http://127.0.0.1:8000/storage/products/pizza.png')"
           [alt]="theme.resolveText(product.translations || product.name)"
@@ -101,14 +101,16 @@
           <p>{{ theme.resolveText(product.short_description_translations || product.short_description) || ui.t('menu.noDescription') }}</p>
           <div class="menu-card__meta">
             <div class="rating-badge">
-              <i class="pi pi-star-fill"></i>
-              <span>{{ product.rating_summary.average }}</span>
-               <span class="reviews-count">({{ product.rating_summary.count }} {{ ui.t('product.reviews_count') }})</span>
+              <app-visual-rating [value]="product.rating_summary.average || 0" size="sm" [showValue]="true"></app-visual-rating>
+              <span class="reviews-count">({{ product.rating_summary.count || 0 }} {{ ui.t('product.reviews_count') }})</span>
+              <span class="purchases-count" *ngIf="product.purchases_count">
+                <i class="pi pi-shopping-bag"></i> {{ product.purchases_count }} {{ ui.t('product.purchases_count') }}
+              </span>
             </div>
             <strong class="price-text">{{ storefront.formatMoney(product.base_price) }}</strong>
           </div>
           <div class="menu-card__actions">
-            <a pButton severity="primary" [routerLink]="['/products', product.id]" (click)="$event.stopPropagation()" icon="pi pi-shopping-cart" iconPos="right" class="details-btn">
+            <a pButton severity="primary" [routerLink]="['/products', product.id]" (click)="$event.stopPropagation()" icon="pi pi-external-link" iconPos="right" class="details-btn">
               {{ ui.t('menu.details') }}
             </a>
           </div>

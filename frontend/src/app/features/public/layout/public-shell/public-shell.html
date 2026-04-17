@@ -1,6 +1,5 @@
 <div class="app-container" [attr.lang]="ui.currentLocale()" [class.rtl]="ui.currentLocale() === 'ar'">
-  <p-toast position="top-right"></p-toast>
-  <p-confirmdialog></p-confirmdialog>
+
 
   <!-- Modern Floating Header -->
   <header class="navbar-wrapper" [class.navbar-scrolled]="isScrolled()">
@@ -54,8 +53,8 @@
               <span>{{ storefront.formatMoney(walletBalance()) }}</span>
             </div>
 
-            <a routerLink="/cart" class="action-icon cart-trigger" *ngIf="auth.isAuthenticated() || cartCount() > 0">
-              <i class="pi pi-shopping-bag"></i>
+            <a routerLink="/cart" class="action-icon cart-trigger" [class.cart-open]="storefront.cartOpen()" *ngIf="auth.isAuthenticated() || cartCount() > 0">
+              <i class="pi" [class.pi-shopping-bag]="!storefront.cartOpen()" [class.pi-shopping-cart]="storefront.cartOpen()"></i>
               <span class="cart-badge" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
             </a>
             
@@ -196,12 +195,21 @@
   </footer>
 
   <!-- Fixed Engagement Elements -->
-  <a routerLink="/cart" class="floating-cart-btn" *ngIf="auth.isAuthenticated() || cartCount() > 0" [class.animate-pulse]="storefront.cartPulse()">
+  <a routerLink="/cart" class="floating-cart-btn" *ngIf="auth.isAuthenticated() || cartCount() > 0" 
+     [class.animate-pulse]="storefront.cartPulse()"
+     [class.cart-open]="storefront.cartOpen()">
     <div class="btn-body">
-      <i class="pi pi-shopping-cart"></i>
+      <i class="pi" [class.pi-shopping-cart]="!storefront.cartOpen()" [class.pi-shopping-bag]="storefront.cartOpen()"></i>
       <span class="count">{{ cartCount() }}</span>
     </div>
   </a>
+
+  <!-- Flight Animation Overlay -->
+  <div class="cart-flight-layer" *ngIf="storefront.cartFlying() && storefront.flightPath() as path">
+    <div class="flying-product" [style.left.px]="path.x" [style.top.px]="path.y">
+        <i class="pi pi-box"></i>
+    </div>
+  </div>
 
   <!-- Mobile Language Switcher (Floating) -->
   <div class="mobile-lang-fab" [class.hidden]="isScrolled()">

@@ -6,9 +6,9 @@
       <tr>
         <th>#</th>
         <th>{{ ui.t('admin.orders.status') }}</th>
-        <th>الوقت</th>
-        <th>الإجمالي</th>
-        <th>إجراءات</th>
+        <th>{{ ui.t('admin.orders.time') }}</th>
+        <th>{{ ui.t('admin.orders.total') }}</th>
+        <th>{{ ui.t('admin.catalog.actions') }}</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-order>
@@ -47,7 +47,7 @@
         <div class="glass-panel order-panel">
           <h3>{{ ui.t('admin.orders.delivery') }}</h3>
           
-          <p-select [options]="deliveryCrew()" optionLabel="name" [placeholder]="'اختر من المندوبين (Optional)'"
+          <p-select [options]="deliveryCrew()" optionLabel="name" [placeholder]="ui.t('admin.orders.driverSelect')"
                     (onChange)="fillDeliveryPerson($event.value)" styleClass="w-full mb-3"></p-select>
 
           <input pInputText [(ngModel)]="deliveryForm.delivery_person_name" [placeholder]="ui.t('admin.orders.driverName')" />
@@ -58,22 +58,22 @@
 
       <div class="surface-grid two-columns">
         <div class="glass-panel order-panel">
-          <h3>ملخص الطلب</h3>
+          <h3>{{ ui.t('admin.orders.summary') }}</h3>
           <div class="detail-list">
-            <div><span>رقم الطلب</span><strong>#{{ order.id }}</strong></div>
-            <div><span>الحالة</span><strong><p-tag [value]="ui.orderStatus(order.status)" [severity]="getStatusSeverity(order.status)"></p-tag></strong></div>
-            <div><span>الإجمالي</span><strong>{{ storefront.formatMoney(order.total) }}</strong></div>
-            <div><span>الفرع</span><strong>{{ order.branch?.name || '—' }}</strong></div>
-            <div><span>المنطقة</span><strong>{{ order.delivery_zone?.name || '—' }}</strong></div>
-            <div><span>الملاحظات</span><strong>{{ order.notes || '—' }}</strong></div>
+            <div><span>{{ ui.t('admin.orders.id') }}</span><strong>#{{ order.id }}</strong></div>
+            <div><span>{{ ui.t('admin.catalog.status') }}</span><strong><p-tag [value]="ui.orderStatus(order.status)" [severity]="getStatusSeverity(order.status)"></p-tag></strong></div>
+            <div><span>{{ ui.t('admin.orders.total') }}</span><strong>{{ storefront.formatMoney(order.total) }}</strong></div>
+            <div><span>{{ ui.t('admin.orders.branch') }}</span><strong>{{ order.branch?.name || '—' }}</strong></div>
+            <div><span>{{ ui.t('admin.orders.zone') }}</span><strong>{{ order.delivery_zone?.name || '—' }}</strong></div>
+            <div><span>{{ ui.t('admin.orders.notesLabel') }}</span><strong>{{ order.notes || '—' }}</strong></div>
           </div>
         </div>
 
         <div class="glass-panel order-panel">
-          <h3>العناصر</h3>
+          <h3>{{ ui.t('admin.orders.items') }}</h3>
           <div class="detail-list" *ngFor="let item of order.items">
             <div><span>{{ getItemName(item) }}</span><strong>x{{ item.quantity }}</strong></div>
-            <div><span>السعر</span><strong>{{ storefront.formatMoney(item.line_subtotal) }}</strong></div>
+            <div><span>{{ ui.t('admin.orders.price') }}</span><strong>{{ storefront.formatMoney(item.line_subtotal) }}</strong></div>
           </div>
         </div>
       </div>

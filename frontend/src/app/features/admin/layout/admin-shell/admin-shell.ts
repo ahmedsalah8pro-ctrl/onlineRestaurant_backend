@@ -31,7 +31,7 @@ export class AdminShell implements OnInit {
     { labelKey: 'admin.section.dashboard', path: '/admin', icon: '📊' },
     { labelKey: 'admin.section.orders', path: '/admin/orders', icon: '🛒' },
     { labelKey: 'admin.section.catalog', path: '/admin/catalog', icon: '🍔', hasSub: true },
-    { labelKey: 'admin.section.customers', path: '/admin/access', icon: '👥' },
+    { labelKey: 'admin.section.customers', path: '/admin/access/members', icon: '👥', hasSub: true },
     { labelKey: 'admin.section.branding', path: '/admin/settings', icon: '🎨' },
     { labelKey: 'admin.section.content', path: '/admin/content', icon: '📝' },
     { labelKey: 'admin.section.logs', path: '/admin/integrations', icon: '📋' },
@@ -48,8 +48,15 @@ export class AdminShell implements OnInit {
     { labelKey: 'admin.catalog.giftcards', path: '/admin/catalog/gift-cards', icon: '🎁' },
   ];
 
+  protected readonly accessItems = [
+    { labelKey: 'account.members', path: '/admin/access/members', icon: '👥' },
+    { labelKey: 'menu.roles', path: '/admin/access/roles', icon: '🛡️' },
+    { labelKey: 'menu.permissions', path: '/admin/access/permissions', icon: '🔐' },
+  ];
+
   protected readonly menuMode = computed(() => {
     if (this.currentRouteUrl().startsWith('/admin/catalog')) return 'catalog';
+    if (this.currentRouteUrl().startsWith('/admin/access')) return 'access';
     return 'main';
   });
 

@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { adminAuthGuard } from './core/guards/admin-auth-guard';
 import { userAuthGuard } from './core/guards/user-auth-guard';
 import { AdminShell } from './features/admin/layout/admin-shell/admin-shell';
-import { AccessPage } from './features/admin/pages/access-page/access-page';
 import { AdminLoginPage } from './features/admin/pages/admin-login-page/admin-login-page';
 import { CatalogPage } from './features/admin/pages/catalog-page/catalog-page';
 import { ContentPage } from './features/admin/pages/content-page/content-page';
@@ -75,7 +74,20 @@ export const routes: Routes = [
       },
       { path: 'orders', component: AdminOrdersPage },
       { path: 'settings', component: SettingsPage },
-      { path: 'access', component: AccessPage },
+      { 
+        path: 'access', 
+        loadComponent: () => import('./features/admin/pages/access/access-shell').then(m => m.AccessShell),
+        children: [
+          { path: '', redirectTo: 'members', pathMatch: 'full' },
+          { path: 'members', loadComponent: () => import('./features/admin/pages/access/member-list').then(m => m.MemberListPage) },
+          { path: 'members/create', loadComponent: () => import('./features/admin/pages/access/member-editor').then(m => m.MemberEditorPage) },
+          { path: 'members/:id/edit', loadComponent: () => import('./features/admin/pages/access/member-editor').then(m => m.MemberEditorPage) },
+          { path: 'roles', loadComponent: () => import('./features/admin/pages/access/role-list').then(m => m.RoleListPage) },
+          { path: 'roles/create', loadComponent: () => import('./features/admin/pages/access/role-editor').then(m => m.RoleEditorPage) },
+          { path: 'roles/:id/edit', loadComponent: () => import('./features/admin/pages/access/role-editor').then(m => m.RoleEditorPage) },
+          { path: 'permissions', loadComponent: () => import('./features/admin/pages/access/permission-list').then(m => m.PermissionListPage) },
+        ]
+      },
       { path: 'content', component: ContentPage },
       { path: 'integrations', component: IntegrationsPage },
     ],

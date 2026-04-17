@@ -304,9 +304,8 @@ export class GenericEditorPage implements OnInit {
         name: this.form.translations,
       };
 
-      if (['categories', 'tags', 'branches', 'addon-groups', 'delivery-zones'].includes(this.resourceType())) {
+      if (this.resourceType() === 'delivery-zones') {
         delete payload['slug'];
-        delete payload['code'];
       }
 
       if (this.showBranchDetails()) {
@@ -334,10 +333,19 @@ export class GenericEditorPage implements OnInit {
 
       this.router.navigate(['/admin/catalog', this.resourceType()]);
     } catch (error: any) {
+      console.error('Save error', error);
+      let detail = this.copy('تعذر حفظ البيانات الحالية.', 'Unable to save the current data.');
+      if (error?.error?.errors) {
+        const firstErr = Object.entries(error.error.errors)[0];
+        detail = `${String(firstErr[0]).toUpperCase()}: ${Array.isArray(firstErr[1]) ? firstErr[1][0] : firstErr[1]}`;
+      } else if (error?.error?.message) {
+        detail = error.error.message;
+      }
       this.message.add({
         severity: 'error',
         summary: this.copy('تعذر الحفظ', 'Save failed'),
-        detail: error?.error?.message || this.copy('تعذر حفظ البيانات الحالية.', 'Unable to save the current data.'),
+        detail: detail,
+        sticky: true
       });
     } finally {
       this.saving.set(false);

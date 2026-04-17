@@ -181,11 +181,13 @@ Route::prefix('admin')
 
         Route::get('roles', [AdminRoleController::class, 'index'])->middleware('permission:roles.view');
         Route::post('roles', [AdminRoleController::class, 'store'])->middleware('permission:roles.create');
+        Route::get('roles/{role}', [AdminRoleController::class, 'show'])->middleware('permission:roles.view');
         Route::patch('roles/{role}', [AdminRoleController::class, 'update'])->middleware('permission:roles.update');
         Route::delete('roles/{role}', [AdminRoleController::class, 'destroy'])->middleware('permission:roles.delete');
 
         Route::get('users', [\App\Http\Controllers\Api\V1\Admin\UserController::class, 'index'])->middleware('permission:roles.view');
         Route::post('users', [\App\Http\Controllers\Api\V1\Admin\UserController::class, 'store'])->middleware('permission:roles.create');
+        Route::get('users/{user}', [\App\Http\Controllers\Api\V1\Admin\UserController::class, 'show'])->middleware('permission:roles.view');
         Route::patch('users/{user}', [\App\Http\Controllers\Api\V1\Admin\UserController::class, 'update'])->middleware('permission:roles.update');
         Route::delete('users/{user}', [\App\Http\Controllers\Api\V1\Admin\UserController::class, 'destroy'])->middleware('permission:roles.delete');
     });

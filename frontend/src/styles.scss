@@ -194,8 +194,8 @@ select {
   background: rgba(255, 255, 255, 0.76);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.64);
-  border-radius: var(--brand-radius);
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+  border-radius: 28px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.12), 0 5px 15px rgba(0, 0, 0, 0.04);
 }
 
 .section-title {
@@ -291,9 +291,21 @@ select {
   box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15) !important;
 }
 
-.ng-dirty.ng-valid:not(form):not(.p-rating):not(.p-select) {
+.ng-dirty.ng-valid:not(form):not(.p-rating):not(.p-select):not(.p-multiselect) {
   border-color: #10b981 !important;
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Admin Specific Validation */
+.admin-shell-theme .ng-dirty.ng-invalid {
+  border-color: #f87171 !important;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.1) !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+}
+
+.admin-shell-theme .ng-dirty.ng-valid:not(form):not(.p-rating):not(.p-select) {
+  border-color: #34d399 !important;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.1) !important;
 }
 
 .p-inputtext:focus, 
@@ -302,9 +314,64 @@ select {
   box-shadow: 0 0 0 2px rgba(178, 34, 34, 0.1);
 }
 
+/* Force validation visibility on save attempt */
+.admin-shell-theme .field-stack:has(.ng-invalid) .p-inputtext.ng-submitted-attempt,
+.admin-shell-theme .field-stack:has(.ng-invalid) .p-textarea.ng-submitted-attempt,
+.admin-shell-theme .field-stack:has(.ng-invalid) .p-inputnumber.ng-submitted-attempt,
+.admin-shell-theme .ng-invalid.ng-submitted-attempt {
+  border-color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+}
+
 /* =============================================
-   Metric cards
+   Admin Layout Utilities
    ============================================= */
+.admin-shell-theme .flex-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.admin-shell-theme .eyebrow {
+  display: block;
+  color: var(--primary-color);
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.4rem;
+}
+
+.admin-shell-theme .section-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #f1f5f9;
+}
+
+.admin-shell-theme .create-btn-premium {
+  padding: 0.9rem 2.5rem !important;
+  border-radius: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em;
+  box-shadow: 0 10px 30px rgba(34, 197, 94, 0.25) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  &:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(34, 197, 94, 0.35) !important; }
+  &:active { transform: translateY(0); }
+}
+
+.admin-shell-theme .header-info-badge {
+    background: rgba(148, 163, 184, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
 .metric-card {
   padding: 1rem 1.2rem;
   border-radius: 20px;
@@ -423,49 +490,80 @@ select {
    Toast / Notifications — Premium Redesign
    ============================================= */
 .p-toast {
-  z-index: 3000 !important;
-  max-width: min(420px, 94vw);
-  margin-top: 1rem;
+  z-index: 9999 !important;
+  max-width: min(450px, 94vw);
+  margin-top: 2rem;
 }
 
 ::ng-deep .p-toast .p-toast-message {
-  background: #111827 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 20px !important;
+  box-shadow: 
+    0 15px 45px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.05) !important;
   color: #fff !important;
-  padding: 1rem 1.25rem !important;
+  padding: 1.25rem 1.5rem !important;
+  margin-bottom: 1rem !important;
+  overflow: hidden;
+  position: relative;
+  
+  /* Entry Animation - Spring-like bouncy feel */
+  animation: toast-premium-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
 }
+
+@keyframes toast-premium-in {
+  from { opacity: 0; transform: translateY(-30px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Side indicator line */
+::ng-deep .p-toast .p-toast-message::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+}
+
+::ng-deep .p-toast .p-toast-message-success::before { background: linear-gradient(to bottom, #10b981, #059669); }
+::ng-deep .p-toast .p-toast-message-error::before { background: linear-gradient(to bottom, #ef4444, #dc2626); }
+::ng-deep .p-toast .p-toast-message-warn::before { background: linear-gradient(to bottom, #f59e0b, #d97706); }
+::ng-deep .p-toast .p-toast-message-info::before { background: linear-gradient(to bottom, #0ea5e9, #0284c7); }
 
 ::ng-deep .p-toast .p-toast-message .p-toast-message-content {
   display: flex !important;
-  align-items: flex-start !important;
-  gap: 1rem !important;
+  align-items: center !important;
+  gap: 1.25rem !important;
 }
 
 ::ng-deep .p-toast .p-toast-message .p-icon {
-  width: 24px !important;
-  height: 24px !important;
-  margin-top: 2px !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
-::ng-deep .p-toast .p-toast-message-success .p-toast-message-icon { color: #34d399 !important; }
-::ng-deep .p-toast .p-toast-message-error .p-toast-message-icon { color: #f87171 !important; }
-::ng-deep .p-toast .p-toast-message-warn .p-toast-message-icon { color: #fbbf24 !important; }
-::ng-deep .p-toast .p-toast-message-info .p-toast-message-icon { color: #38bdf8 !important; }
+::ng-deep .p-toast .p-toast-message-success .p-toast-message-icon { color: #34d399 !important; box-shadow: 0 0 15px rgba(52, 211, 153, 0.2); }
+::ng-deep .p-toast .p-toast-message-error .p-toast-message-icon { color: #f87171 !important; box-shadow: 0 0 15px rgba(248, 113, 113, 0.2); }
+::ng-deep .p-toast .p-toast-message-warn .p-toast-message-icon { color: #fbbf24 !important; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+::ng-deep .p-toast .p-toast-message-info .p-toast-message-icon { color: #38bdf8 !important; box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
 
 ::ng-deep .p-toast .p-toast-message-text {
   flex: 1 !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 0.25rem !important;
+  gap: 0.15rem !important;
 }
 
 ::ng-deep .p-toast .p-toast-summary {
-  font-weight: 700 !important;
-  font-size: 1rem !important;
-  color: #f9fafb !important;
-  line-height: 1.4 !important;
+  font-weight: 800 !important;
+  font-size: 1.05rem !important;
+  color: #fff !important;
 }
 
 ::ng-deep .p-toast .p-toast-detail {

@@ -1,5 +1,40 @@
-<p-toast position="top-center"></p-toast>
-<p-confirmdialog></p-confirmdialog>
+<p-toast position="top-center" [life]="4000" styleClass="premium-toast">
+  <ng-template let-message pTemplate="message">
+    <div class="toast-content">
+      <div class="toast-icon">
+        <i class="pi" [ngClass]="{
+          'pi-check-circle': message.severity === 'success',
+          'pi-info-circle': message.severity === 'info',
+          'pi-exclamation-triangle': message.severity === 'warn',
+          'pi-times-circle': message.severity === 'error'
+        }"></i>
+      </div>
+      <div class="toast-text">
+        <strong class="toast-summary">{{ message.summary }}</strong>
+        <p class="toast-detail">{{ message.detail }}</p>
+      </div>
+    </div>
+  </ng-template>
+</p-toast>
+<p-confirmdialog styleClass="premium-confirm">
+  <ng-template pTemplate="headless" let-message let-onAccept="onAccept" let-onReject="onReject">
+    <div class="confirm-card">
+      <div class="confirm-head">
+        <div class="confirm-icon-wrap">
+          <i class="pi pi-question-circle"></i>
+        </div>
+        <h3>{{ message.header || ui.t('common.confirm') }}</h3>
+      </div>
+      <div class="confirm-body">
+        <p>{{ message.message }}</p>
+      </div>
+      <div class="confirm-footer">
+        <button class="confirm-btn cancel" (click)="onReject()">{{ ui.t('common.no') }}</button>
+        <button class="confirm-btn accept" (click)="onAccept()">{{ ui.t('common.yes') }}</button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
 
 <router-outlet />
 

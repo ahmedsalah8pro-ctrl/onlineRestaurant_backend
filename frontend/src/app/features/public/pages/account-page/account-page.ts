@@ -221,7 +221,6 @@ export class AccountPage implements OnInit {
       country: '',
       delivery_zone_id: null as number | null,
       street: '',
-      building: '',
       is_default: false,
     };
   }

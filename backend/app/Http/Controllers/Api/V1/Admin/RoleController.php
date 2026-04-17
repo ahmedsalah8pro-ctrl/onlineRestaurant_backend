@@ -21,6 +21,11 @@ class RoleController extends Controller
         ]);
     }
 
+    public function show(Role $role): JsonResponse
+    {
+        return $this->successResponse($role->load('permissions'));
+    }
+
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([

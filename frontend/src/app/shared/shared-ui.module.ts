@@ -38,6 +38,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { PaginatorModule } from 'primeng/paginator';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { CheckboxModule } from 'primeng/checkbox';
+import { CarouselModule } from 'primeng/carousel';
+import { VisualRatingComponent } from './components/visual-rating/visual-rating';
 
 @NgModule({
   imports: [
@@ -81,6 +84,8 @@ import { RadioButtonModule } from 'primeng/radiobutton';
     PaginatorModule,
     MultiSelectModule,
     RadioButtonModule,
+    CheckboxModule,
+    VisualRatingComponent,
   ],
   exports: [
     CommonModule,
@@ -123,6 +128,8 @@ import { RadioButtonModule } from 'primeng/radiobutton';
     PaginatorModule,
     MultiSelectModule,
     RadioButtonModule,
+    CheckboxModule,
+    VisualRatingComponent,
   ],
 })
 export class SharedUiModule {}

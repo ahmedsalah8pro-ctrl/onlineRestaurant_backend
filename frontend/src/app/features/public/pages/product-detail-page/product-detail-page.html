@@ -25,8 +25,8 @@
 
         <div class="detail-meta">
           <div class="rating-line">
-            <p-rating [ngModel]="averageRating()" [disabled]="true"></p-rating>
-            <span class="rating-text">({{ averageRating() | number: '1.1-1' }} ★) ({{ current.rating_summary.count }} {{ ui.t('product.reviews_count') }})</span>
+            <app-visual-rating [value]="averageRating()" size="md" [showValue]="true"></app-visual-rating>
+            <span class="muted">({{ current.rating_summary.count || 0 }} {{ ui.t('product.reviews_count') }})</span>
             <span class="purchases-count" *ngIf="current.purchases_count">
               <i class="pi pi-shopping-bag"></i> {{ current.purchases_count }} {{ ui.t('product.purchases_count') }}
             </span>
@@ -77,7 +77,7 @@
             [label]="ui.t('product.addToCart') + ' • ' + storefront.formatMoney(totalPrice())"
             styleClass="detail-actions__submit"
             [loading]="addToCartLoading()"
-            (click)="addToCart()"
+            (click)="addToCart($event)"
             icon="pi pi-shopping-cart"
           ></button>
         </div>
@@ -120,7 +120,7 @@
               </div>
               <div class="reviewer-details">
                 <strong>{{ review.is_anonymous ? ui.t('product.anonymous') : (review.user?.name || ui.t('product.customer')) }}</strong>
-                <p-rating [ngModel]="review.rating" [disabled]="true" class="card-stars"></p-rating>
+                <app-visual-rating [value]="review.rating" size="sm" class="card-stars"></app-visual-rating>
               </div>
             </div>
             <small class="review-date" *ngIf="review.created_at">{{ review.created_at | date: 'mediumDate' }}</small>
@@ -163,11 +163,10 @@
           </div>
           <div class="best-seller__content" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
             <div class="best-seller__meta">
-              <i class="pi pi-star-fill"></i>
-              <span>{{ suggestion.rating_summary.average || 0 }}</span>
-              <span class="reviews-count">({{ suggestion.rating_summary.count || 0 }})</span>
+              <app-visual-rating [value]="suggestion.rating_summary.average || 0" size="sm" [showValue]="true"></app-visual-rating>
+              <span class="reviews-count">({{ suggestion.rating_summary.count || 0 }} {{ ui.t('product.reviews_count') }})</span>
               <span class="purchases-count" *ngIf="suggestion.purchases_count">
-                <i class="pi pi-shopping-bag"></i> {{ suggestion.purchases_count }} {{ ui.locale() === 'ar' ? 'شراء' : 'Buys' }}
+                <i class="pi pi-shopping-bag"></i> {{ suggestion.purchases_count }} {{ ui.t('product.purchases_count') }}
               </span>
             </div>
             <h3>{{ theme.resolveText(suggestion.translations || suggestion.name) }}</h3>

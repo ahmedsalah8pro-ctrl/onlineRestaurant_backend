@@ -56,7 +56,24 @@
             </a>
           </nav>
         </div>
-
+        <!-- ACCESS SUBMENU -->
+        <div class="menu-view sub-menu" [class.active]="menuMode() === 'access'" [class.slide-in]="menuMode() === 'access'">
+          <div class="menu-back" [routerLink]="['/admin']">
+            <i class="pi" [class.pi-arrow-right]="ui.currentLocale() === 'ar'" [class.pi-arrow-left]="ui.currentLocale() === 'en'"></i>
+            <span>{{ ui.t('admin.back') }}</span>
+          </div>
+          <div class="sub-menu-header">
+            <i class="pi pi-users-cog"></i>
+            <span>{{ ui.t('menu.userAccess') }}</span>
+          </div>
+          <nav class="admin-nav">
+            <a class="admin-nav__item" *ngFor="let item of accessItems"
+               [routerLink]="item.path" routerLinkActive="active">
+              <span class="admin-nav__icon">{{ item.icon }}</span>
+              <span class="admin-nav__label">{{ ui.t(item.labelKey) }}</span>
+            </a>
+          </nav>
+        </div>
       </div>
 
       <!-- Sidebar Footer -->
@@ -88,7 +105,7 @@
       <!-- Mobile Menu Switcher (Simple List for Mobile) -->
       <div class="admin-nav-container mobile-nav">
           <!-- Back button if in sub-menu -->
-          <div class="menu-back" *ngIf="menuMode() === 'catalog'" [routerLink]="['/admin']" (click)="closeMenu()">
+          <div class="menu-back" *ngIf="menuMode() !== 'main'" [routerLink]="['/admin']" (click)="closeMenu()">
             <i class="pi" [class.pi-arrow-right]="ui.currentLocale() === 'ar'" [class.pi-arrow-left]="ui.currentLocale() === 'en'"></i>
             <span>{{ ui.t('admin.back') }}</span>
           </div>
@@ -109,6 +126,19 @@
                 <span>{{ ui.t('admin.catalog.title') }}</span>
             </div>
             <a class="admin-nav__item" *ngFor="let item of catalogItems"
+               [routerLink]="item.path" routerLinkActive="active"
+               (click)="closeMenu()">
+              <span class="admin-nav__icon">{{ item.icon }}</span>
+              <span class="admin-nav__label">{{ ui.t(item.labelKey) }}</span>
+            </a>
+          </nav>
+
+          <nav class="admin-nav" *ngIf="menuMode() === 'access'">
+            <div class="sub-menu-header" style="padding: 0 1rem 1rem;">
+                <i class="pi pi-users-cog" style="margin-inline-end: 0.5rem"></i>
+                <span>{{ ui.t('menu.userAccess') }}</span>
+            </div>
+            <a class="admin-nav__item" *ngFor="let item of accessItems"
                [routerLink]="item.path" routerLinkActive="active"
                (click)="closeMenu()">
               <span class="admin-nav__icon">{{ item.icon }}</span>
@@ -157,12 +187,12 @@
           <button class="lang-pill lang-pill--sm" [class.active]="ui.currentLocale() === 'en'" (click)="switchLocale('en')">EN</button>
         </div>
 
-        <a class="admin-topbar__action" routerLink="/" title="Storefront">🏪</a>
+        <a class="admin-topbar__action" routerLink="/" [title]="ui.t('nav.storefront')">🏪</a>
         <div class="admin-topbar__user">
           <span class="admin-topbar__avatar">👤</span>
           <span class="admin-topbar__uname" *ngIf="!isMobile()">{{ adminName() }}</span>
         </div>
-        <button class="admin-topbar__action admin-topbar__action--danger" type="button" (click)="logout()" title="Logout">🚪</button>
+        <button class="admin-topbar__action admin-topbar__action--danger" type="button" (click)="logout()" [title]="ui.t('admin.logout')">🚪</button>
       </div>
     </header>
 

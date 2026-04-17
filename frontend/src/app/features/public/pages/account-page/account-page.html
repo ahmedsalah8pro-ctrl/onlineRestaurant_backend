@@ -193,14 +193,10 @@
           </div>
         </div>
 
-        <!-- Street + Building -->
-        <label class="field-stack">
-          <span>{{ ui.t('checkout.street') }} ({{ ui.t('public.optional') }})</span>
-          <input pInputText [(ngModel)]="addressDraft.street" [placeholder]="ui.t('checkout.street')" />
-        </label>
-        <label class="field-stack">
-          <span>{{ ui.t('checkout.building') }}</span>
-          <input pInputText [(ngModel)]="addressDraft.building" [placeholder]="ui.t('checkout.building')" />
+        <!-- Detailed Address (Textarea) -->
+        <label class="field-stack md:col-span-2">
+          <span>{{ ui.t('checkout.street') }} <span class="text-danger">*</span></span>
+          <textarea pTextarea rows="3" [(ngModel)]="addressDraft.street" required [placeholder]="ui.t('checkout.streetHint')" class="w-full"></textarea>
         </label>
 
         <!-- Label / Nickname -->

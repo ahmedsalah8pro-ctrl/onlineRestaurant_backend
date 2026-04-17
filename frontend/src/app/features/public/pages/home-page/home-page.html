@@ -25,15 +25,7 @@
     </div>
   </div>
 
-  <div class="surface-grid three-columns">
-    <article class="glass-panel capability-card" *ngFor="let capability of capabilityCards()">
-      <i class="pi pi-sparkles"></i>
-      <h3>{{ capability }}</h3>
-      <p class="section-copy">
-        {{ ui.t('admin.subtitle') }}
-      </p>
-    </article>
-  </div>
+
 
   <section class="surface-grid two-columns">
     <div class="glass-panel section-panel">
@@ -57,9 +49,8 @@
           </div>
           <div class="best-seller__content">
             <div class="best-seller__meta">
-              <i class="pi pi-star-fill"></i>
-              <span>{{ product.rating_summary.average }}</span>
-              <span class="reviews-count">({{ product.rating_summary.count }} {{ ui.t('product.reviews_count') }})</span>
+              <app-visual-rating [value]="product.rating_summary.average || 0" size="sm" [showValue]="true"></app-visual-rating>
+              <span class="reviews-count">({{ product.rating_summary.count || 0 }} {{ ui.t('product.reviews_count') }})</span>
               <span class="purchases-count" *ngIf="product.purchases_count">
                 <i class="pi pi-shopping-bag"></i> {{ product.purchases_count }} {{ ui.t('product.purchases_count') }}
               </span>

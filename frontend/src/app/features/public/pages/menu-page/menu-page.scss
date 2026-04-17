@@ -216,6 +216,18 @@
     
     i { font-size: 0.75rem; }
     .reviews-count { color: #86868b; font-weight: 600; font-size: 0.75rem; }
+    .purchases-count {
+        margin-inline-start: 0.5rem;
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.08);
+        padding: 0.15rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        i { color: inherit; }
+    }
 }
 
 .price-text {
