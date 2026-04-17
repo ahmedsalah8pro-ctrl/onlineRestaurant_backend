@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
@@ -37,6 +37,7 @@ export class ProductDetailPage implements OnInit {
   protected readonly theme = inject(ThemeService);
   private readonly seo = inject(SeoService);
   private readonly message = inject(MessageService);
+  private readonly host = inject(ElementRef<HTMLElement>);
 
   protected readonly product = signal<ProductDetail | null>(null);
   protected readonly reviews = signal<Review[]>([]);
@@ -49,6 +50,7 @@ export class ProductDetailPage implements OnInit {
   protected readonly zoomLevel = signal(1);
   protected readonly panX = signal(0);
   protected readonly panY = signal(0);
+  protected readonly stageVideoPlaying = signal(false);
   protected readonly reviewLoading = signal(false);
   protected readonly addToCartLoading = signal(false);
   protected readonly currentYear = new Date().getFullYear();
@@ -277,8 +279,11 @@ export class ProductDetailPage implements OnInit {
     effect((onCleanup) => {
       const items = this.galleryItems();
       const viewerOpen = this.viewerVisible();
+      const active = this.activeMedia();
+      const isVideoActive = !!active && active.media_type !== 'image';
+      const shouldPauseAutoSwitch = isVideoActive && (active?.isYouTube || this.stageVideoPlaying());
 
-      if (items.length <= 1 || viewerOpen) {
+      if (items.length <= 1 || viewerOpen || shouldPauseAutoSwitch) {
         return;
       }
 
@@ -474,6 +479,7 @@ export class ProductDetailPage implements OnInit {
   }
 
   protected selectMedia(index: number): void {
+    this.pauseStageVideo();
     this.selectedMediaIndex.set(index);
     this.resetZoom();
   }
@@ -484,6 +490,7 @@ export class ProductDetailPage implements OnInit {
       return;
     }
 
+    this.pauseStageVideo();
     this.selectedMediaIndex.set((this.selectedMediaIndex() + 1) % items.length);
     if (resetZoom) {
       this.resetZoom();
@@ -496,6 +503,7 @@ export class ProductDetailPage implements OnInit {
       return;
     }
 
+    this.pauseStageVideo();
     this.selectedMediaIndex.set((this.selectedMediaIndex() - 1 + items.length) % items.length);
     if (resetZoom) {
       this.resetZoom();
@@ -571,6 +579,18 @@ export class ProductDetailPage implements OnInit {
 
   protected stopPan(): void {
     this.dragging = false;
+  }
+
+  protected onStageVideoPlayState(isPlaying: boolean): void {
+    this.stageVideoPlaying.set(isPlaying);
+  }
+
+  private pauseStageVideo(): void {
+    this.stageVideoPlaying.set(false);
+    const video = this.host.nativeElement.querySelector('.detail-media__stage video.detail-media__asset--video') as HTMLVideoElement | null;
+    if (video && !video.paused) {
+      video.pause();
+    }
   }
 
   private resolveYouTubeThumbnail(url?: string | null): string | null {

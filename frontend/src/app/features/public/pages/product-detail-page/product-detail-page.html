@@ -9,7 +9,8 @@
         @if (activeMedia(); as active) {
           <div class="detail-media__stage">
             <button type="button" class="gallery-nav gallery-nav--prev" *ngIf="galleryItems().length > 1" (click)="prevMedia(); $event.stopPropagation()" [attr.aria-label]="ui.t('product.prevMedia')">
-              <i class="pi pi-angle-left"></i>
+              <i class="pi pi-angle-left" *ngIf="theme.locale() !== 'ar'"></i>
+              <i class="pi pi-angle-right" *ngIf="theme.locale() === 'ar'"></i>
             </button>
 
             @if (active.media_type === 'image') {
@@ -22,26 +23,37 @@
             } @else if (active.isYouTube) {
               <iframe [src]="getYouTubeEmbedUrl(active.source)" frameborder="0" allowfullscreen class="detail-media__asset detail-media__asset--frame"></iframe>
             } @else {
-              <video class="detail-media__asset detail-media__asset--video" [src]="active.source" controls playsinline preload="metadata" (click)="openViewer()"></video>
+              <video
+                class="detail-media__asset detail-media__asset--video"
+                [src]="active.source"
+                controls
+                playsinline
+                preload="metadata"
+                (play)="onStageVideoPlayState(true)"
+                (pause)="onStageVideoPlayState(false)"
+                (ended)="onStageVideoPlayState(false)"
+                (click)="openViewer()"
+              ></video>
             }
 
             <div class="detail-media__overlay">
               <span class="detail-media__counter">{{ selectedMediaIndex() + 1 }} / {{ galleryItems().length }}</span>
-              @if (active.isYouTube) {
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-external-link"
-                  severity="secondary"
-                  [outlined]="true"
-                  class="detail-media__expand"
-                  (click)="openViewer(); $event.stopPropagation()"
-                ></button>
-              }
             </div>
 
+            @if (active.isYouTube) {
+              <button
+                type="button"
+                class="gallery-open-center"
+                (click)="openViewer(); $event.stopPropagation()"
+                [attr.aria-label]="ui.t('product.mediaGallery')"
+              >
+                <i class="pi pi-external-link"></i>
+              </button>
+            }
+
             <button type="button" class="gallery-nav gallery-nav--next" *ngIf="galleryItems().length > 1" (click)="nextMedia(); $event.stopPropagation()" [attr.aria-label]="ui.t('product.nextMedia')">
-              <i class="pi pi-angle-right"></i>
+              <i class="pi pi-angle-right" *ngIf="theme.locale() !== 'ar'"></i>
+              <i class="pi pi-angle-left" *ngIf="theme.locale() === 'ar'"></i>
             </button>
           </div>
         }
@@ -58,7 +70,6 @@
               <img [src]="media.thumb" [alt]="theme.resolveText(current.translations || current.name)" />
             } @else if (media.isYouTube) {
               <img [src]="media.thumb" [alt]="ui.t('product.galleryYouTube')" />
-              <span class="detail-gallery__badge">{{ ui.t('product.galleryYouTube') }}</span>
             } @else {
               <div class="detail-gallery__video-thumb">
                 <i class="pi pi-video"></i>
@@ -161,7 +172,8 @@
 
           <div class="product-viewer__stage">
             <button type="button" class="gallery-nav gallery-nav--prev" *ngIf="galleryItems().length > 1" (click)="prevMedia()" [attr.aria-label]="ui.t('product.prevMedia')">
-              <i class="pi pi-angle-left"></i>
+              <i class="pi pi-angle-left" *ngIf="theme.locale() !== 'ar'"></i>
+              <i class="pi pi-angle-right" *ngIf="theme.locale() === 'ar'"></i>
             </button>
 
             @if (active.media_type === 'image') {
@@ -202,7 +214,8 @@
             }
 
             <button type="button" class="gallery-nav gallery-nav--next" *ngIf="galleryItems().length > 1" (click)="nextMedia()" [attr.aria-label]="ui.t('product.nextMedia')">
-              <i class="pi pi-angle-right"></i>
+              <i class="pi pi-angle-right" *ngIf="theme.locale() !== 'ar'"></i>
+              <i class="pi pi-angle-left" *ngIf="theme.locale() === 'ar'"></i>
             </button>
           </div>
 

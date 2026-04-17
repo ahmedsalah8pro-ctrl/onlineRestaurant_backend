@@ -64,6 +64,13 @@ class MarketingService
         return is_string($value) && $value !== '' ? $value : null;
     }
 
+    public function coverImageUrl(): ?string
+    {
+        $path = $this->settings->getValue('branding', 'cover_image_path');
+
+        return $this->assetUrl(is_string($path) ? $path : null);
+    }
+
     public function logoUrl(): ?string
     {
         $path = $this->settings->getValue('branding', 'square_logo_path')
@@ -151,12 +158,27 @@ class MarketingService
 
     public function defaultOgImageUrl(): ?string
     {
-        $image = $this->settings->getValue('seo', 'default_og_image_path')
-            ?? $this->settings->getValue('branding', 'cover_image_path')
-            ?? $this->settings->getValue('branding', 'square_logo_path')
-            ?? $this->settings->getValue('branding', 'logo_path');
+        $candidates = [
+            $this->settings->getValue('seo', 'default_og_image_path'),
+            $this->settings->getValue('branding', 'cover_image_path'),
+            $this->settings->getValue('branding', 'square_logo_path'),
+            $this->settings->getValue('branding', 'logo_path'),
+        ];
 
-        return $this->assetUrl(is_string($image) ? $image : null);
+        foreach ($candidates as $candidate) {
+            if (!is_string($candidate) || $candidate === '') {
+                continue;
+            }
+
+            // Avoid returning a /cdn URL that 404s (common in local installs).
+            if (!$this->assetExists($candidate)) {
+                continue;
+            }
+
+            return $this->assetUrl($candidate);
+        }
+
+        return null;
     }
 
     public function assetUrl(?string $path): ?string
@@ -172,13 +194,44 @@ class MarketingService
         $base = (string) $this->settings->getValue(
             'uploads',
             'public_base_url',
-            config('filesystems.disks.uploads.url', $this->backendBaseUrl().'/storage')
+            $this->backendBaseUrl().'/cdn'
         );
 
-        $base = $base !== '' ? rtrim($base, '/') : $this->backendBaseUrl().'/storage';
+        if ($base === '' || str_contains($base, '/storage')) {
+             // In this project structure, /cdn points to storage/app/uploads where files live.
+             $base = $this->backendBaseUrl().'/cdn';
+        }
+
+        $base = rtrim($base, '/');
         $cleanPath = ltrim((string) preg_replace('/^storage\//i', '', $path), '/');
 
         return $base.'/'.$cleanPath;
+    }
+
+    private function assetExists(string $path): bool
+    {
+        if ($path === '' || $path === 'null') {
+            return false;
+        }
+
+        // External URLs are assumed available (we don't want slow network checks).
+        if (preg_match('/^https?:\/\//i', $path) === 1) {
+            return true;
+        }
+
+        $cleanPath = ltrim((string) preg_replace('/^storage\//i', '', $path), '/');
+
+        // /cdn maps to storage/app/uploads in this project.
+        if (is_file(storage_path('app/uploads/'.$cleanPath))) {
+            return true;
+        }
+
+        // Some assets might still live in public disk.
+        if (is_file(storage_path('app/public/'.$cleanPath))) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

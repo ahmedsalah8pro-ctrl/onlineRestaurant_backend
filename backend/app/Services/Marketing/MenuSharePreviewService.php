@@ -4,12 +4,16 @@ namespace App\Services\Marketing;
 
 use App\Models\Product;
 use App\Models\ShareLink;
+use ArPHP\I18N\Arabic;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class MenuSharePreviewService
 {
+    protected const RENDER_VERSION = 'v2';
+
     public function __construct(protected MarketingService $marketing)
     {
     }
@@ -29,11 +33,18 @@ class MenuSharePreviewService
 
     public function ensureGenerated(ShareLink $link): string
     {
-        $path = storage_path('app/share-previews/'.$link->code.'.jpg');
+        $path = storage_path('app/share-previews/'.$this->cacheKey($link).'.jpg');
 
+        // SMART CACHE: Check if file exists AND is less than 24h old
         if (is_file($path) && filesize($path) > 0) {
-            return $path;
+            $lastModified = filemtime($path);
+            if ((time() - $lastModified) < 86400) { // 24 hours
+                return $path;
+            }
         }
+
+        // Keep exactly one preview per menu cache key.
+        $this->pruneMenuPreviews($link);
 
         File::ensureDirectoryExists(dirname($path));
         file_put_contents($path, $this->render($link));
@@ -41,101 +52,180 @@ class MenuSharePreviewService
         return $path;
     }
 
+    protected function pruneOldPreviews(): void
+    {
+        $dir = storage_path('app/share-previews');
+        if (!is_dir($dir)) return;
+        
+        $files = File::files($dir);
+        $now = time();
+        foreach ($files as $file) {
+            if (($now - filemtime($file->getRealPath())) > (86400 * 30)) { // 30 days
+                File::delete($file->getRealPath());
+            }
+        }
+    }
+
+    protected function pruneMenuPreviews(ShareLink $link): void
+    {
+        $dir = storage_path('app/share-previews');
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $targetName = $this->cacheKey($link).'.jpg';
+        $groupToken = $this->cacheGroupToken($link);
+        foreach (File::files($dir) as $file) {
+            $name = $file->getFilename();
+            $matchesCurrentGroup = preg_match(
+                '/^menu_(?:v[^_]+_)?'.preg_quote($groupToken, '/').'\d+\.jpg$/',
+                $name
+            ) === 1;
+            $isLegacyCodePreview = preg_match('/^[a-z0-9]{8}\.jpg$/', $name) === 1;
+
+            if (($matchesCurrentGroup && $name !== $targetName) || $isLegacyCodePreview) {
+                File::delete($file->getRealPath());
+            }
+        }
+    }
+
+    protected function cacheGroupToken(ShareLink $link): string
+    {
+        $locale = (string) ($link->payload['locale'] ?? 'ar');
+        $filters = is_array($link->payload['filters'] ?? null) ? $link->payload['filters'] : [];
+        $stable = [
+            'branch_id' => $filters['branch_id'] ?? null,
+            'category_id' => $filters['category_id'] ?? null,
+            'sort' => $filters['sort'] ?? null,
+            'search' => $filters['search'] ?? null,
+        ];
+
+        return $locale.'_'.substr(sha1(json_encode($stable, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)), 0, 10).'_';
+    }
+
+    protected function cacheKeyPrefix(ShareLink $link): string
+    {
+        // Share all menu links within 24h for same locale+filters.
+        return 'menu_'.self::RENDER_VERSION.'_'.$this->cacheGroupToken($link);
+    }
+
+    protected function cacheKey(ShareLink $link): string
+    {
+        // Use a single rolling key per day to enforce "regen at most once per 24h".
+        $day = (int) floor(time() / 86400);
+        return $this->cacheKeyPrefix($link).$day;
+    }
+
     public function render(ShareLink $link): string
     {
         $width = 1200;
         $height = 630;
         $canvas = imagecreatetruecolor($width, $height);
+        $locale = $link->payload['locale'] ?? 'ar';
+        $isRtl = $locale === 'ar';
 
-        $palette = $this->marketing->brandPalette();
-        [$backgroundStartR, $backgroundStartG, $backgroundStartB] = $this->hexToRgb($palette['secondary']);
-        [$backgroundEndR, $backgroundEndG, $backgroundEndB] = $this->hexToRgb('#0b1220');
-
-        for ($y = 0; $y < $height; $y++) {
-            $progress = $height > 1 ? $y / ($height - 1) : 0;
-            $color = imagecolorallocate(
-                $canvas,
-                (int) round($backgroundStartR + (($backgroundEndR - $backgroundStartR) * $progress)),
-                (int) round($backgroundStartG + (($backgroundEndG - $backgroundStartG) * $progress)),
-                (int) round($backgroundStartB + (($backgroundEndB - $backgroundStartB) * $progress)),
-            );
-            imageline($canvas, 0, $y, $width, $y, $color);
+        // 1. Background (Cinematic Blur)
+        $cover = $this->fetchImage($this->marketing->coverImageUrl());
+        if ($cover) {
+            $this->copyCropped($canvas, $cover, 0, 0, $width, $height);
+            imagedestroy($cover);
+            $this->applyBlur($canvas, 30); // Deeper blur for premium feel
+        } else {
+             $this->drawGradient($canvas, $width, $height, '#1e293b', '#0f172a');
         }
 
+        // Dark Matte Overlay for luxury feel
+        $overlayColor = imagecolorallocatealpha($canvas, 15, 23, 42, 35); // Deep navy overlay
+        imagefilledrectangle($canvas, 0, 0, $width, $height, $overlayColor);
+
+        // Core Colors (Slate & White + Brand Accent)
         $white = imagecolorallocate($canvas, 248, 250, 252);
         $muted = imagecolorallocate($canvas, 148, 163, 184);
-        $chipBackground = imagecolorallocatealpha($canvas, 17, 24, 39, 30);
-        $panelBorder = imagecolorallocatealpha($canvas, 255, 255, 255, 100);
-        [$accentR, $accentG, $accentB] = $this->hexToRgb($palette['accent']);
-        [$primaryR, $primaryG, $primaryB] = $this->hexToRgb($palette['primary']);
-        $accent = imagecolorallocate($canvas, $accentR, $accentG, $accentB);
-        $primary = imagecolorallocate($canvas, $primaryR, $primaryG, $primaryB);
+        $brandColor = $this->marketing->brandPalette()['primary'];
+        [$bR, $bG, $bB] = $this->hexToRgb($brandColor);
+        $accent = imagecolorallocate($canvas, $bR, $bG, $bB);
+        
+        // Premium Card Config
+        $cardBg = imagecolorallocatealpha($canvas, 255, 255, 255, 115); // Glassy white
+        $cardBorder = imagecolorallocatealpha($canvas, 255, 255, 255, 105);
+        $textShadow = imagecolorallocatealpha($canvas, 0, 0, 0, 80);
 
-        imagefilledrectangle($canvas, 32, 26, 1168, 96, $chipBackground);
-        imagerectangle($canvas, 32, 26, 1168, 96, $panelBorder);
+        // 2. Header
+        $title = $this->marketing->translated($link->title, $locale) ?: $this->marketing->siteName();
+        $this->drawText($canvas, 50, 80, 42, $white, $title, true, $locale);
+        
+        $subtitle = $this->marketing->translated($link->description, $locale) ?: 'Modern Restaurant Solutions';
+        $subtitle = $isRtl ? $subtitle : Str::upper($subtitle);
+        $this->drawText($canvas, 50, 120, 16, $muted, $subtitle, false, $locale);
 
-        $title = $link->title !== '' ? $link->title : $this->marketing->siteName();
-        $subtitle = $link->description !== '' ? $link->description : 'Menu ready for social sharing';
-        $this->drawText($canvas, 36, 70, 28, $white, $title, true);
-        $this->drawText($canvas, 36, 92, 12, $muted, $subtitle);
-
+        // 3. Product Grid (2x5)
         $products = $this->selectProducts($link);
-        $tiles = max(1, min(10, $products->count() ?: 1));
         $columns = 5;
         $rows = 2;
-        $paddingX = 32;
-        $gridTop = 118;
-        $gridBottom = 520;
-        $gap = 14;
+        $paddingX = 50;
+        $gridTop = 160;
+        $gap = 25;
         $tileWidth = (int) floor(($width - ($paddingX * 2) - ($gap * ($columns - 1))) / $columns);
-        $tileHeight = (int) floor((($gridBottom - $gridTop) - $gap) / $rows);
+        $tileHeight = 195;
 
-        for ($index = 0; $index < min($tiles, 10); $index++) {
-            $column = $index % $columns;
+        foreach ($products as $index => $product) {
+            $col = $index % $columns;
             $row = (int) floor($index / $columns);
-            $x = $paddingX + ($column * ($tileWidth + $gap));
+            $x = $paddingX + ($col * ($tileWidth + $gap));
             $y = $gridTop + ($row * ($tileHeight + $gap));
 
-            imagefilledrectangle($canvas, $x, $y, $x + $tileWidth, $y + $tileHeight, $chipBackground);
-            imagerectangle($canvas, $x, $y, $x + $tileWidth, $y + $tileHeight, $panelBorder);
+            // Product Card Shadow/Glow
+            $glow = imagecolorallocatealpha($canvas, $bR, $bG, $bB, 115);
+            imagefilledrectangle($canvas, $x - 2, $y - 2, $x + $tileWidth + 2, $y + $tileHeight + 2, $glow);
 
-            $product = $products->get($index);
-            $sourceUrl = $product !== null ? $this->marketing->assetUrl($product->main_image_path) : null;
-            $image = $this->fetchImage($sourceUrl);
+            // Product Card Body
+            imagefilledrectangle($canvas, $x, $y, $x + $tileWidth, $y + $tileHeight, $cardBg);
+            imagerectangle($canvas, $x, $y, $x + $tileWidth, $y + $tileHeight, $cardBorder);
 
-            if ($image !== null) {
-                $this->copyCropped($canvas, $image, $x, $y, $tileWidth, $tileHeight);
-                imagedestroy($image);
-            } else {
-                imagefilledrectangle($canvas, $x + 1, $y + 1, $x + $tileWidth - 1, $y + $tileHeight - 1, $primary);
+            // Product Image (Square crop)
+            $imgUrl = $this->marketing->assetUrl($product->main_image_path);
+            $img = $this->fetchImage($imgUrl);
+            if ($img) {
+                // Main Image
+                $this->copyCropped($canvas, $img, $x + 8, $y + 8, $tileWidth - 16, $tileHeight - 75);
+                imagedestroy($img);
             }
+
+            // Info Bar Design
+            $infoY = $y + $tileHeight - 65;
+            $name = $this->marketing->translated($product->name, $locale);
+            $price = $product->base_price ? number_format($product->base_price, 0) . ' ' . $this->marketing->currencyCode() : '';
+            
+            // Name Background Strip
+            $nameBg = imagecolorallocatealpha($canvas, 15, 23, 42, 40);
+            imagefilledrectangle($canvas, $x + 8, $infoY + 10, $x + $tileWidth - 8, $infoY + 60, $nameBg);
+            
+            $this->drawText($canvas, $x + 12, $infoY + 32, 11, $white, $name, true, $locale, $tileWidth - 24);
+            $this->drawText($canvas, $x + 12, $infoY + 52, 13, $accent, $price, true, $locale);
         }
 
-        $this->drawWatermark($canvas, $width, $height, $link);
-
-        $footerTop = 536;
-        imagefilledrectangle($canvas, 0, $footerTop, $width, $height, $chipBackground);
-        imageline($canvas, 0, $footerTop, $width, $footerTop, $panelBorder);
-
-        $this->drawText($canvas, 36, 580, 20, $white, $this->marketing->siteName(), true);
-
+        // 4. Footer
+        $footerTop = 560;
+        $this->drawText($canvas, 50, $footerTop + 35, 24, $white, $this->marketing->siteName(), true, $locale);
+        
         $contacts = array_values(array_filter([
             $this->marketing->supportPhone(),
             $this->marketing->supportEmail(),
+            str_replace(['https://', 'http://'], '', $this->marketing->frontendBaseUrl()),
         ]));
-        $contactLine = implode('   •   ', $contacts);
+        $this->drawText($canvas, 50, $footerTop + 65, 12, $muted, implode('   |   ', $contacts), false, $locale);
 
-        if ($contactLine !== '') {
-            $this->drawText($canvas, 36, 608, 12, $muted, $contactLine);
-        }
+        // Branding Badge (ORDER NOW) - Professional Gold or Accent
+        $badgeColor = imagecolorallocate($canvas, 31, 41, 55); // Dark grey/navy
+        $badgeText = imagecolorallocate($canvas, 255, 255, 255);
+        imagefilledrectangle($canvas, $width - 200, $footerTop + 20, $width - 50, $footerTop + 70, $accent);
+        $this->drawText($canvas, $width - 170, $footerTop + 52, 15, $white, $isRtl ? 'اطلب الآن' : 'ORDER NOW', true, $locale);
 
-        $badge = 'MENU';
-        $badgeWidth = 120;
-        imagefilledrectangle($canvas, 1040, 558, 1040 + $badgeWidth, 604, $accent);
-        $this->drawText($canvas, 1072, 588, 14, $backgroundEnd = imagecolorallocate($canvas, 11, 18, 32), $badge, true);
+        // 5. Watermark (Subtle Center Logo)
+        $this->drawWatermark($canvas, $width, $height, $link);
 
         ob_start();
-        imagejpeg($canvas, null, 90);
+        imagejpeg($canvas, null, 92); // High quality
         $binary = (string) ob_get_clean();
         imagedestroy($canvas);
 
@@ -145,48 +235,36 @@ class MenuSharePreviewService
     protected function drawWatermark($canvas, int $width, int $height, ShareLink $link): void
     {
         $logo = $this->fetchImage($this->marketing->logoUrl());
+        $opacity = 50;
 
         if ($logo !== null) {
-            $targetWidth = 280;
+            $targetWidth = 240;
             $targetHeight = (int) round((imagesy($logo) / max(imagesx($logo), 1)) * $targetWidth);
-            $resized = imagecreatetruecolor($targetWidth, max(60, $targetHeight));
+            $resized = imagecreatetruecolor($targetWidth, max(40, $targetHeight));
             imagealphablending($resized, false);
             imagesavealpha($resized, true);
-            $transparent = imagecolorallocatealpha($resized, 0, 0, 0, 127);
-            imagefilledrectangle($resized, 0, 0, $targetWidth, max(60, $targetHeight), $transparent);
-            imagecopyresampled($resized, $logo, 0, 0, 0, 0, $targetWidth, max(60, $targetHeight), imagesx($logo), imagesy($logo));
-            imagecopymerge(
+            imagefill($resized, 0, 0, imagecolorallocatealpha($resized, 0, 0, 0, 127));
+            imagecopyresampled($resized, $logo, 0, 0, 0, 0, $targetWidth, max(40, $targetHeight), imagesx($logo), imagesy($logo));
+            
+            $this->copyImageWithOpacity(
                 $canvas,
                 $resized,
-                (int) round(($width - $targetWidth) / 2),
-                (int) round(($height - max(60, $targetHeight)) / 2) - 20,
-                0,
-                0,
-                $targetWidth,
-                max(60, $targetHeight),
-                35
+                (int) (($width - $targetWidth) / 2),
+                (int) (($height - $targetHeight) / 2),
+                $opacity
             );
             imagedestroy($resized);
             imagedestroy($logo);
-
-            return;
+        } else {
+            $locale = (string) ($link->payload['locale'] ?? 'en');
+            $watermarkColor = imagecolorallocatealpha($canvas, 255, 255, 255, 90);
+            $siteName = $locale === 'ar'
+                ? $this->marketing->translated($this->marketing->siteName(), 'ar')
+                : strtoupper($this->marketing->siteName());
+            $this->drawText($canvas, (int) ($width / 2) - 150, (int) ($height / 2), 40, $watermarkColor, $siteName, true, $locale);
         }
-
-        $watermarkColor = imagecolorallocatealpha($canvas, 255, 255, 255, 90);
-        $this->drawText(
-            $canvas,
-            150,
-            332,
-            36,
-            $watermarkColor,
-            strtoupper($this->marketing->siteName()),
-            true
-        );
     }
 
-    /**
-     * @return Collection<int, Product>
-     */
     protected function selectProducts(ShareLink $link): Collection
     {
         $filters = is_array($link->payload['filters'] ?? null) ? $link->payload['filters'] : [];
@@ -204,135 +282,206 @@ class MenuSharePreviewService
             $query->whereHas('categories', fn ($related) => $related->where('categories.id', (int) $filters['category_id']));
         }
 
-        if (! empty($filters['search']) && is_string($filters['search'])) {
-            $search = trim($filters['search']);
-            if ($search !== '') {
-                $query->where(function ($searchQuery) use ($search): void {
-                    $searchQuery
-                        ->where('slug', 'like', '%'.$search.'%')
-                        ->orWhere('name->ar', 'like', '%'.$search.'%')
-                        ->orWhere('name->en', 'like', '%'.$search.'%');
-                });
-            }
-        }
-
-        return $query
-            ->get()
-            ->sortBy(fn (Product $product): string => md5($link->code.'|'.$product->id))
-            ->take(10)
-            ->values();
+        return $query->inRandomOrder()->take(10)->get();
     }
 
     protected function fetchImage(?string $url)
     {
-        if ($url === null || $url === '') {
-            return null;
+        if (! $url) return null;
+
+        // Smart Check: If URL is on our own server, try local path first for speed & reliability
+        $backendUrl = $this->marketing->backendBaseUrl();
+        if (str_starts_with($url, $backendUrl)) {
+            $storagePart = Str::after($url, $backendUrl.'/storage/');
+            $cdnPart = Str::after($url, $backendUrl.'/cdn/');
+
+            if ($cdnPart !== $url) {
+                // Files are actually in storage/app/uploads for this project
+                $localPath = storage_path('app/uploads/'.$cdnPart);
+                if (is_file($localPath)) {
+                    return @imagecreatefromjpeg($localPath) ?: @imagecreatefrompng($localPath) ?: @imagecreatefromwebp($localPath) ?: @imagecreatefromstring(file_get_contents($localPath));
+                }
+            }
+
+            if ($storagePart !== $url) {
+                $localPath = storage_path('app/public/'.$storagePart);
+                if (is_file($localPath)) {
+                    return @imagecreatefromjpeg($localPath) ?: @imagecreatefrompng($localPath) ?: @imagecreatefromwebp($localPath) ?: @imagecreatefromstring(file_get_contents($localPath));
+                }
+            }
         }
 
         try {
-            $response = Http::timeout(4)->withOptions(['verify' => false])->get($url);
-
-            if (! $response->successful()) {
-                return null;
-            }
-
-            $image = @imagecreatefromstring($response->body());
-
-            return $image !== false ? $image : null;
-        } catch (\Throwable) {
-            return null;
-        }
+            $response = Http::timeout(5)->withOptions(['verify' => false])->get($url);
+            return $response->successful() ? @imagecreatefromstring($response->body()) : null;
+        } catch (\Throwable) { return null; }
     }
 
     protected function copyCropped($destination, $source, int $x, int $y, int $width, int $height): void
     {
-        $sourceWidth = imagesx($source);
-        $sourceHeight = imagesy($source);
-        $sourceRatio = $sourceWidth / max($sourceHeight, 1);
-        $targetRatio = $width / max($height, 1);
+        $sw = imagesx($source);
+        $sh = imagesy($source);
+        $ratio = $width / $height;
+        $sRatio = $sw / $sh;
 
-        if ($sourceRatio > $targetRatio) {
-            $cropHeight = $sourceHeight;
-            $cropWidth = (int) round($cropHeight * $targetRatio);
-            $cropX = (int) round(($sourceWidth - $cropWidth) / 2);
-            $cropY = 0;
+        if ($sRatio > $ratio) {
+            $cw = (int) ($sh * $ratio);
+            $cx = (int) (($sw - $cw) / 2);
+            imagecopyresampled($destination, $source, $x, $y, $cx, 0, $width, $height, $cw, $sh);
         } else {
-            $cropWidth = $sourceWidth;
-            $cropHeight = (int) round($cropWidth / $targetRatio);
-            $cropX = 0;
-            $cropY = (int) round(($sourceHeight - $cropHeight) / 2);
+            $ch = (int) ($sw / $ratio);
+            $cy = (int) (($sh - $ch) / 2);
+            imagecopyresampled($destination, $source, $x, $y, 0, $cy, $width, $height, $sw, $ch);
         }
-
-        imagecopyresampled(
-            $destination,
-            $source,
-            $x,
-            $y,
-            $cropX,
-            $cropY,
-            $width,
-            $height,
-            $cropWidth,
-            $cropHeight,
-        );
     }
 
-    /**
-     * @return array{0:int,1:int,2:int}
-     */
-    protected function hexToRgb(string $hex): array
-    {
-        $normalized = ltrim($hex, '#');
-
-        if (strlen($normalized) !== 6) {
-            $normalized = '111827';
-        }
-
-        return [
-            hexdec(substr($normalized, 0, 2)),
-            hexdec(substr($normalized, 2, 2)),
-            hexdec(substr($normalized, 4, 2)),
-        ];
-    }
-
-    protected function drawText($canvas, int $x, int $y, int $size, int $color, string $text, bool $bold = false): void
+    protected function drawText($canvas, int $x, int $y, int $size, int $color, string $text, bool $bold = false, string $locale = 'ar', int $maxWidth = 0): void
     {
         $text = trim($text);
-
         if ($text === '') {
             return;
         }
 
-        $font = $this->fontPath();
+        if ($maxWidth > 0) {
+            $text = $this->truncateText($text, $size, $maxWidth, $bold, $locale);
+        }
 
-        if ($font !== null && function_exists('imagettftext')) {
-            $fontSize = max(12, (int) round($size));
-            if ($bold) {
-                imagettftext($canvas, $fontSize, 0, $x + 1, $y, $color, $font, $text);
-            }
-            imagettftext($canvas, $fontSize, 0, $x, $y, $color, $font, $text);
-
+        $text = $this->prepareDisplayText($text, $locale);
+        $font = $this->fontPath($bold);
+        if ($font && function_exists('imagettftext')) {
+            imagettftext($canvas, $size, 0, $x, $y, $color, $font, $text);
             return;
         }
 
-        imagestring($canvas, $bold ? 5 : 4, $x, max(0, $y - 16), $text, $color);
+        imagestring($canvas, $bold ? 5 : 4, $x, $y - 15, $text, $color);
     }
 
-    protected function fontPath(): ?string
+    protected function prepareDisplayText(string $text, string $locale): string
     {
-        $candidates = [
-            'C:\\Windows\\Fonts\\arial.ttf',
-            'C:\\Windows\\Fonts\\segoeui.ttf',
-            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-            '/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf',
-        ];
-
-        foreach ($candidates as $candidate) {
-            if (is_file($candidate)) {
-                return $candidate;
+        if ($this->containsArabic($text) || $locale === 'ar') {
+            try {
+                return $this->arabic()->utf8Glyphs($text, 120, false, true);
+            } catch (\Throwable) {
+                return $text;
             }
         }
 
+        return $text;
+    }
+
+    protected function truncateText(string $text, int $size, int $maxWidth, bool $bold, string $locale): string
+    {
+        $font = $this->fontPath($bold);
+        if (! $font) {
+            return mb_strimwidth($text, 0, 20, '...');
+        }
+
+        $displayText = $this->prepareDisplayText($text, $locale);
+        $box = imagettfbbox($size, 0, $font, $displayText);
+        $width = abs($box[2] - $box[0]);
+
+        if ($width <= $maxWidth) {
+            return $text;
+        }
+
+        $ellipsis = $this->containsArabic($text) ? '…' : '...';
+        while (mb_strlen($text) > 3) {
+            $text = mb_substr($text, 0, -1);
+            $candidate = $this->prepareDisplayText($text.$ellipsis, $locale);
+            $box = imagettfbbox($size, 0, $font, $candidate);
+            if (abs($box[2] - $box[0]) <= $maxWidth) {
+                break;
+            }
+        }
+
+        return $text.$ellipsis;
+    }
+
+    protected function containsArabic(string $text): bool
+    {
+        return preg_match('/[\x{0600}-\x{06FF}\x{0750}-\x{077F}\x{08A0}-\x{08FF}]/u', $text) === 1;
+    }
+
+    protected function arabic(): Arabic
+    {
+        static $arabic = null;
+
+        if (! $arabic instanceof Arabic) {
+            $arabic = new Arabic();
+        }
+
+        return $arabic;
+    }
+
+    protected function copyImageWithOpacity($destination, $source, int $x, int $y, int $opacity): void
+    {
+        $width = imagesx($source);
+        $height = imagesy($source);
+        $opacity = max(0, min(100, $opacity));
+
+        $buffer = imagecreatetruecolor($width, $height);
+        imagealphablending($buffer, false);
+        imagesavealpha($buffer, true);
+        imagefill($buffer, 0, 0, imagecolorallocatealpha($buffer, 0, 0, 0, 127));
+
+        imagecopy($buffer, $source, 0, 0, 0, 0, $width, $height);
+
+        for ($px = 0; $px < $width; $px++) {
+            for ($py = 0; $py < $height; $py++) {
+                $rgba = imagecolorat($buffer, $px, $py);
+                $alpha = ($rgba & 0x7F000000) >> 24;
+                $red = ($rgba >> 16) & 0xFF;
+                $green = ($rgba >> 8) & 0xFF;
+                $blue = $rgba & 0xFF;
+                $adjustedAlpha = 127 - (int) round((127 - $alpha) * ($opacity / 100));
+                $color = imagecolorallocatealpha($buffer, $red, $green, $blue, $adjustedAlpha);
+                imagesetpixel($buffer, $px, $py, $color);
+            }
+        }
+
+        imagealphablending($destination, true);
+        imagecopy($destination, $buffer, $x, $y, 0, 0, $width, $height);
+        imagedestroy($buffer);
+    }
+
+    protected function applyBlur($canvas, int $radius): void
+    {
+        for ($i = 0; $i < $radius; $i++) {
+            imagefilter($canvas, IMG_FILTER_GAUSSIAN_BLUR);
+        }
+    }
+
+    protected function drawGradient($canvas, int $w, int $h, string $start, string $end): void
+    {
+        [$r1, $g1, $b1] = $this->hexToRgb($start);
+        [$r2, $g2, $b2] = $this->hexToRgb($end);
+        for ($y = 0; $y < $h; $y++) {
+            $p = $y / $h;
+            $c = imagecolorallocate($canvas, (int)($r1 + ($r2 - $r1) * $p), (int)($g1 + ($g2 - $g1) * $p), (int)($b1 + ($b2 - $b1) * $p));
+            imageline($canvas, 0, $y, $w, $y, $c);
+        }
+    }
+
+    protected function hexToRgb(string $hex): array
+    {
+        $h = ltrim($hex, '#');
+        if (strlen($h) === 3) $h = $h[0].$h[0].$h[1].$h[1].$h[2].$h[2];
+        return [hexdec(substr($h, 0, 2)), hexdec(substr($h, 2, 2)), hexdec(substr($h, 4, 2))];
+    }
+
+    protected function fontPath(bool $bold = false): ?string
+    {
+        $candidates = $bold ? [
+            'C:\\Windows\\Fonts\\arialbd.ttf',
+            '/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+        ] : [
+            'C:\\Windows\\Fonts\\arial.ttf',
+            '/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+        ];
+
+        foreach ($candidates as $c) if (is_file($c)) return $c;
         return null;
     }
 }

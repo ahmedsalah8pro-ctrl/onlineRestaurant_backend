@@ -154,7 +154,8 @@
           <div class="preview-modal__media">
             <div class="preview-gallery__stage">
               <button type="button" class="gallery-nav gallery-nav--prev" *ngIf="previewGalleryItems().length > 1" (click)="prevPreviewMedia(); $event.stopPropagation()" [attr.aria-label]="ui.t('product.prevMedia')">
-                <i class="pi pi-angle-left"></i>
+                <i class="pi pi-angle-left" *ngIf="theme.locale() !== 'ar'"></i>
+                <i class="pi pi-angle-right" *ngIf="theme.locale() === 'ar'"></i>
               </button>
 
               @if (media.media_type === 'image') {
@@ -167,18 +168,37 @@
               } @else if (media.isYouTube) {
                 <iframe [src]="getYouTubeEmbedUrl(media.source)" frameborder="0" allowfullscreen class="preview-gallery__asset preview-gallery__asset--frame"></iframe>
               } @else {
-                <video class="preview-gallery__asset preview-gallery__asset--video" [src]="media.source" controls playsinline preload="metadata" (click)="openPreviewViewer()"></video>
+                <video
+                  class="preview-gallery__asset preview-gallery__asset--video"
+                  [src]="media.source"
+                  controls
+                  playsinline
+                  preload="metadata"
+                  (play)="onPreviewStageVideoPlayState(true)"
+                  (pause)="onPreviewStageVideoPlayState(false)"
+                  (ended)="onPreviewStageVideoPlayState(false)"
+                  (click)="openPreviewViewer()"
+                ></video>
               }
 
               <div class="preview-gallery__overlay">
                 <span class="preview-gallery__counter">{{ previewMediaIndex() + 1 }} / {{ previewGalleryItems().length }}</span>
-                @if (media.isYouTube) {
-                  <button pButton type="button" icon="pi pi-external-link" severity="secondary" [outlined]="true" class="preview-gallery__expand" (click)="openPreviewViewer(); $event.stopPropagation()"></button>
-                }
               </div>
 
+              @if (media.isYouTube) {
+                <button
+                  type="button"
+                  class="gallery-open-center"
+                  (click)="openPreviewViewer(); $event.stopPropagation()"
+                  [attr.aria-label]="ui.t('product.mediaGallery')"
+                >
+                  <i class="pi pi-external-link"></i>
+                </button>
+              }
+
               <button type="button" class="gallery-nav gallery-nav--next" *ngIf="previewGalleryItems().length > 1" (click)="nextPreviewMedia(); $event.stopPropagation()" [attr.aria-label]="ui.t('product.nextMedia')">
-                <i class="pi pi-angle-right"></i>
+                <i class="pi pi-angle-right" *ngIf="theme.locale() !== 'ar'"></i>
+                <i class="pi pi-angle-left" *ngIf="theme.locale() === 'ar'"></i>
               </button>
             </div>
 
@@ -188,7 +208,6 @@
                   <img [src]="item.thumb" [alt]="theme.resolveText(current.translations || current.name)" />
                 } @else if (item.isYouTube) {
                   <img [src]="item.thumb" [alt]="ui.t('product.galleryYouTube')" />
-                  <span class="preview-gallery__badge">{{ ui.t('product.galleryYouTube') }}</span>
                 } @else {
                   <div class="preview-gallery__video-thumb">
                     <i class="pi pi-video"></i>
@@ -277,7 +296,8 @@
 
         <div class="product-viewer__stage">
           <button type="button" class="gallery-nav gallery-nav--prev" *ngIf="previewGalleryItems().length > 1" (click)="prevPreviewMedia()" [attr.aria-label]="ui.t('product.prevMedia')">
-            <i class="pi pi-angle-left"></i>
+            <i class="pi pi-angle-left" *ngIf="theme.locale() !== 'ar'"></i>
+            <i class="pi pi-angle-right" *ngIf="theme.locale() === 'ar'"></i>
           </button>
 
           @if (media.media_type === 'image') {
@@ -318,7 +338,8 @@
           }
 
           <button type="button" class="gallery-nav gallery-nav--next" *ngIf="previewGalleryItems().length > 1" (click)="nextPreviewMedia()" [attr.aria-label]="ui.t('product.nextMedia')">
-            <i class="pi pi-angle-right"></i>
+            <i class="pi pi-angle-right" *ngIf="theme.locale() !== 'ar'"></i>
+            <i class="pi pi-angle-left" *ngIf="theme.locale() === 'ar'"></i>
           </button>
         </div>
 

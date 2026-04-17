@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, debounceTime, firstValueFrom, takeUntil } from 'rxjs';
@@ -35,6 +35,7 @@ export class MenuPage implements OnInit, OnDestroy {
   private readonly message = inject(MessageService);
   private readonly filtersChanged$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
+  private readonly host = inject(ElementRef<HTMLElement>);
 
   protected readonly products = signal<ProductListItem[]>([]);
   protected readonly loading = signal(false);
@@ -49,6 +50,7 @@ export class MenuPage implements OnInit, OnDestroy {
   protected readonly previewZoomLevel = signal(1);
   protected readonly previewPanX = signal(0);
   protected readonly previewPanY = signal(0);
+  protected readonly stagePreviewVideoPlaying = signal(false);
   protected readonly quickAddLoadingId = signal<number | null>(null);
   protected readonly addedSuccessfully = signal<number | null>(null);
 
@@ -185,8 +187,11 @@ export class MenuPage implements OnInit, OnDestroy {
       const open = this.previewVisible();
       const viewerOpen = this.previewViewerVisible();
       const items = this.previewGalleryItems();
+      const active = this.activePreviewMedia();
+      const isVideoActive = !!active && active.media_type !== 'image';
+      const shouldPauseAutoSwitch = isVideoActive && (active?.isYouTube || this.stagePreviewVideoPlaying());
 
-      if (!open || viewerOpen || items.length <= 1) {
+      if (!open || viewerOpen || items.length <= 1 || shouldPauseAutoSwitch) {
         return;
       }
 
@@ -318,6 +323,7 @@ export class MenuPage implements OnInit, OnDestroy {
     this.previewProduct.set(null);
     this.previewViewerVisible.set(false);
     this.resetPreviewZoom();
+    this.stagePreviewVideoPlaying.set(false);
   }
 
   protected async quickAdd(product: ProductListItem, event?: Event): Promise<void> {
@@ -423,6 +429,7 @@ export class MenuPage implements OnInit, OnDestroy {
   }
 
   protected selectPreviewMedia(index: number): void {
+    this.pausePreviewStageVideo();
     this.previewMediaIndex.set(index);
     this.resetPreviewZoom();
   }
@@ -433,6 +440,7 @@ export class MenuPage implements OnInit, OnDestroy {
       return;
     }
 
+    this.pausePreviewStageVideo();
     this.previewMediaIndex.set((this.previewMediaIndex() + 1) % items.length);
     if (resetZoom) {
       this.resetPreviewZoom();
@@ -445,6 +453,7 @@ export class MenuPage implements OnInit, OnDestroy {
       return;
     }
 
+    this.pausePreviewStageVideo();
     this.previewMediaIndex.set((this.previewMediaIndex() - 1 + items.length) % items.length);
     if (resetZoom) {
       this.resetPreviewZoom();
@@ -520,6 +529,18 @@ export class MenuPage implements OnInit, OnDestroy {
 
   protected stopPreviewPan(): void {
     this.previewDragging = false;
+  }
+
+  protected onPreviewStageVideoPlayState(isPlaying: boolean): void {
+    this.stagePreviewVideoPlaying.set(isPlaying);
+  }
+
+  private pausePreviewStageVideo(): void {
+    this.stagePreviewVideoPlaying.set(false);
+    const video = this.host.nativeElement.querySelector('.preview-gallery__stage video.preview-gallery__asset--video') as HTMLVideoElement | null;
+    if (video && !video.paused) {
+      video.pause();
+    }
   }
 
   private resolveYouTubeThumbnail(url?: string | null): string | null {

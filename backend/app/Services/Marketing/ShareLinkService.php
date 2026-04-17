@@ -32,13 +32,17 @@ class ShareLinkService
 
         $type = strtolower((string) ($payload['type'] ?? ''));
 
+        $locale = $payload['locale'] ?? app()->getLocale();
+
         $snapshot = match ($type) {
-            'product' => $this->buildProductSnapshot((int) ($payload['resource_id'] ?? 0)),
-            'menu' => $this->buildMenuSnapshot(Arr::wrap($payload['query'] ?? [])),
-            'page' => $this->buildPageSnapshot((string) ($payload['slug'] ?? '')),
-            'home' => $this->buildHomeSnapshot(),
+            'product' => $this->buildProductSnapshot((int) ($payload['resource_id'] ?? 0), $locale),
+            'menu' => $this->buildMenuSnapshot(Arr::wrap($payload['query'] ?? []), $locale),
+            'page' => $this->buildPageSnapshot((string) ($payload['slug'] ?? ''), $locale),
+            'home' => $this->buildHomeSnapshot($locale),
             default => throw new UnprocessableEntityHttpException('Unsupported share link type.'),
         };
+
+        $snapshot['payload']['locale'] = $locale;
 
         return ShareLink::query()->create([
             'resource_type' => $type,
@@ -137,7 +141,7 @@ class ShareLinkService
     /**
      * @return array<string, mixed>
      */
-    protected function buildProductSnapshot(int $productId): array
+    protected function buildProductSnapshot(int $productId, string $locale): array
     {
         $product = Product::query()->active()->find($productId);
 
@@ -146,12 +150,12 @@ class ShareLinkService
         }
 
         $title = implode(' | ', array_filter([
-            $this->marketing->translated($product->name),
+            $this->marketing->translated($product->name, $locale),
             $this->marketing->siteName(),
         ]));
 
         $description = $this->marketing->secureDescription(
-            $this->marketing->translated($product->short_description) ?: $this->marketing->translated($product->description)
+            $this->marketing->translated($product->short_description, $locale) ?: $this->marketing->translated($product->description, $locale)
         );
 
         return [
@@ -178,7 +182,7 @@ class ShareLinkService
      * @param  array<int|string, mixed>  $rawQuery
      * @return array<string, mixed>
      */
-    protected function buildMenuSnapshot(array $rawQuery): array
+    protected function buildMenuSnapshot(array $rawQuery, string $locale): array
     {
         $query = $this->marketing->normalizedQuery($rawQuery);
         $branch = isset($query['branch_id']) ? (int) $query['branch_id'] : null;
@@ -208,6 +212,7 @@ class ShareLinkService
             'image_url' => $this->marketing->menuImage($query),
             'payload' => [
                 'filters' => $query,
+                'locale' => $locale,
             ],
         ];
     }
@@ -215,7 +220,7 @@ class ShareLinkService
     /**
      * @return array<string, mixed>
      */
-    protected function buildPageSnapshot(string $slug): array
+    protected function buildPageSnapshot(string $slug, string $locale): array
     {
         $page = DynamicPage::query()->active()->where('slug', $slug)->first();
 
@@ -224,7 +229,7 @@ class ShareLinkService
         }
 
         $title = implode(' | ', array_filter([
-            $this->marketing->translated($page->title),
+            $this->marketing->translated($page->title, $locale),
             $this->marketing->siteName(),
         ]));
 
@@ -234,7 +239,7 @@ class ShareLinkService
             'destination_path' => '/pages/'.$page->slug,
             'destination_query' => [],
             'title' => $title,
-            'description' => $this->marketing->secureDescription($this->marketing->translated($page->content)),
+            'description' => $this->marketing->secureDescription($this->marketing->translated($page->content, $locale)),
             'image_url' => $this->marketing->defaultOgImageUrl(),
             'payload' => [
                 'page_slug' => $page->slug,
@@ -245,18 +250,19 @@ class ShareLinkService
     /**
      * @return array<string, mixed>
      */
-    protected function buildHomeSnapshot(): array
+    protected function buildHomeSnapshot(string $locale): array
     {
         return [
             'resource_id' => null,
             'slug_hint' => 'home',
             'destination_path' => '/',
             'destination_query' => [],
-            'title' => $this->marketing->defaultMetaTitle(),
-            'description' => $this->marketing->defaultMetaDescription(),
+            'title' => $this->marketing->defaultMetaTitle($locale),
+            'description' => $this->marketing->defaultMetaDescription($locale),
             'image_url' => $this->marketing->defaultOgImageUrl(),
             'payload' => [
                 'type' => 'home',
+                'locale' => $locale,
             ],
         ];
     }

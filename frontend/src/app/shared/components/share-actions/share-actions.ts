@@ -11,6 +11,7 @@ import { SocialShareService, ShareRequestPayload } from '../../../core/services/
 import { RuntimeConfigService } from '../../../core/services/runtime-config';
 import { UiTextService } from '../../../core/services/ui-text';
 
+
 @Component({
   selector: 'app-share-actions',
   standalone: true,
@@ -20,28 +21,38 @@ import { UiTextService } from '../../../core/services/ui-text';
       type="button"
       class="share-trigger"
       [class.share-trigger--compact]="compact()"
+      [class.share-trigger--only-icon]="onlyIcon()"
       [class.share-trigger--ghost]="textMode()"
       [class]="buttonClass()"
       (click)="toggle(popover, $event)"
+      [pTooltip]="onlyIcon() ? resolvedLabel() : ''"
+      tooltipPosition="top"
     >
       <span class="share-trigger__icon">
         <i [class]="icon()"></i>
       </span>
 
-      <span class="share-trigger__copy" *ngIf="!compact()">
+      <span class="share-trigger__copy" *ngIf="!compact() && !onlyIcon()">
         <strong>{{ resolvedLabel() }}</strong>
         <small>{{ ui.t('share.campaign') }}</small>
       </span>
 
-      <span class="share-trigger__copy share-trigger__copy--compact" *ngIf="compact()">
+      <span class="share-trigger__copy share-trigger__copy--compact" *ngIf="compact() && !onlyIcon()">
         {{ resolvedCompactLabel() }}
       </span>
     </button>
 
-    <p-popover #popover [dismissable]="true" appendTo="body" styleClass="share-popover">
+    <p-popover
+      #popover
+      [dismissable]="true"
+      appendTo="body"
+      styleClass="share-popover"
+      [autoZIndex]="true"
+      [baseZIndex]="5200"
+    >
       <div class="share-sheet">
         <div class="share-sheet__top-bar">
-            <button pButton icon="pi pi-times" class="p-button-text p-button-secondary p-button-sm" (click)="popover.hide()"></button>
+            <button pButton icon="pi pi-times" class="p-button-text p-button-secondary p-button-sm close-x-btn" (click)="popover.hide()"></button>
         </div>
 
         <div class="share-sheet__hero">
@@ -137,7 +148,7 @@ import { UiTextService } from '../../../core/services/ui-text';
           ></button>
 
           <div class="share-sheet__footer mt-4 flex-center">
-              <button pButton [label]="ui.t('nav.cancel')" severity="secondary" class="p-button-text w-full" (click)="popover.hide()"></button>
+              <button pButton [label]="ui.t('nav.cancel')" severity="secondary" class="p-button-text w-full cancel-btn" (click)="popover.hide()"></button>
           </div>
         } @else {
           <div class="share-sheet__loading">
@@ -160,38 +171,50 @@ import { UiTextService } from '../../../core/services/ui-text';
       cursor: pointer;
       color: #f8fafc;
       background:
-        radial-gradient(circle at top right, rgba(34, 197, 94, 0.22), transparent 42%),
-        linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.92));
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.1), transparent 42%),
+        linear-gradient(135deg, #1e293b, #0f172a);
       box-shadow:
         0 18px 38px rgba(15, 23, 42, 0.28),
         inset 0 1px 0 rgba(255,255,255,0.08);
       border: 1px solid rgba(148, 163, 184, 0.18);
       overflow: hidden;
-      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+      transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .share-trigger:hover {
-      transform: translateY(-1px);
-      border-color: rgba(59, 130, 246, 0.35);
+      transform: translateY(-2px) scale(1.02);
+      border-color: rgba(var(--brand-primary-rgb), 0.4);
       box-shadow:
-        0 20px 46px rgba(15, 23, 42, 0.34),
-        0 0 0 1px rgba(59,130,246,0.14),
-        inset 0 1px 0 rgba(255,255,255,0.08);
+        0 22px 48px rgba(15, 23, 42, 0.35),
+        0 0 0 4px rgba(var(--brand-primary-rgb), 0.1);
     }
     .share-trigger::after {
       content: '';
       position: absolute;
-      inset: auto -35% -80% auto;
-      width: 10rem;
-      height: 10rem;
-      background: radial-gradient(circle, rgba(59,130,246,.24), transparent 62%);
+      inset: -50%;
+      background: radial-gradient(circle, rgba(255,255,255, 0.1), transparent 70%);
       pointer-events: none;
-      animation: shareGlow 4.2s linear infinite;
+      opacity: 0;
+      transition: opacity 300ms ease;
+    }
+    .share-trigger:hover::after {
+      opacity: 1;
     }
     .share-trigger--compact {
       min-height: 2.7rem;
       padding: 0.6rem 0.8rem;
       gap: 0.55rem;
       border-radius: 999px;
+    }
+    .share-trigger--only-icon {
+      width: 3.4rem;
+      height: 3.4rem;
+      padding: 0;
+      justify-content: center;
+      border-radius: 999px;
+    }
+    .share-trigger--only-icon.share-trigger--compact {
+      width: 2.7rem;
+      height: 2.7rem;
     }
     .share-trigger--ghost {
       background: rgba(15, 23, 42, 0.7);
@@ -205,9 +228,9 @@ import { UiTextService } from '../../../core/services/ui-text';
       border-radius: 999px;
       display: inline-grid;
       place-items: center;
-      background: linear-gradient(135deg, #22c55e, #3b82f6);
-      color: #04120a;
-      box-shadow: 0 10px 24px rgba(34,197,94,.28);
+      background: linear-gradient(135deg, var(--brand-primary), #8b1a1a);
+      color: white;
+      box-shadow: 0 10px 24px rgba(var(--brand-primary-rgb),.28);
       flex-shrink: 0;
     }
     .share-trigger--compact .share-trigger__icon {
@@ -243,13 +266,21 @@ import { UiTextService } from '../../../core/services/ui-text';
       min-width: min(92vw, 420px);
       display: flex;
       flex-direction: column;
-      gap: 1.15rem;
-      padding: 0.5rem;
+      gap: 1.25rem;
+      padding: 1rem;
     }
     .share-sheet__top-bar {
         display: flex;
-        justify-content: flex-end;
-        margin-bottom: -1rem;
+        justify-content: flex-start;
+        margin-bottom: 0;
+    }
+    .close-x-btn {
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        border-radius: 50% !important;
+        background: rgba(255,255,255,0.05) !important;
+        color: #94a3b8 !important;
+        &:hover { background: rgba(255,255,255,0.1) !important; color: white !important; }
     }
     .centered-grid {
         justify-content: stretch;
@@ -261,12 +292,11 @@ import { UiTextService } from '../../../core/services/ui-text';
       align-items: stretch;
       justify-content: space-between;
       gap: 1rem;
-      padding: 1rem;
-      border-radius: 1.3rem;
-      background:
-        radial-gradient(circle at top left, rgba(59,130,246,.22), transparent 42%),
-        linear-gradient(135deg, rgba(15,23,42,.92), rgba(30,41,59,.88));
-      border: 1px solid rgba(148, 163, 184, 0.16);
+      padding: 1.25rem;
+      border-radius: 1.5rem;
+      background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.15), rgba(15, 23, 42, 0.4));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
     }
     .share-sheet__hero-copy {
       display: flex;
@@ -277,67 +307,73 @@ import { UiTextService } from '../../../core/services/ui-text';
       display: inline-flex;
       align-items: center;
       width: fit-content;
-      padding: 0.28rem 0.7rem;
+      padding: 0.3rem 0.8rem;
       border-radius: 999px;
-      background: rgba(34, 197, 94, 0.14);
-      color: #86efac;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      background: rgba(var(--brand-primary-rgb), 0.2);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
     .share-sheet__hero-copy strong {
-      font-size: 1.05rem;
+      font-size: 1.15rem;
       color: #f8fafc;
+      font-weight: 800;
     }
     .share-sheet__hero-copy small,
     .share-sheet__field span {
       color: #94a3b8;
+      font-weight: 500;
     }
     .share-sheet__hero-icon {
-      width: 3.2rem;
-      height: 3.2rem;
-      border-radius: 1rem;
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 1.2rem;
       display: grid;
       place-items: center;
-      background: linear-gradient(135deg, rgba(34,197,94,.22), rgba(59,130,246,.22));
-      color: #f8fafc;
-      font-size: 1.25rem;
+      background: var(--brand-primary);
+      color: white;
+      font-size: 1.5rem;
       flex-shrink: 0;
+      box-shadow: 0 10px 20px rgba(var(--brand-primary-rgb), 0.3);
     }
     .share-sheet__preview-card {
       display: grid;
       grid-template-columns: 118px minmax(0, 1fr);
-      gap: 0.95rem;
-      padding: 0.75rem;
-      border-radius: 1.2rem;
+      gap: 1.25rem;
+      padding: 1rem;
+      border-radius: 1.4rem;
       background: rgba(15, 23, 42, 0.58);
-      border: 1px solid rgba(148, 163, 184, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .share-sheet__preview-image {
       width: 100%;
       aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 1rem;
+      border-radius: 1.2rem;
       background: rgba(2, 6, 23, 0.9);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
     .share-sheet__preview-body {
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
+      gap: 0.5rem;
       min-width: 0;
     }
     .share-sheet__preview-body strong {
       color: #f8fafc;
-      font-size: 0.96rem;
+      font-size: 1rem;
       line-height: 1.4;
+      font-weight: 700;
     }
     .share-sheet__preview-body p {
       margin: 0;
-      color: #cbd5e1;
-      font-size: 0.83rem;
+      color: #94a3b8;
+      font-size: 0.85rem;
       line-height: 1.6;
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -346,145 +382,139 @@ import { UiTextService } from '../../../core/services/ui-text';
       align-items: center;
       gap: 0.45rem;
       width: fit-content;
-      color: #93c5fd;
+      color: var(--brand-primary);
       text-decoration: none;
       font-size: 0.8rem;
-      font-weight: 700;
+      font-weight: 800;
+      &:hover { text-decoration: underline; }
     }
     .share-sheet__field {
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
+      gap: 0.6rem;
     }
     .share-sheet__copy-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
-      gap: 0.55rem;
+      gap: 0.75rem;
       align-items: center;
     }
     .share-sheet__copy-row :is(input, button) {
-      min-height: 2.9rem;
+      min-height: 3.2rem;
+      border-radius: 14px;
+    }
+    .share-sheet__copy-row input {
+      background: rgba(15, 23, 42, 0.8) !important;
+      border-color: rgba(255,255,255,0.08) !important;
+      color: white !important;
+      font-weight: 600;
     }
     .share-sheet__section-label {
-      color: #e2e8f0;
-      font-size: 0.84rem;
-      font-weight: 700;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
     .share-sheet__grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.65rem;
+      gap: 1rem;
     }
     .share-channel {
       display: inline-flex;
       align-items: center;
-      gap: 0.75rem;
-      min-height: 4rem;
-      border-radius: 1rem;
-      border: 1px solid rgba(148, 163, 184, 0.14);
-      background: rgba(15, 23, 42, 0.62);
+      gap: 0.85rem;
+      min-height: 4.5rem;
+      border-radius: 1.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03);
       color: #f8fafc;
-      padding: 0.72rem 0.85rem;
+      padding: 0.75rem 1rem;
       cursor: pointer;
-      transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+      transition: all 200ms ease;
     }
     .share-channel:hover {
-      transform: translateY(-1px);
-      border-color: rgba(148, 163, 184, 0.28);
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
     }
     .share-channel__glyph {
-      width: 2rem;
-      height: 2rem;
-      border-radius: 999px;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 12px;
       display: grid;
       place-items: center;
       flex-shrink: 0;
-      font-weight: 800;
+      font-weight: 900;
       color: #fff;
+      font-size: 1.2rem;
     }
     .share-channel__body {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 0.12rem;
+      gap: 0.15rem;
       text-align: start;
     }
     .share-channel__body strong {
-      font-size: 0.88rem;
+      font-size: 0.95rem;
       line-height: 1.1;
-      color: #f8fafc;
+      font-weight: 800;
     }
     .share-channel__body small {
-      font-size: 0.72rem;
-      color: #94a3b8;
-      line-height: 1.1;
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 600;
     }
-    .share-channel--whatsapp .share-channel__glyph { background: linear-gradient(135deg, #25d366, #16a34a); }
-    .share-channel--facebook .share-channel__glyph { background: linear-gradient(135deg, #1877f2, #1d4ed8); }
-    .share-channel--telegram .share-channel__glyph { background: linear-gradient(135deg, #38bdf8, #0ea5e9); }
-    .share-channel--x .share-channel__glyph { background: linear-gradient(135deg, #111827, #334155); }
-    .share-sheet__loading {
-      min-height: 140px;
-      display: grid;
-      place-items: center;
+    .share-channel--whatsapp .share-channel__glyph { background: linear-gradient(135deg, #25d366, #16a34a); box-shadow: 0 6px 15px rgba(37, 211, 102, 0.3); }
+    .share-channel--facebook .share-channel__glyph { background: linear-gradient(135deg, #1877f2, #1d4ed8); box-shadow: 0 6px 15px rgba(24, 119, 242, 0.3); }
+    .share-channel--telegram .share-channel__glyph { background: linear-gradient(135deg, #38bdf8, #0ea5e9); box-shadow: 0 6px 15px rgba(14, 165, 233, 0.3); }
+    .share-channel--x .share-channel__glyph { background: linear-gradient(135deg, #000000, #1e293b); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); }
+    
+    .cancel-btn {
+        margin-top: 1rem;
+        min-height: 3.5rem !important;
+        border-radius: 18px !important;
+        font-weight: 800 !important;
+        background: rgba(255,255,255,0.05) !important;
+        color: #94a3b8 !important;
+        &:hover { background: rgba(255,255,255,0.1) !important; color: white !important; }
     }
-    .share-sheet__error {
-      display: grid;
-      gap: 0.85rem;
-      padding: 1rem;
-      border-radius: 1rem;
-      background: rgba(127, 29, 29, 0.18);
-      border: 1px solid rgba(248, 113, 113, 0.24);
-      color: #fecaca;
-    }
-    .share-sheet__error p {
-      margin: 0.3rem 0 0;
-      color: #fecaca;
-      line-height: 1.6;
-    }
+
     .share-sheet__native {
       width: 100%;
-      min-height: 3rem;
-      background: linear-gradient(135deg, #22c55e, #3b82f6);
-      border: 0;
-      color: #04120a;
-      font-weight: 800;
-      box-shadow: 0 18px 34px rgba(34, 197, 94, 0.2);
+      min-height: 3.5rem;
+      border-radius: 18px !important;
+      background: linear-gradient(135deg, var(--brand-primary), #8b1a1a) !important;
+      border: 0 !important;
+      color: white !important;
+      font-weight: 800 !important;
+      box-shadow: 0 12px 24px rgba(var(--brand-primary-rgb), 0.3) !important;
     }
-    :host ::ng-deep .share-popover .p-popover-content {
-      background:
-        radial-gradient(circle at top right, rgba(34,197,94,.08), transparent 30%),
-        linear-gradient(180deg, rgba(15, 23, 42, 0.99), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      border-radius: 24px;
-      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.45);
-      color: #e2e8f0;
+    :host ::ng-deep .p-popover.share-popover,
+    :host ::ng-deep .p-popover.share-popover .p-popover-content,
+    :host ::ng-deep .share-popover.p-popover,
+    :host ::ng-deep .share-popover.p-popover .p-popover-content {
+      background: #0f172a !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 32px !important;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6) !important;
+      padding: 0 !important;
+      overflow: hidden;
+      color: #f8fafc !important;
     }
-    :host ::ng-deep .share-popover input {
-      width: 100%;
+
+    /* Ensure the popover is above dialogs/lightboxes (product preview uses p-dialog). */
+    :host ::ng-deep .share-popover,
+    :host ::ng-deep .share-popover.p-popover,
+    :host ::ng-deep .share-popover.p-popover-overlay {
+      z-index: 5200 !important;
     }
-    @media (max-width: 640px) {
-      .share-trigger {
-        width: 100%;
-        justify-content: center;
-      }
-      .share-sheet__preview-card {
-        grid-template-columns: 1fr;
-      }
-      .share-sheet__copy-row {
-        grid-template-columns: 1fr;
-      }
-      .share-sheet__grid {
-        grid-template-columns: 1fr;
-      }
-      .centered-grid {
-        grid-template-columns: 1fr !important;
-      }
-    }
-    @keyframes shareGlow {
-      0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.4; }
-      50% { transform: translate3d(-10%, -8%, 0) scale(1.08); opacity: 0.65; }
-      100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.4; }
+
+    /* PrimeNG sets overlay z-index inline; force it above dialogs. */
+    :host ::ng-deep .p-popover.share-popover {
+      z-index: 5200 !important;
     }
   `],
 })
@@ -503,6 +533,7 @@ export class ShareActionsComponent {
   readonly rounded = input<boolean>(false);
   readonly outlined = input<boolean>(false);
   readonly compact = input<boolean>(false);
+  readonly onlyIcon = input<boolean>(false);
 
   protected readonly loading = signal(false);
   protected readonly link = signal<ShareLinkResult | null>(null);
@@ -540,7 +571,7 @@ export class ShareActionsComponent {
   }
 
   protected fallbackPreviewImage(): string {
-    return `${this.runtime.frontendBaseUrl}/favicon.ico`;
+    return this.runtime.resolveAsset('branding/logo-square.png', `${this.runtime.frontendBaseUrl}/favicon.ico`);
   }
 
   private async ensureLink(force = false): Promise<void> {
@@ -552,7 +583,10 @@ export class ShareActionsComponent {
     this.errorMessage.set(null);
 
     try {
-      this.link.set(await this.share.createShareLink(this.request()));
+      this.link.set(await this.share.createShareLink({
+        ...this.request(),
+        locale: this.ui.currentLocale()
+      }));
     } catch (error: any) {
       const message = error?.error?.message || this.ui.t('share.error');
       this.errorMessage.set(message);
