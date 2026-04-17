@@ -89,7 +89,7 @@ export class RuntimeConfigService {
       frontendBaseUrl: baseOrigin,
       backendBaseUrl: 'http://127.0.0.1:8000',
       apiBaseUrl: 'http://127.0.0.1:8000/api/v1',
-      cdnBaseUrl: 'http://127.0.0.1:8000/storage',
+      cdnBaseUrl: 'http://127.0.0.1:8000/cdn',
       environment: 'local',
     };
   }

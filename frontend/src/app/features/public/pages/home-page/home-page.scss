@@ -83,6 +83,19 @@
     filter: drop-shadow(0 30px 60px rgba(0,0,0,0.12));
     animation: float 6s ease-in-out infinite;
   }
+
+  .home-hero__corner-share {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+    transform: translate(20%, -20%);
+    @media (max-width: 1024px) {
+        top: -2rem;
+        right: 0;
+        transform: translate(0, 0);
+    }
+  }
 }
 
 @keyframes float {

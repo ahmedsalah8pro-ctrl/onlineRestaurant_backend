@@ -31,6 +31,7 @@ class ShareLinkController extends Controller
             'type' => ['required', 'string', 'in:product,menu,page,home'],
             'resource_id' => ['nullable', 'integer', 'min:1'],
             'slug' => ['nullable', 'string', 'max:160'],
+            'locale' => ['nullable', 'string', 'in:ar,en'],
             'query' => ['nullable', 'array'],
             'query.branch_id' => ['nullable', 'integer', 'min:1'],
             'query.category_id' => ['nullable', 'integer', 'min:1'],

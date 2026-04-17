@@ -371,7 +371,7 @@ return [
             'public' => true,
             'fields' => [
                 'public_disk' => ['type' => 'string', 'default' => 'uploads', 'rules' => ['required', 'string', 'max:50'], 'public' => false],
-                'public_base_url' => ['type' => 'string', 'default' => env('UPLOADS_CDN_URL', env('APP_URL', 'http://localhost').'/cdn'), 'rules' => ['nullable', 'url', 'max:2048'], 'public' => true],
+                'public_base_url' => ['type' => 'string', 'default' => env('UPLOADS_BASE_URL', env('APP_URL', 'http://localhost').'/cdn'), 'rules' => ['nullable', 'url', 'max:2048'], 'public' => true],
                 'image_max_kb' => ['type' => 'integer', 'default' => 5120, 'rules' => ['required', 'integer', 'min:64', 'max:20480'], 'public' => false],
                 'video_max_kb' => ['type' => 'integer', 'default' => 51200, 'rules' => ['required', 'integer', 'min:512', 'max:102400'], 'public' => false],
                 'allowed_image_mimes' => [

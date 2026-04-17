@@ -228,14 +228,10 @@
     to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
-  /* PrimeNG Select (Dropdown) Global Fixes */
+  /* Select Dropdowns Fixes */
   .p-select {
-    .p-select-label {
-      color: #1e293b !important; /* Ensure selected text is dark slate */
-    }
-    .p-select-placeholder {
-      color: #94a3b8 !important;
-    }
+      .p-select-label { color: inherit !important; }
+      .p-select-placeholder { color: #94a3b8 !important; }
   }
 
   .p-select-overlay {

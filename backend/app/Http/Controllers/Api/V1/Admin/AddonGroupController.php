@@ -22,7 +22,7 @@ class AddonGroupController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
+            'product_id' => ['nullable', 'exists:products,id'],
             'name' => ['required', 'array'],
             'selection_type' => ['required', 'string', 'in:single,multiple'],
             'min_select' => ['required', 'integer', 'min:0'],
