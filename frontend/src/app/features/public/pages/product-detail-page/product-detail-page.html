@@ -34,6 +34,10 @@
           <div class="price-pill">{{ storefront.formatMoney(current.base_price) }}</div>
         </div>
 
+        <div class="detail-share-row">
+          <app-share-actions [request]="{ type: 'product', resource_id: current.id }" [buttonLabel]="ui.t('share.product')" severity="secondary"></app-share-actions>
+        </div>
+
         <div class="surface-grid" *ngIf="current.sizes && current.sizes.length > 0">
           <h3>{{ ui.t('product.sizes') }}</h3>
           <div class="chip-row">
@@ -173,7 +177,7 @@
             <p>{{ theme.resolveText(suggestion.short_description_translations || suggestion.short_description) || ui.t('menu.noDescription') }}</p>
             <div class="best-seller__footer">
               <strong>{{ storefront.formatMoney(suggestion.base_price) }}</strong>
-              <a pButton severity="primary" [routerLink]="['/products', suggestion.id]" icon="pi pi-shopping-cart" iconPos="right" class="details-btn">
+              <a pButton severity="primary" [routerLink]="productLink(suggestion)" icon="pi pi-shopping-cart" iconPos="right" class="details-btn">
                 {{ ui.t('menu.details') }}
               </a>
             </div>

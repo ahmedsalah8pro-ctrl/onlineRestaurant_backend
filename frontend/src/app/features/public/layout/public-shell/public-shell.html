@@ -16,7 +16,7 @@
           </div>
           <div class="brand-info">
             <span class="site-name">{{ siteName() }}</span>
-            <span class="tagline">Premium Dining</span>
+            <span class="tagline">{{ tagline() }}</span>
           </div>
         </a>
 
@@ -145,9 +145,9 @@
           <h3 class="footer-logo">{{ siteName() }}</h3>
           <p class="brand-desc">{{ ui.t('public.footerAbout') }}</p>
           <div class="social-pills">
-            <a href="#" aria-label="Facebook"><i class="pi pi-facebook"></i></a>
-            <a href="#" aria-label="Twitter"><i class="pi pi-twitter"></i></a>
-            <a href="#" aria-label="Instagram"><i class="pi pi-instagram"></i></a>
+            <a *ngFor="let social of socialLinks()" [href]="social.href || '#'" [attr.aria-label]="social.key" target="_blank" rel="noopener noreferrer">
+              <i [class]="social.icon"></i>
+            </a>
           </div>
         </div>
         
@@ -213,7 +213,7 @@
 
   <!-- Mobile Language Switcher (Floating) -->
   <div class="mobile-lang-fab" [class.hidden]="isScrolled()">
-      <button (click)="theme.setLocale(ui.currentLocale() === 'ar' ? 'en' : 'ar')">
+      <button (click)="switchLocale(ui.currentLocale() === 'ar' ? 'en' : 'ar')">
          {{ ui.currentLocale() === 'ar' ? 'EN' : 'AR' }}
       </button>
   </div>

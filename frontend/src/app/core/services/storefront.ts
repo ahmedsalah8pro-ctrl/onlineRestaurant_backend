@@ -2,6 +2,8 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Branch, Cart, Category, CouponPreview, ProductListItem, PublicSettings } from '../models/api.models';
 import { PublicApiService } from './public-api';
+import { RuntimeConfigService } from './runtime-config';
+import { SeoService } from './seo';
 import { ThemeService } from './theme';
 import { UiTextService } from './ui-text';
 
@@ -10,6 +12,8 @@ import { UiTextService } from './ui-text';
 })
 export class StorefrontService {
   private readonly publicApi = inject(PublicApiService);
+  private readonly runtime = inject(RuntimeConfigService);
+  private readonly seo = inject(SeoService);
   private readonly theme = inject(ThemeService);
   private readonly ui = inject(UiTextService);
 
@@ -51,6 +55,18 @@ export class StorefrontService {
       this.categories.set(categories);
       this.bestSellers.set(bestSellers);
       this.theme.applyPublicSettings(settings);
+      this.seo.hydrateSettings(settings);
+      this.seo.applyPage({
+        title: this.theme.resolveText(settings.seo?.default_meta_title) || settings.general?.site_name || 'Online Restaurant',
+        description: this.theme.resolveText(settings.seo?.default_meta_description) || this.ui.t('public.footerAbout'),
+        image: settings.seo?.default_og_image_path
+          ? this.runtime.resolveAsset(settings.seo.default_og_image_path)
+          : settings.branding?.cover_image_path
+            ? this.runtime.resolveAsset(settings.branding.cover_image_path)
+            : undefined,
+        url: settings.seo?.canonical_host || undefined,
+        type: 'website',
+      });
     } finally {
       this.loading.set(false);
     }

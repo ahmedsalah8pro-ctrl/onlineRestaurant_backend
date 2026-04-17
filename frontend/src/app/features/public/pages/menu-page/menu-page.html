@@ -61,6 +61,10 @@
           />
         </div>
       </div>
+
+      <div class="menu-toolbar__actions">
+        <app-share-actions [request]="menuShareRequest()" [buttonLabel]="ui.t('share.menu')" severity="secondary"></app-share-actions>
+      </div>
     </div>
   </div>
 
@@ -110,7 +114,8 @@
             <strong class="price-text">{{ storefront.formatMoney(product.base_price) }}</strong>
           </div>
           <div class="menu-card__actions">
-            <a pButton severity="primary" [routerLink]="['/products', product.id]" (click)="$event.stopPropagation()" icon="pi pi-external-link" iconPos="right" class="details-btn">
+            <app-share-actions [request]="{ type: 'product', resource_id: product.id }" [icon]="'pi pi-share-alt'" [textMode]="true" [rounded]="true" (click)="$event.stopPropagation()"></app-share-actions>
+            <a pButton severity="primary" [routerLink]="productLink(product)" (click)="$event.stopPropagation()" icon="pi pi-external-link" iconPos="right" class="details-btn">
               {{ ui.t('menu.details') }}
             </a>
           </div>
@@ -193,7 +198,7 @@
                 [icon]="addedSuccessfully() === current.id ? 'pi pi-check' : 'pi pi-shopping-cart'"
                 (click)="quickAdd(current, $event)"
               ></button>
-              <a pButton severity="secondary" [routerLink]="['/products', current.id]" (click)="closePreview()" icon="pi pi-external-link">{{ ui.t('menu.fullDetails') }}</a>
+              <a pButton severity="secondary" [routerLink]="productLink(current)" (click)="closePreview()" icon="pi pi-external-link">{{ ui.t('menu.fullDetails') }}</a>
             </div>
           </div>
       </div>

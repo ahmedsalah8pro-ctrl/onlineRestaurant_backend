@@ -15,6 +15,8 @@ import {
   ProductListItem,
   PublicSettings,
   Review,
+  ShareLinkCreatePayload,
+  ShareLinkResult,
   UserProfile,
   Wallet,
   WalletTransaction,
@@ -57,6 +59,10 @@ export class PublicApiService {
 
   getDynamicPage(slug: string): Observable<DynamicPage> {
     return this.api.getData(`/pages/${slug}`);
+  }
+
+  createShareLink(payload: ShareLinkCreatePayload): Observable<ShareLinkResult> {
+    return this.api.postData('/share-links', payload);
   }
 
   getPublicProfile(username: string): Observable<Record<string, unknown>> {

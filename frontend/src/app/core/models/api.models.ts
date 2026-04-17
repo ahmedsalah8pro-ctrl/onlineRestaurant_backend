@@ -100,6 +100,17 @@ export interface PublicSettings {
     default_meta_description?: TranslatedText;
     default_og_image_path?: string | null;
     canonical_host?: string | null;
+    robots_indexing_enabled?: boolean;
+    marketing_ready_mode?: boolean;
+    share_links_enabled?: boolean;
+    merchant_feeds_enabled?: boolean;
+    merchant_feed_brand_name?: string | null;
+    merchant_feed_condition?: 'new' | 'used' | 'refurbished';
+    twitter_handle?: string | null;
+    google_site_verification?: string | null;
+    bing_site_verification?: string | null;
+    meta_pixel_id?: string | null;
+    google_tag_id?: string | null;
   };
 }
 
@@ -173,6 +184,25 @@ export interface ProductListItem {
   };
   addon_groups_count?: number;
   purchases_count?: number;
+}
+
+export interface ShareLinkResult {
+  id: number;
+  type: 'product' | 'menu' | 'page' | 'home';
+  code: string;
+  slug_hint?: string | null;
+  title: string;
+  description?: string | null;
+  image_url?: string | null;
+  share_url: string;
+  destination_url: string;
+}
+
+export interface ShareLinkCreatePayload {
+  type: 'product' | 'menu' | 'page' | 'home';
+  resource_id?: number;
+  slug?: string;
+  query?: Record<string, unknown>;
 }
 
 export interface ProductMediaItem {
@@ -277,6 +307,8 @@ export interface Address {
   phone: string;
   alternative_phones?: string[] | null;
   country?: string | null;
+  city?: string | null;
+  area?: string | null;
   delivery_zone_id: number;
   delivery_zone?: DeliveryZone | null;
   street?: string | null;

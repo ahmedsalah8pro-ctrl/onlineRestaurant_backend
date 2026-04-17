@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('user_addresses', function (Blueprint $table) {
-            $table->dropColumn(['city', 'area']);
             $table->foreignId('delivery_zone_id')->nullable()->constrained('delivery_zones')->nullOnDelete();
             $table->json('alternative_phones')->nullable();
         });
@@ -35,8 +34,6 @@ return new class extends Migration
             $table->dropForeign(['delivery_zone_id']);
             $table->dropColumn('delivery_zone_id');
             $table->dropColumn('alternative_phones');
-            $table->string('city')->nullable();
-            $table->string('area')->nullable();
         });
     }
 };

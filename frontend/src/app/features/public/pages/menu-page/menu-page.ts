@@ -1,10 +1,11 @@
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, debounceTime, firstValueFrom, takeUntil } from 'rxjs';
 import { ProductDetail, ProductListItem } from '../../../../core/models/api.models';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
+import { SeoService } from '../../../../core/services/seo';
 import { StorefrontService } from '../../../../core/services/storefront';
 import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
@@ -22,6 +23,7 @@ export class MenuPage implements OnInit, OnDestroy {
   protected readonly runtime = inject(RuntimeConfigService);
   protected readonly ui = inject(UiTextService);
   protected readonly theme = inject(ThemeService);
+  private readonly seo = inject(SeoService);
   private readonly message = inject(MessageService);
   private readonly filtersChanged$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
@@ -68,6 +70,25 @@ export class MenuPage implements OnInit, OnDestroy {
     { label: this.ui.sortLabel('best_seller'), value: 'best_seller' },
   ]);
 
+  protected readonly menuShareRequest = computed(() => ({
+    type: 'menu' as const,
+    query: {
+      branch_id: this.filters.branch_id,
+      category_id: this.filters.category_id,
+      search: this.filters.search,
+      sort: this.filters.sort === 'default' ? null : this.filters.sort,
+    },
+  }));
+
+  constructor() {
+    effect(() => {
+      this.theme.locale();
+      this.products();
+      this.total();
+      this.storefront.settings();
+      this.applySeo();
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     if (!this.storefront.settings()) {
@@ -270,5 +291,78 @@ export class MenuPage implements OnInit, OnDestroy {
     }
 
     return null;
+  }
+
+  protected productLink(product: ProductListItem): string[] {
+    return ['/products', String(product.id), product.slug];
+  }
+
+  private applySeo(): void {
+    const settings = this.storefront.settings();
+
+    if (!settings) {
+      return;
+    }
+
+    const branch = this.storefront.branches().find((item) => item.id === this.filters.branch_id);
+    const category = this.storefront.categories().find((item) => item.id === this.filters.category_id);
+    const branchName = branch ? this.theme.resolveText(branch.translations || branch.name) : '';
+    const categoryName = category ? this.theme.resolveText(category.translations || category.name) : '';
+
+    const titleParts = [this.ui.t('menu.title')];
+    if (branchName) titleParts.push(branchName);
+    if (categoryName) titleParts.push(categoryName);
+    titleParts.push(settings.general?.site_name || 'Online Restaurant');
+
+    const descriptionParts = [
+      this.filters.search ? `${this.ui.t('menu.search')}: ${this.filters.search}` : null,
+      branchName || null,
+      categoryName || null,
+      this.ui.t('menu.copy'),
+    ].filter(Boolean);
+
+    const canonicalUrl = new URL(`${this.runtime.frontendBaseUrl}/menu`);
+    if (this.filters.branch_id) canonicalUrl.searchParams.set('branch_id', String(this.filters.branch_id));
+    if (this.filters.category_id) canonicalUrl.searchParams.set('category_id', String(this.filters.category_id));
+    if (this.filters.search.trim()) canonicalUrl.searchParams.set('search', this.filters.search.trim());
+    if (this.filters.sort !== 'default') canonicalUrl.searchParams.set('sort', this.filters.sort);
+
+    const itemList = this.products().slice(0, 12).map((product, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: this.theme.resolveText(product.translations || product.name),
+      url: `${this.runtime.frontendBaseUrl}/products/${product.id}/${product.slug}`,
+    }));
+
+    this.seo.applyPage({
+      title: titleParts.filter(Boolean).join(' | '),
+      description: descriptionParts.join(' • '),
+      image: settings.seo?.default_og_image_path
+        ? this.runtime.resolveAsset(settings.seo.default_og_image_path)
+        : settings.branding?.cover_image_path
+          ? this.runtime.resolveAsset(settings.branding.cover_image_path)
+          : this.products()[0]?.main_image_path
+            ? this.runtime.resolveAsset(this.products()[0].main_image_path)
+            : undefined,
+      url: canonicalUrl.toString(),
+      type: 'website',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: titleParts.filter(Boolean).join(' | '),
+        url: canonicalUrl.toString(),
+        description: descriptionParts.join(' • '),
+        isPartOf: {
+          '@type': 'WebSite',
+          name: settings.general?.site_name || 'Online Restaurant',
+          url: this.runtime.frontendBaseUrl,
+        },
+        mainEntity: {
+          '@type': 'ItemList',
+          numberOfItems: this.total(),
+          itemListElement: itemList,
+        },
+      },
+    });
   }
 }

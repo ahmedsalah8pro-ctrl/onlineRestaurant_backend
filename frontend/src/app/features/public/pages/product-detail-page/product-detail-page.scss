@@ -20,6 +20,7 @@
 .detail-gallery,
 .chip-row,
 .detail-meta,
+.detail-share-row,
 .detail-actions,
 .review-form__actions {
   display: flex;
@@ -40,6 +41,10 @@
 .detail-actions {
   align-items: end;
   margin-top: 0.5rem;
+}
+
+.detail-share-row {
+  align-items: center;
 }
 
 .detail-actions__field {

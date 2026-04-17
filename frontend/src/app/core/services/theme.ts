@@ -52,9 +52,6 @@ export class ThemeService {
     this.setCssVariable(root, '--brand-radius', tokens['radius'] ?? '16px');
     this.applyTypography(settings.typography?.font_library ?? [], settings.typography ?? {});
 
-    const title = this.resolveText(settings.seo?.default_meta_title) || settings.general?.site_name || 'Restaurant Demo';
-    this.document.title = title;
-
     const favicon = settings.branding?.favicon_path
       ? this.runtime.resolveAsset(settings.branding.favicon_path)
       : undefined;

@@ -29,6 +29,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomePage, pathMatch: 'full' },
       { path: 'menu', component: MenuPage },
+      { path: 'products/:id/:slug', component: ProductDetailPage },
       { path: 'products/:id', component: ProductDetailPage },
       { path: 'pages/:slug', component: PageDetailPage },
       { path: 'cart', component: CartPage },

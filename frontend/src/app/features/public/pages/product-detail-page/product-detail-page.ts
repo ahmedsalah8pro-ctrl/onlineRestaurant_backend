@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
@@ -6,6 +6,7 @@ import { AddonGroup, AddonOption, ProductDetail, ProductListItem, Review } from 
 import { AuthService } from '../../../../core/services/auth';
 import { PublicApiService } from '../../../../core/services/public-api';
 import { RuntimeConfigService } from '../../../../core/services/runtime-config';
+import { SeoService } from '../../../../core/services/seo';
 import { StorefrontService } from '../../../../core/services/storefront';
 import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
@@ -25,6 +26,7 @@ export class ProductDetailPage implements OnInit {
   protected readonly runtime = inject(RuntimeConfigService);
   protected readonly ui = inject(UiTextService);
   protected readonly theme = inject(ThemeService);
+  private readonly seo = inject(SeoService);
   private readonly message = inject(MessageService);
 
   protected readonly product = signal<ProductDetail | null>(null);
@@ -80,6 +82,82 @@ export class ProductDetailPage implements OnInit {
     if (items.length === 0) return 0;
     return items.reduce((sum, review) => sum + review.rating, 0) / items.length;
   });
+
+  constructor() {
+    effect(() => {
+      const current = this.product();
+      const settings = this.storefront.settings();
+      this.theme.locale();
+
+      if (!current || !settings) {
+        return;
+      }
+
+      const title = `${this.theme.resolveText(current.translations || current.name)} | ${settings.general?.site_name || 'Online Restaurant'}`;
+      const description =
+        this.theme.resolveText(current.short_description_translations || current.short_description) ||
+        this.theme.resolveText(current.description_translations || current.description) ||
+        this.ui.t('product.copy');
+      const image =
+        current.main_image_path
+          ? this.runtime.resolveAsset(current.main_image_path)
+          : current.media?.[0]?.url
+            ? this.runtime.resolveAsset(current.media[0].url)
+            : settings.seo?.default_og_image_path
+              ? this.runtime.resolveAsset(settings.seo.default_og_image_path)
+              : undefined;
+      const productUrl = `${this.runtime.frontendBaseUrl}/products/${current.id}/${current.slug}`;
+
+      const structuredData: Record<string, unknown> = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: this.theme.resolveText(current.translations || current.name),
+        description,
+        url: productUrl,
+        image: [image].filter(Boolean),
+        sku: `product-${current.id}`,
+        brand: {
+          '@type': 'Brand',
+          name: settings.seo?.merchant_feed_brand_name || settings.general?.site_name || 'Online Restaurant',
+        },
+        category: current.categories.map((category) => category.name).join(' / '),
+        offers: {
+          '@type': 'Offer',
+          url: productUrl,
+          priceCurrency: settings.currency?.code || 'EGP',
+          price: current.base_price ?? current.sizes?.[0]?.price ?? 0,
+          availability: current.is_active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          itemCondition: 'https://schema.org/NewCondition',
+        },
+      };
+
+      if (current.rating_summary.count > 0) {
+        structuredData['aggregateRating'] = {
+          '@type': 'AggregateRating',
+          ratingValue: current.rating_summary.average,
+          reviewCount: current.rating_summary.count,
+        };
+      }
+
+      this.seo.applyPage({
+        title,
+        description,
+        image,
+        url: productUrl,
+        type: 'product',
+        productMeta: {
+          brand: settings.seo?.merchant_feed_brand_name || settings.general?.site_name || 'Online Restaurant',
+          availability: current.is_active ? 'in stock' : 'out of stock',
+          condition: settings.seo?.merchant_feed_condition || 'new',
+          priceAmount: current.base_price ?? current.sizes?.[0]?.price ?? 0,
+          priceCurrency: settings.currency?.code || 'EGP',
+          retailerItemId: current.slug || `product-${current.id}`,
+          itemGroupId: current.slug || `product-${current.id}`,
+        },
+        structuredData,
+      });
+    });
+  }
 
   protected selectSize(sizeId: number): void {
     this.selectedSizeId.set(sizeId);
@@ -259,5 +337,9 @@ export class ProductDetailPage implements OnInit {
     return (this.product()?.addon_groups || [])
       .flatMap((group) => group.options)
       .find((option) => option.id === optionId);
+  }
+
+  protected productLink(product: ProductListItem): string[] {
+    return ['/products', String(product.id), product.slug];
   }
 }

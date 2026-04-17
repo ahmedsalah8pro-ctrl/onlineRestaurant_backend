@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 export interface ResolvedRuntimeConfig {
   frontendBaseUrl: string;
+  backendBaseUrl: string;
   apiBaseUrl: string;
   cdnBaseUrl: string;
   environment: 'local' | 'production';
@@ -19,6 +20,10 @@ export class RuntimeConfigService {
 
   get apiBaseUrl(): string {
     return this.config.apiBaseUrl;
+  }
+
+  get backendBaseUrl(): string {
+    return this.config.backendBaseUrl;
   }
 
   get cdnBaseUrl(): string {
@@ -71,6 +76,7 @@ export class RuntimeConfigService {
     if (isProduction) {
       return {
         frontendBaseUrl: 'https://restaurant-demo.ahmedsalah.dev',
+        backendBaseUrl: 'https://api-restaurant-demo.ahmedsalah.dev',
         apiBaseUrl: 'https://api-restaurant-demo.ahmedsalah.dev/v1',
         cdnBaseUrl: 'https://cdn-restaurant-demo.ahmedsalah.dev',
         environment: 'production',
@@ -81,6 +87,7 @@ export class RuntimeConfigService {
 
     return {
       frontendBaseUrl: baseOrigin,
+      backendBaseUrl: 'http://127.0.0.1:8000',
       apiBaseUrl: 'http://127.0.0.1:8000/api/v1',
       cdnBaseUrl: 'http://127.0.0.1:8000/storage',
       environment: 'local',

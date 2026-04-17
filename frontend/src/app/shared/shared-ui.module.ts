@@ -40,6 +40,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CarouselModule } from 'primeng/carousel';
+import { ShareActionsComponent } from './components/share-actions/share-actions';
 import { VisualRatingComponent } from './components/visual-rating/visual-rating';
 
 @NgModule({
@@ -85,6 +86,7 @@ import { VisualRatingComponent } from './components/visual-rating/visual-rating'
     MultiSelectModule,
     RadioButtonModule,
     CheckboxModule,
+    ShareActionsComponent,
     VisualRatingComponent,
   ],
   exports: [
@@ -129,6 +131,7 @@ import { VisualRatingComponent } from './components/visual-rating/visual-rating'
     MultiSelectModule,
     RadioButtonModule,
     CheckboxModule,
+    ShareActionsComponent,
     VisualRatingComponent,
   ],
 })

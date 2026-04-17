@@ -2,6 +2,7 @@
   <section class="page-shell glass-panel page-card">
     <span class="eyebrow">Dynamic Page</span>
     <h1 class="section-title">{{ current.title }}</h1>
+    <app-share-actions [request]="{ type: 'page', slug: current.slug }" [buttonLabel]="ui.t('share.page')" severity="secondary"></app-share-actions>
     <p class="section-copy">{{ current.content || 'This page content is served by the backend dynamic pages API.' }}</p>
   </section>
 }

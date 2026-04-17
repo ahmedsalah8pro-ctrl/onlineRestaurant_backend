@@ -16,6 +16,8 @@ class UserAddress extends Model
         'recipient_name',
         'phone',
         'country',
+        'city',
+        'area',
         'delivery_zone_id',
         'alternative_phones',
         'street',

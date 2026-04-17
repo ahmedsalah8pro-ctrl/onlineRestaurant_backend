@@ -23,8 +23,30 @@ export class PublicShell implements OnInit {
 
   protected readonly siteName = computed(() => this.storefront.siteName());
   protected readonly logoUrl = computed(() => {
-    // Force the new generated logo for "live" feel
-    return 'http://127.0.0.1:8000/storage/branding/logo-square.png';
+    const settings = this.storefront.settings();
+
+    if (settings?.branding?.square_logo_path) {
+      return this.runtime.resolveAsset(settings.branding.square_logo_path);
+    }
+
+    if (settings?.branding?.logo_path) {
+      return this.runtime.resolveAsset(settings.branding.logo_path);
+    }
+
+    return '';
+  });
+  protected readonly tagline = computed(() =>
+    this.theme.resolveText(this.storefront.settings()?.branding?.brand_tagline) || this.ui.t('public.taglineFallback'),
+  );
+  protected readonly socialLinks = computed(() => {
+    const links = this.storefront.settings()?.branding?.social_links || {};
+    return [
+      { key: 'facebook', icon: 'pi pi-facebook', href: links['facebook'] || null },
+      { key: 'instagram', icon: 'pi pi-instagram', href: links['instagram'] || null },
+      { key: 'x', icon: 'pi pi-twitter', href: links['x'] || null },
+      { key: 'youtube', icon: 'pi pi-youtube', href: links['youtube'] || null },
+      { key: 'tiktok', icon: 'pi pi-video', href: links['tiktok'] || null },
+    ].filter((item) => !!item.href);
   });
   protected readonly cartCount = computed(() =>
     this.storefront.cart()?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0,

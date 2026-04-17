@@ -16,6 +16,8 @@ class AddressResource extends JsonResource
             'phone' => $this->phone,
             'alternative_phones' => $this->alternative_phones,
             'country' => $this->country,
+            'city' => $this->city,
+            'area' => $this->area,
             'delivery_zone_id' => $this->delivery_zone_id,
             'delivery_zone' => new DeliveryZoneResource($this->whenLoaded('deliveryZone')),
             'street' => $this->street,

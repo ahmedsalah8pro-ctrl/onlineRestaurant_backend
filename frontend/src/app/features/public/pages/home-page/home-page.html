@@ -13,6 +13,7 @@
 
       <div class="home-hero__actions">
         <a pButton routerLink="/menu" [label]="ui.t('home.primaryAction')" icon="pi pi-compass"></a>
+        <app-share-actions [request]="{ type: 'home' }" [buttonLabel]="ui.t('share.store')" severity="secondary"></app-share-actions>
         @if (auth.isAdmin()) {
           <a pButton routerLink="/admin" [label]="ui.t('home.secondaryAction')" severity="secondary" icon="pi pi-shield"></a>
         }
@@ -59,7 +60,7 @@
             <p>{{ theme.resolveText(product.short_description_translations || product.short_description) || ui.t('menu.noDescription') }}</p>
             <div class="best-seller__footer">
               <strong>{{ storefront.formatMoney(product.base_price) }}</strong>
-              <a pButton severity="primary" [routerLink]="['/products', product.id]" icon="pi pi-arrow-right" iconPos="right" class="details-btn shadow-md">
+              <a pButton severity="primary" [routerLink]="['/products', product.id, product.slug]" icon="pi pi-arrow-right" iconPos="right" class="details-btn shadow-md">
                 {{ ui.t('menu.details') }}
               </a>
             </div>

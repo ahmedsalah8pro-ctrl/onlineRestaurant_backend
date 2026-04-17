@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\PublicSettingsController;
 use App\Http\Controllers\Api\V1\ReviewController;
+use App\Http\Controllers\Api\V1\ShareLinkController;
 use App\Http\Controllers\Api\V1\WalletController;
 use App\Models\Branch;
 use App\Models\Category;
@@ -71,6 +72,7 @@ Route::get('products', [ProductController::class, 'index']);
 Route::get('products/best-sellers', [ProductController::class, 'bestSellers']);
 Route::get('products/{product}', [ProductController::class, 'show']);
 Route::get('products/{product}/reviews', [ReviewController::class, 'productReviews']);
+Route::post('share-links', [ShareLinkController::class, 'store'])->middleware('throttle:30,1');
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('profile', [ProfileController::class, 'show']);
