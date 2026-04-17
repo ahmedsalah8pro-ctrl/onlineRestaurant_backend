@@ -142,6 +142,7 @@
     [dismissableMask]="true"
     styleClass="surface-dialog"
     [style]="{ width: 'min(960px, 94vw)' }"
+    (visibleChange)="!$event && closePreview()"
     (onHide)="closePreview()"
   >
     @if (previewLoading()) {
