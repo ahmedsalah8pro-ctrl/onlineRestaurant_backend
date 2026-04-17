@@ -22,21 +22,22 @@
             } @else if (active.isYouTube) {
               <iframe [src]="getYouTubeEmbedUrl(active.source)" frameborder="0" allowfullscreen class="detail-media__asset detail-media__asset--frame"></iframe>
             } @else {
-              <video class="detail-media__asset detail-media__asset--video" [src]="active.source" controls playsinline preload="metadata"></video>
+              <video class="detail-media__asset detail-media__asset--video" [src]="active.source" controls playsinline preload="metadata" (click)="openViewer()"></video>
             }
 
             <div class="detail-media__overlay">
               <span class="detail-media__counter">{{ selectedMediaIndex() + 1 }} / {{ galleryItems().length }}</span>
-              <button
-                pButton
-                type="button"
-                icon="pi pi-external-link"
-                severity="secondary"
-                [outlined]="true"
-                class="detail-media__expand"
-                [label]="ui.t('product.viewMedia')"
-                (click)="openViewer(); $event.stopPropagation()"
-              ></button>
+              @if (active.isYouTube) {
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-external-link"
+                  severity="secondary"
+                  [outlined]="true"
+                  class="detail-media__expand"
+                  (click)="openViewer(); $event.stopPropagation()"
+                ></button>
+              }
             </div>
 
             <button type="button" class="gallery-nav gallery-nav--next" *ngIf="galleryItems().length > 1" (click)="nextMedia(); $event.stopPropagation()" [attr.aria-label]="ui.t('product.nextMedia')">
@@ -70,14 +71,14 @@
 
       <div class="glass-panel detail-panel">
         <div class="detail-panel__head">
+          <div class="detail-panel__share">
+            <app-share-actions [request]="{ type: 'product', resource_id: current.id }" [onlyIcon]="true" [compact]="true"></app-share-actions>
+          </div>
+
           <div class="detail-panel__headline">
             <span class="eyebrow">{{ ui.t('product.eyebrow') }}</span>
             <h1 class="section-title">{{ theme.resolveText(current.translations || current.name) }}</h1>
             <p class="section-copy">{{ theme.resolveText(current.description_translations || current.description) || ui.t('product.copy') }}</p>
-
-            <div class="detail-panel__share">
-              <app-share-actions [request]="{ type: 'product', resource_id: current.id }" [onlyIcon]="true" [compact]="true"></app-share-actions>
-            </div>
           </div>
         </div>
 
@@ -143,28 +144,18 @@
       </div>
     </div>
 
-    <p-dialog
-      [visible]="viewerVisible()"
-      [modal]="true"
-      appendTo="body"
-      [draggable]="false"
-      [dismissableMask]="true"
-      styleClass="surface-dialog product-viewer-dialog"
-      [style]="{ width: 'min(1180px, 96vw)' }"
-      (onHide)="closeViewer()"
-    >
-      @if (activeMedia(); as active) {
-        <div class="product-viewer">
+    @if (viewerVisible() && activeMedia(); as active) {
+      <div class="media-lightbox" (click)="closeViewer()">
+        <div class="media-lightbox__dialog product-viewer-dialog" (click)="$event.stopPropagation()">
+          <button type="button" class="media-lightbox__close" (click)="closeViewer()" aria-label="Close">
+            <i class="pi pi-times"></i>
+          </button>
+
+          <div class="product-viewer">
           <div class="product-viewer__toolbar">
             <div>
               <span class="eyebrow">{{ ui.t('product.mediaGallery') }}</span>
               <strong>{{ theme.resolveText(current.translations || current.name) }}</strong>
-            </div>
-
-            <div class="product-viewer__controls">
-              <button pButton type="button" icon="pi pi-search-plus" severity="secondary" [text]="true" *ngIf="isZoomableImage(active)" (click)="zoomIn()" [attr.aria-label]="ui.t('product.zoomIn')"></button>
-              <button pButton type="button" icon="pi pi-search-minus" severity="secondary" [text]="true" *ngIf="isZoomableImage(active)" (click)="zoomOut()" [attr.aria-label]="ui.t('product.zoomOut')"></button>
-              <button pButton type="button" icon="pi pi-refresh" severity="secondary" [text]="true" *ngIf="isZoomableImage(active)" (click)="resetZoom()" [attr.aria-label]="ui.t('product.resetZoom')"></button>
             </div>
           </div>
 
@@ -174,13 +165,40 @@
             </button>
 
             @if (active.media_type === 'image') {
-              <div class="product-viewer__image-wrap">
-                <img [src]="active.source" [alt]="theme.resolveText(current.translations || current.name)" class="product-viewer__image" [style.transform]="'scale(' + zoomLevel() + ')'" />
+              <div
+                class="product-viewer__image-wrap"
+                [class.is-pannable]="zoomLevel() > 1"
+                (mousedown)="startPan($event)"
+                (mousemove)="movePan($event)"
+                (mouseup)="stopPan()"
+                (mouseleave)="stopPan()"
+              >
+                <img
+                  [src]="active.source"
+                  [alt]="theme.resolveText(current.translations || current.name)"
+                  class="product-viewer__image"
+                  [style.transform]="imageTransform()"
+                  [draggable]="false"
+                />
               </div>
             } @else if (active.isYouTube) {
               <iframe [src]="getYouTubeEmbedUrl(active.source)" frameborder="0" allowfullscreen class="product-viewer__frame"></iframe>
             } @else {
               <video class="product-viewer__video" [src]="active.source" controls autoplay playsinline></video>
+            }
+
+            @if (isZoomableImage(active)) {
+              <div class="product-viewer__stage-tools">
+                <button type="button" class="gallery-tool" (click)="zoomOut()" [attr.aria-label]="ui.t('product.zoomOut')">
+                  <i class="pi pi-search-minus"></i>
+                </button>
+                <button type="button" class="gallery-tool" (click)="resetZoom()" [attr.aria-label]="ui.t('product.resetZoom')">
+                  <i class="pi pi-refresh"></i>
+                </button>
+                <button type="button" class="gallery-tool" (click)="zoomIn()" [attr.aria-label]="ui.t('product.zoomIn')">
+                  <i class="pi pi-search-plus"></i>
+                </button>
+              </div>
             }
 
             <button type="button" class="gallery-nav gallery-nav--next" *ngIf="galleryItems().length > 1" (click)="nextMedia()" [attr.aria-label]="ui.t('product.nextMedia')">
@@ -202,8 +220,9 @@
             </button>
           </div>
         </div>
-      }
-    </p-dialog>
+        </div>
+      </div>
+    }
 
     <div class="glass-panel detail-reviews">
       <div class="panel-head">

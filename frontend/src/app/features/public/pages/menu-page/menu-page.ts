@@ -47,6 +47,8 @@ export class MenuPage implements OnInit, OnDestroy {
   protected readonly previewMediaIndex = signal(0);
   protected readonly previewViewerVisible = signal(false);
   protected readonly previewZoomLevel = signal(1);
+  protected readonly previewPanX = signal(0);
+  protected readonly previewPanY = signal(0);
   protected readonly quickAddLoadingId = signal<number | null>(null);
   protected readonly addedSuccessfully = signal<number | null>(null);
 
@@ -120,6 +122,16 @@ export class MenuPage implements OnInit, OnDestroy {
     const index = Math.min(this.previewMediaIndex(), items.length - 1);
     return items[index] ?? null;
   });
+
+  protected readonly previewImageTransform = computed(() => {
+    return `translate(${this.previewPanX()}px, ${this.previewPanY()}px) scale(${this.previewZoomLevel()})`;
+  });
+
+  private previewDragging = false;
+  private previewDragStartX = 0;
+  private previewDragStartY = 0;
+  private previewDragOriginX = 0;
+  private previewDragOriginY = 0;
 
   protected filters = {
     search: '',
@@ -252,7 +264,7 @@ export class MenuPage implements OnInit, OnDestroy {
     this.previewVisible.set(true);
     this.previewLoading.set(true);
     this.previewMediaIndex.set(0);
-    this.previewZoomLevel.set(1);
+    this.resetPreviewZoom();
     this.previewViewerVisible.set(false);
 
     try {
@@ -305,7 +317,7 @@ export class MenuPage implements OnInit, OnDestroy {
     this.previewVisible.set(false);
     this.previewProduct.set(null);
     this.previewViewerVisible.set(false);
-    this.previewZoomLevel.set(1);
+    this.resetPreviewZoom();
   }
 
   protected async quickAdd(product: ProductListItem, event?: Event): Promise<void> {
@@ -412,7 +424,7 @@ export class MenuPage implements OnInit, OnDestroy {
 
   protected selectPreviewMedia(index: number): void {
     this.previewMediaIndex.set(index);
-    this.previewZoomLevel.set(1);
+    this.resetPreviewZoom();
   }
 
   protected nextPreviewMedia(resetZoom = true): void {
@@ -423,7 +435,7 @@ export class MenuPage implements OnInit, OnDestroy {
 
     this.previewMediaIndex.set((this.previewMediaIndex() + 1) % items.length);
     if (resetZoom) {
-      this.previewZoomLevel.set(1);
+      this.resetPreviewZoom();
     }
   }
 
@@ -435,7 +447,7 @@ export class MenuPage implements OnInit, OnDestroy {
 
     this.previewMediaIndex.set((this.previewMediaIndex() - 1 + items.length) % items.length);
     if (resetZoom) {
-      this.previewZoomLevel.set(1);
+      this.resetPreviewZoom();
     }
   }
 
@@ -445,12 +457,12 @@ export class MenuPage implements OnInit, OnDestroy {
     }
 
     this.previewViewerVisible.set(true);
-    this.previewZoomLevel.set(1);
+    this.resetPreviewZoom();
   }
 
   protected closePreviewViewer(): void {
     this.previewViewerVisible.set(false);
-    this.previewZoomLevel.set(1);
+    this.resetPreviewZoom();
   }
 
   protected zoomPreviewIn(): void {
@@ -466,15 +478,48 @@ export class MenuPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.previewZoomLevel.set(Math.max(this.previewZoomLevel() - 0.25, 1));
+    const next = Math.max(this.previewZoomLevel() - 0.25, 1);
+    this.previewZoomLevel.set(next);
+    if (next === 1) {
+      this.previewPanX.set(0);
+      this.previewPanY.set(0);
+    }
   }
 
   protected resetPreviewZoom(): void {
     this.previewZoomLevel.set(1);
+    this.previewPanX.set(0);
+    this.previewPanY.set(0);
+    this.previewDragging = false;
   }
 
   protected isPreviewZoomable(): boolean {
     return this.activePreviewMedia()?.media_type === 'image';
+  }
+
+  protected startPreviewPan(event: MouseEvent): void {
+    if (!this.isPreviewZoomable() || this.previewZoomLevel() <= 1) {
+      return;
+    }
+
+    this.previewDragging = true;
+    this.previewDragStartX = event.clientX;
+    this.previewDragStartY = event.clientY;
+    this.previewDragOriginX = this.previewPanX();
+    this.previewDragOriginY = this.previewPanY();
+  }
+
+  protected movePreviewPan(event: MouseEvent): void {
+    if (!this.previewDragging || this.previewZoomLevel() <= 1) {
+      return;
+    }
+
+    this.previewPanX.set(this.previewDragOriginX + (event.clientX - this.previewDragStartX));
+    this.previewPanY.set(this.previewDragOriginY + (event.clientY - this.previewDragStartY));
+  }
+
+  protected stopPreviewPan(): void {
+    this.previewDragging = false;
   }
 
   private resolveYouTubeThumbnail(url?: string | null): string | null {

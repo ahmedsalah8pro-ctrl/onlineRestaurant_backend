@@ -47,6 +47,8 @@ export class ProductDetailPage implements OnInit {
   protected readonly selectedMediaIndex = signal(0);
   protected readonly viewerVisible = signal(false);
   protected readonly zoomLevel = signal(1);
+  protected readonly panX = signal(0);
+  protected readonly panY = signal(0);
   protected readonly reviewLoading = signal(false);
   protected readonly addToCartLoading = signal(false);
   protected readonly currentYear = new Date().getFullYear();
@@ -173,6 +175,16 @@ export class ProductDetailPage implements OnInit {
     return items[index] ?? null;
   });
 
+  protected readonly imageTransform = computed(() => {
+    return `translate(${this.panX()}px, ${this.panY()}px) scale(${this.zoomLevel()})`;
+  });
+
+  private dragging = false;
+  private dragStartX = 0;
+  private dragStartY = 0;
+  private dragOriginX = 0;
+  private dragOriginY = 0;
+
   constructor() {
     effect(() => {
       const current = this.product();
@@ -298,7 +310,7 @@ export class ProductDetailPage implements OnInit {
       this.selectedSizeId.set(product.sizes.find((size) => size.is_default)?.id ?? product.sizes[0]?.id ?? null);
       this.selectedAddonMap.set({});
       this.selectedMediaIndex.set(0);
-      this.zoomLevel.set(1);
+      this.resetZoom();
 
       // --- SMART AI SUGGESTIONS ENGINE ---
       const allBestSellers = this.storefront.bestSellers();
@@ -463,7 +475,7 @@ export class ProductDetailPage implements OnInit {
 
   protected selectMedia(index: number): void {
     this.selectedMediaIndex.set(index);
-    this.zoomLevel.set(1);
+    this.resetZoom();
   }
 
   protected nextMedia(resetZoom = true): void {
@@ -474,7 +486,7 @@ export class ProductDetailPage implements OnInit {
 
     this.selectedMediaIndex.set((this.selectedMediaIndex() + 1) % items.length);
     if (resetZoom) {
-      this.zoomLevel.set(1);
+      this.resetZoom();
     }
   }
 
@@ -486,7 +498,7 @@ export class ProductDetailPage implements OnInit {
 
     this.selectedMediaIndex.set((this.selectedMediaIndex() - 1 + items.length) % items.length);
     if (resetZoom) {
-      this.zoomLevel.set(1);
+      this.resetZoom();
     }
   }
 
@@ -496,12 +508,12 @@ export class ProductDetailPage implements OnInit {
     }
 
     this.viewerVisible.set(true);
-    this.zoomLevel.set(1);
+    this.resetZoom();
   }
 
   protected closeViewer(): void {
     this.viewerVisible.set(false);
-    this.zoomLevel.set(1);
+    this.resetZoom();
   }
 
   protected zoomIn(): void {
@@ -517,15 +529,48 @@ export class ProductDetailPage implements OnInit {
       return;
     }
 
-    this.zoomLevel.set(Math.max(this.zoomLevel() - 0.25, 1));
+    const next = Math.max(this.zoomLevel() - 0.25, 1);
+    this.zoomLevel.set(next);
+    if (next === 1) {
+      this.panX.set(0);
+      this.panY.set(0);
+    }
   }
 
   protected resetZoom(): void {
     this.zoomLevel.set(1);
+    this.panX.set(0);
+    this.panY.set(0);
+    this.dragging = false;
   }
 
   protected isZoomableImage(item: ProductGalleryItem | null): boolean {
     return !!item && item.media_type === 'image';
+  }
+
+  protected startPan(event: MouseEvent): void {
+    if (!this.isZoomableImage(this.activeMedia()) || this.zoomLevel() <= 1) {
+      return;
+    }
+
+    this.dragging = true;
+    this.dragStartX = event.clientX;
+    this.dragStartY = event.clientY;
+    this.dragOriginX = this.panX();
+    this.dragOriginY = this.panY();
+  }
+
+  protected movePan(event: MouseEvent): void {
+    if (!this.dragging || this.zoomLevel() <= 1) {
+      return;
+    }
+
+    this.panX.set(this.dragOriginX + (event.clientX - this.dragStartX));
+    this.panY.set(this.dragOriginY + (event.clientY - this.dragStartY));
+  }
+
+  protected stopPan(): void {
+    this.dragging = false;
   }
 
   private resolveYouTubeThumbnail(url?: string | null): string | null {
