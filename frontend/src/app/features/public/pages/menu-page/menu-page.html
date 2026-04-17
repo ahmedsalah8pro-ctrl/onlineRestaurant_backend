@@ -63,7 +63,7 @@
       </div>
 
       <div class="menu-toolbar__actions">
-        <app-share-actions [request]="menuShareRequest()" [buttonLabel]="ui.t('share.menu')" severity="secondary"></app-share-actions>
+        <app-share-actions [request]="menuShareRequest()" [buttonLabel]="ui.t('share.menu')"></app-share-actions>
       </div>
     </div>
   </div>
@@ -114,7 +114,7 @@
             <strong class="price-text">{{ storefront.formatMoney(product.base_price) }}</strong>
           </div>
           <div class="menu-card__actions">
-            <app-share-actions [request]="{ type: 'product', resource_id: product.id }" [icon]="'pi pi-share-alt'" [textMode]="true" [rounded]="true" (click)="$event.stopPropagation()"></app-share-actions>
+            <app-share-actions [request]="{ type: 'product', resource_id: product.id }" [icon]="'pi pi-share-alt'" [compact]="true"></app-share-actions>
             <a pButton severity="primary" [routerLink]="productLink(product)" (click)="$event.stopPropagation()" icon="pi pi-external-link" iconPos="right" class="details-btn">
               {{ ui.t('menu.details') }}
             </a>

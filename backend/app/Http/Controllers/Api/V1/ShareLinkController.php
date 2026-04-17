@@ -7,6 +7,9 @@ use App\Services\Marketing\ShareLinkService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
+use Throwable;
 
 class ShareLinkController extends Controller
 {
@@ -18,6 +21,12 @@ class ShareLinkController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $infrastructureError = $this->ensureInfrastructureReady();
+
+        if ($infrastructureError !== null) {
+            return $this->errorResponse($infrastructureError, 503);
+        }
+
         $payload = $request->validate([
             'type' => ['required', 'string', 'in:product,menu,page,home'],
             'resource_id' => ['nullable', 'integer', 'min:1'],
@@ -43,5 +52,26 @@ class ShareLinkController extends Controller
             'share_url' => $this->shareLinks->shareUrl($link),
             'destination_url' => $this->shareLinks->destinationUrl($link),
         ], 'Share link created.', 201);
+    }
+
+    protected function ensureInfrastructureReady(): ?string
+    {
+        if (Schema::hasTable('share_links')) {
+            return null;
+        }
+
+        if (app()->environment(['local', 'testing'])) {
+            try {
+                Artisan::call('migrate', ['--force' => true]);
+            } catch (Throwable) {
+                // We return a clean API response below instead of leaking SQL or CLI errors.
+            }
+
+            if (Schema::hasTable('share_links')) {
+                return null;
+            }
+        }
+
+        return __('Share links are not ready yet. Please run the latest migrations and try again.');
     }
 }

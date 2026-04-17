@@ -13,7 +13,6 @@
 
       <div class="home-hero__actions">
         <a pButton routerLink="/menu" [label]="ui.t('home.primaryAction')" icon="pi pi-compass"></a>
-        <app-share-actions [request]="{ type: 'home' }" [buttonLabel]="ui.t('share.store')" severity="secondary"></app-share-actions>
         @if (auth.isAdmin()) {
           <a pButton routerLink="/admin" [label]="ui.t('home.secondaryAction')" severity="secondary" icon="pi pi-shield"></a>
         }

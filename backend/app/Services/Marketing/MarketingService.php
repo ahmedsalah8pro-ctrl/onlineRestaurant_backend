@@ -21,9 +21,18 @@ class MarketingService
     public function frontendBaseUrl(): string
     {
         $configured = (string) $this->settings->getValue('seo', 'canonical_host', config('app.frontend_url'));
+        $backendUrl = $this->backendBaseUrl();
 
         if ($configured !== '') {
+            if (app()->environment('local') && rtrim($configured, '/') === $backendUrl) {
+                return 'http://127.0.0.1:4200';
+            }
+
             return rtrim($configured, '/');
+        }
+
+        if (app()->environment('local')) {
+            return 'http://127.0.0.1:4200';
         }
 
         return rtrim((string) config('app.frontend_url', config('app.url', 'http://localhost')), '/');

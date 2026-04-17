@@ -20,6 +20,8 @@ def resolve_php() -> str:
 def run_backend():
     print("[BACKEND] Starting Laravel server...")
     php = resolve_php()
+    print("[BACKEND] Running migrations...")
+    subprocess.run([php, "artisan", "migrate", "--force"], cwd=BACKEND_DIR)
     subprocess.run([php, "artisan", "serve", "--host=127.0.0.1", "--port=8000"], cwd=BACKEND_DIR)
 
 def run_frontend():

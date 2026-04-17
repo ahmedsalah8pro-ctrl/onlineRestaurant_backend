@@ -20,7 +20,21 @@ export class SocialShareService {
   }
 
   async copy(url: string): Promise<void> {
-    await navigator.clipboard.writeText(url);
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(url);
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = url;
+      textarea.setAttribute('readonly', 'true');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      textarea.style.pointerEvents = 'none';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
     this.messages.add({
       severity: 'success',
       summary: this.ui.t('share.title'),
