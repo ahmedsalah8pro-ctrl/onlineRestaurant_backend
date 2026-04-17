@@ -14,7 +14,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
   standalone: true,
   imports: [SharedUiModule, RouterLink],
   template: `
-    <div class="editor-header animate-fade-in">
+    <div class="editor-header animate-fade-in mb-8">
       <div class="header-left">
         <a pButton icon="pi pi-arrow-left" severity="secondary" [routerLink]="['/admin/catalog/products']" class="p-button-text"></a>
         <div>
@@ -23,7 +23,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
         </div>
       </div>
       <div class="header-actions">
-        <button pButton [label]="isEdit() ? ui.t('admin.settings.save') : (ui.t('admin.catalog.create') + ' ' + ui.t('admin.catalog.title'))" icon="pi pi-check" (click)="save()" [loading]="saving()"></button>
+        <button pButton [label]="isEdit() ? ui.t('admin.settings.save') : ui.t('admin.catalog.create')" icon="pi pi-check" (click)="save()" [loading]="saving()"></button>
       </div>
     </div>
 
@@ -226,131 +226,318 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                </div>
             </p-tabpanel>
 
-            <!-- Tab 2: Addons -->
             <p-tabpanel [value]="2">
                <div class="form-section">
-                  <div class="section-header mb-6">
+                  <div class="section-header mb-8 flex justify-between items-center bg-black/5 p-6 rounded-2xl border border-white/5">
                      <div class="header-text">
-                        <h3>{{ ui.t('admin.catalog.addons') }}</h3>
-                        <p>Customize add-on pricing per product size</p>
+                        <h3 class="m-0 text-xl font-black tracking-tight"><i class="pi pi-plus-circle mr-2 text-primary"></i> {{ ui.t('admin.catalog.addons') }}</h3>
+                        <p class="m-0 text-slate-500 font-medium text-sm mt-1">Configure selection rules and price adjustments per product size.</p>
                      </div>
                      <div class="flex items-center gap-3">
                         <p-multiselect [options]="addonGroupsList()" [(ngModel)]="selectedAddonGroups" 
                                        (onChange)="syncAddonGroupsSelection()"
                                        optionLabel="name" optionValue="id" [placeholder]="ui.t('admin.catalog.addons')" 
                                        appendTo="body" styleClass="w-full max-w-sm"></p-multiselect>
-                        <button pButton icon="pi pi-plus" pTooltip="Create new brand group" (click)="showGroupCreator.set(true)" class="p-button-secondary p-button-outlined"></button>
+                        <button pButton icon="pi pi-plus-circle" pTooltip="Create Fresh Template" (click)="showGroupCreator.set(!showGroupCreator())" [severity]="showGroupCreator() ? 'warn' : 'secondary'" class="p-button-outlined"></button>
                      </div>
                   </div>
+
+                  <!-- Inline Group Creator -->
+                  <div *ngIf="showGroupCreator()" class="glass-panel group-creator-card animate-slide-up mb-8 border-primary/20 bg-primary/5 shadow-2xl relative overflow-hidden">
+                      <div class="absolute top-0 left-0 w-1 h-full bg-primary/40"></div>
+                      <div class="flex items-center justify-between mb-6">
+                          <h4 class="m-0 text-primary uppercase tracking-widest font-black text-xs">
+                              <i class="pi pi-plus-circle mr-2"></i> {{ ui.t('admin.catalog.create') }} {{ ui.t('admin.catalog.addons') }}
+                          </h4>
+                          <button pButton icon="pi pi-times" class="p-button-text p-button-sm p-button-rounded" (click)="showGroupCreator.set(false)"></button>
+                      </div>
+                      <div class="form-grid gap-6">
+                          <div class="grid grid-cols-2 gap-6">
+                              <label class="field-stack">
+                                  <span>Group Name (Arabic)</span>
+                                  <input pInputText [(ngModel)]="newGroupForm.name_ar" placeholder="مثلاً: صوصات إضافية" />
+                              </label>
+                              <label class="field-stack">
+                                  <span>Group Name (English)</span>
+                                  <input pInputText [(ngModel)]="newGroupForm.name_en" placeholder="e.g. Extra Sauces" />
+                              </label>
+                          </div>
+                          <div class="flex items-center gap-4 py-2">
+                              <p-toggleswitch [(ngModel)]="newGroupForm.is_required" inputId="groupReq"></p-toggleswitch>
+                              <label for="groupReq" class="font-bold cursor-pointer opacity-80 decoration-primary/30">Required Selection?</label>
+                              
+                              <button pButton label="Confirm & Create" icon="pi pi-plus" [loading]="creatingGroup()" (click)="createAddonGroup()" class="ml-auto shadow-lg px-6"></button>
+                          </div>
+                      </div>
+                  </div>
                   
-                  <div class="addon-editing-list">
-                     <div *ngFor="let group of form.addon_groups; let gIdx = index" class="addon-group-edit-card mb-4 animate-fade-in shadow-xl">
-                        <div class="group-header" (click)="group.expanded = !group.expanded">
-                           <i class="pi" [class.pi-chevron-down]="group.expanded" [class.pi-chevron-right]="!group.expanded"></i>
-                           <span class="group-name">{{ group.name }}</span>
-                           <span class="group-badge ml-3" [pTooltip]="'Enable/Disable specific options inside this group'">
-                              {{ group.options.filter(isOptionEnabled).length }} / {{ group.options.length }} Enabled
-                           </span>
+                  <div class="addon-workspace">
+                      <div *ngFor="let group of form.addon_groups; let gIdx = index" class="addon-group-modern animate-fade-in shadow-xl mb-6">
+                        <div class="group-hero-header" (click)="group.expanded = !group.expanded">
+                           <div class="flex items-center gap-4">
+                               <div class="group-state-icon" [class.is-expanded]="group.expanded">
+                                   <i class="pi pi-chevron-right"></i>
+                               </div>
+                               <div>
+                                   <span class="group-title">{{ group.name }}</span>
+                                   <div class="flex items-center gap-2 mt-1">
+                                       <span class="badge-pill badge-pill--primary">{{ group.is_required ? 'Required' : 'Optional' }}</span>
+                                       <span class="badge-pill badge-pill--slate">{{ group.options.filter(isOptionEnabled).length }} Active Options</span>
+                                   </div>
+                               </div>
+                           </div>
+                           <button pButton icon="pi pi-cog" class="p-button-text p-button-sm text-slate-500"></button>
                         </div>
                         
-                        <div class="group-body" *ngIf="group.expanded">
-                           <div *ngFor="let opt of group.options; let oIdx = index" class="option-row" [class.disabled-row]="!opt.is_enabled">
-                              <div class="option-main-info">
-                                 <div class="flex items-center gap-3">
+                        <div class="group-content-body" *ngIf="group.expanded">
+                           <div *ngFor="let opt of group.options; let oIdx = index" class="opt-premium-row" [class.opt-disabled]="!opt.is_enabled">
+                              <div class="opt-main-line">
+                                 <div class="flex items-center gap-4">
                                      <p-checkbox [(ngModel)]="opt.is_enabled" [binary]="true" [id]="'opt_'+gIdx+'_'+oIdx"></p-checkbox>
-                                     <label [for]="'opt_'+gIdx+'_'+oIdx" class="option-name cursor-pointer">{{ opt.name }}</label>
+                                     <label [for]="'opt_'+gIdx+'_'+oIdx" class="opt-label">{{ opt.name }}</label>
                                  </div>
-                                 <div class="option-price-stack" *ngIf="opt.is_enabled">
-                                    <span class="text-xs text-slate-500 uppercase font-bold" pTooltip="The default price for this addon">Base Price</span>
-                                    <p-inputnumber [(ngModel)]="opt.base_price" mode="decimal" [min]="0" styleClass="p-inputtext-sm" placeholder="Base Price"></p-inputnumber>
+                                 <div class="opt-base-pricing" *ngIf="opt.is_enabled">
+                                    <span class="text-[10px] text-slate-500 font-black uppercase mb-1">Standard Surcharge</span>
+                                    <p-inputnumber [(ngModel)]="opt.base_price" mode="decimal" [min]="0" styleClass="p-inputtext-sm" placeholder="0.00"></p-inputnumber>
                                  </div>
                               </div>
                               
-                              <div class="option-overrides" *ngIf="opt.is_enabled && form.sizes.length > 0">
-                                 <div class="override-header">
-                                    <i class="pi pi-sliders-h"></i>
-                                    <span pTooltip="Custom price for each size. Leave blank to disable this addon for a specific size.">
-                                       {{ ui.t('admin.catalog.price_override') }}
-                                    </span>
+                              <div class="opt-extra-matrix" *ngIf="opt.is_enabled && form.sizes.length > 0">
+                                 <div class="matrix-hint">
+                                    <i class="pi pi-table text-primary"></i>
+                                    <span>Pricing Matrix (Specific Sizes)</span>
                                  </div>
-                                 <div class="override-grid">
-                                    <div *ngFor="let size of form.sizes; let sizeIndex = index" class="size-price-input">
-                                       <span class="text-xs text-slate-400 capitalize">{{ size.translations.en || size.translations.ar || generatedSizeCode(size, sizeIndex) }}</span>
+                                 <div class="matrix-grid">
+                                    <div *ngFor="let size of form.sizes; let sizeIndex = index" class="matrix-cell">
+                                       <span class="cell-label">{{ size.translations.en || size.translations.ar || generatedSizeCode(size, sizeIndex) }}</span>
                                        <p-inputnumber [(ngModel)]="opt.size_price_overrides[size.id || generatedSizeCode(size, sizeIndex)]" 
-                                                      mode="decimal" [min]="0" 
-                                                      class="p-inputnumber-sm" 
-                                                      [placeholder]="''"></p-inputnumber>
+                                                       mode="decimal" [min]="0" 
+                                                       styleClass="w-full"
+                                                       class="p-inputnumber-sm" 
+                                                       [placeholder]="'-'"></p-inputnumber>
                                     </div>
                                  </div>
                               </div>
                            </div>
                         </div>
-                     </div>
-                  </div>
+                      </div>
 
-                  @if (!selectedAddonGroups.length) {
-                     <div class="empty-hint">
-                        <i class="pi pi-plus-circle mb-3 text-4xl opacity-50"></i>
-                        <p>No addon groups selected for this product.</p>
-                     </div>
-                  }
+                      @if (!selectedAddonGroups.length && !showGroupCreator()) {
+                         <div class="empty-hint p-12 bg-slate-900/50 rounded-3xl border-2 border-dashed border-slate-700 mt-8">
+                            <i class="pi pi-plus-circle mb-6 text-6xl text-primary opacity-20"></i>
+                            <p class="text-2xl font-black text-slate-300">Expand Your Menu Logic</p>
+                            <p class="text-slate-500 mb-8 max-w-sm mx-auto">Selected existing groups from the library above or create a unique set for this product.</p>
+                            <button pButton icon="pi pi-plus" label="Define New Group" class="p-button-lg px-8 shadow-2xl" (click)="showGroupCreator.set(true)"></button>
+                         </div>
+                      }
+                  </div>
                </div>
             </p-tabpanel>
 
-            <!-- Tab 3: Media -->
             <p-tabpanel [value]="3">
-               <div class="form-section">
-                  <h3>{{ ui.t('admin.catalog.image') }}</h3>
-                  <div class="main-image-upload">
-                      <div class="preview-wrapper bg-slate-900 border border-slate-800">
-                          @if (isYouTube(form.main_image_path)) {
-                             <iframe [src]="getYouTubeEmbedUrl(form.main_image_path)" class="main-preview" frameborder="0" allowfullscreen></iframe>
-                          } @else {
-                             <img [src]="resolveImage(form.main_image_path)" class="main-preview" />
-                          }
-                        <div class="image-overlay" *ngIf="!form.main_image_path">
-                           <span>Select Primary Image / URL</span>
+               <div class="form-section media-tab-shell">
+                  <section class="media-workbench">
+                     <article class="media-intro-card animate-fade-in">
+                        <div>
+                           <span class="media-intro-card__eyebrow">Media Studio</span>
+                           <h3>Prepare the product visuals customers will actually see</h3>
+                           <p>Manage the featured asset, gallery images, videos, and YouTube embeds from one clean workspace.</p>
                         </div>
-                     </div>
-                     <div class="upload-controls">
-                        <label class="field-stack">
-                           <span>{{ ui.t('admin.settings.fontPath') }} (URL)</span>
-                           <input pInputText [(ngModel)]="form.main_image_path" [placeholder]="ui.t('admin.catalog.image')" style="width:100%"/>
-                        </label>
-                        <p-fileupload mode="basic" [auto]="true" [customUpload]="true" (uploadHandler)="uploadMainImage($event)" [chooseLabel]="ui.t('admin.settings.uploadAsset')" styleClass="w-full"></p-fileupload>
-                     </div>
-                  </div>
 
-                  <div class="section-divider my-12"></div>
-
-                  <h3>{{ ui.t('admin.section.media') }} (Gallery)</h3>
-                  <div class="media-gallary">
-                     <div *ngFor="let m of form.media; let i = index" class="media-entry-card shadow-lg animate-fade-in">
-                        <div class="media-toolbar">
-                           <p-radiobutton [value]="true" [id]="'primary_media_'+i" [(ngModel)]="m.is_primary"></p-radiobutton>
-                           <label [for]="'primary_media_'+i" class="text-xs font-bold text-slate-400 ml-2">Primary</label>
-                           <button pButton icon="pi pi-trash" severity="danger" (click)="removeMedia(i)" class="p-button-text ml-auto"></button>
-                        </div>
-                        <div class="media-card-body">
-                           <div class="media-preview-container mb-3" style="aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center;">
-                               @if (m.media_type === 'image') {
-                                   <img [src]="resolveImage(m.url)" style="width:100%; height:100%; object-fit: cover;" />
-                               } @else if (m.media_type === 'external_video' || isYouTube(m.url)) {
-                                   <iframe [src]="getYouTubeEmbedUrl(m.url)" style="width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
-                               } @else {
-                                   <i class="pi pi-video text-4xl opacity-50"></i>
-                               }
+                        <div class="media-intro-card__stats">
+                           <div class="media-stat-box">
+                              <strong>{{ form.main_image_path ? '1' : '0' }}</strong>
+                              <span>Featured asset</span>
                            </div>
-                          <p-select [options]="mediaTypes" [(ngModel)]="m.media_type" optionLabel="label" optionValue="value" appendTo="body" styleClass="w-full mb-3"></p-select>
-                           <input pInputText [(ngModel)]="m.url" placeholder="URL / Storage Path" class="w-full" />
+                           <div class="media-stat-box">
+                              <strong>{{ form.media.length }}</strong>
+                              <span>Gallery items</span>
+                           </div>
+                        </div>
+                     </article>
+
+                     <div class="media-shell media-shell--hero">
+                        <div class="media-shell__preview">
+                           <article class="media-preview-card">
+                              <div class="media-preview-stage">
+                                 @if (isYouTube(form.main_image_path)) {
+                                    <iframe [src]="getYouTubeEmbedUrl(form.main_image_path)" class="main-preview" frameborder="0" allowfullscreen></iframe>
+                                 } @else {
+                                    <img [src]="resolveImage(form.main_image_path)" class="main-preview media-preview-stage__image" />
+                                 }
+
+                                 <div class="media-preview-stage__empty" *ngIf="!form.main_image_path">
+                                    <i class="pi pi-image"></i>
+                                    <strong>Featured media preview</strong>
+                                    <span>Upload a primary image or paste a direct media URL.</span>
+                                 </div>
+
+                                 <div class="media-preview-stage__badge">Featured</div>
+                              </div>
+
+                              <div class="media-preview-meta">
+                                 <div>
+                                    <span class="media-preview-meta__eyebrow">Storefront Priority</span>
+                                    <h4>Primary visual for cards and social previews</h4>
+                                    <p>This asset is used first in menu cards, product previews, and most shared links.</p>
+                                 </div>
+
+                                 <div class="media-preview-meta__chips">
+                                    <span class="media-chip" [class.media-chip--muted]="!form.main_image_path">
+                                      {{ form.main_image_path ? 'Ready to publish' : 'Needs a source' }}
+                                    </span>
+                                    <span class="media-chip media-chip--outline">{{ form.media.length }} gallery items</span>
+                                 </div>
+                              </div>
+                           </article>
+                        </div>
+
+                        <div class="media-shell__controls">
+                           <article class="media-panel">
+                              <div class="media-panel__header">
+                                 <div>
+                                    <h3>Featured Asset</h3>
+                                    <p>Set the hero image or video that represents the product everywhere.</p>
+                                 </div>
+                              </div>
+
+                              <label class="field-stack field-stack--compact">
+                                 <span>Primary media source</span>
+                                 <input pInputText [(ngModel)]="form.main_image_path" placeholder="e.g. /media/catalog/pizza.jpg or https://..." class="w-full" />
+                              </label>
+
+                              <div class="media-panel__actions media-panel__actions--stack">
+                                 <p-fileupload
+                                   mode="basic"
+                                   [auto]="true"
+                                   [customUpload]="true"
+                                   (uploadHandler)="uploadMainImage($event)"
+                                   [chooseLabel]="'Upload featured image'"
+                                   styleClass="w-full media-upload-btn"
+                                 ></p-fileupload>
+
+                                 <button pButton type="button" icon="pi pi-plus" label="Add gallery item" severity="secondary" [outlined]="true" (click)="addMedia()"></button>
+                                 <button pButton type="button" icon="pi pi-times" label="Clear featured" severity="contrast" [text]="true" (click)="form.main_image_path = ''" *ngIf="form.main_image_path"></button>
+                              </div>
+                           </article>
+
+                           <article class="media-panel media-panel--tips">
+                              <div class="media-panel__header media-panel__header--compact">
+                                 <div>
+                                    <h3>Recommended Setup</h3>
+                                    <p>Small improvements here make the storefront feel much more polished.</p>
+                                 </div>
+                              </div>
+
+                              <div class="media-tip-list">
+                                 <div class="media-tip">
+                                    <i class="pi pi-images"></i>
+                                    <span>Keep the featured visual clean and crop-friendly for menu cards.</span>
+                                 </div>
+                                 <div class="media-tip">
+                                    <i class="pi pi-link"></i>
+                                    <span>Use direct image links or proper YouTube URLs to avoid broken embeds.</span>
+                                 </div>
+                                 <div class="media-tip">
+                                    <i class="pi pi-star-fill"></i>
+                                    <span>Mark one gallery item as primary if you want it to lead product galleries.</span>
+                                 </div>
+                              </div>
+                           </article>
                         </div>
                      </div>
-                     
-                     <div class="gallery-actions-grid mt-6">
-                        <button pButton icon="pi pi-link" [label]="'Link External Video'" severity="secondary" (click)="addMedia()" class="p-button-outlined"></button>
-                        <p-fileupload mode="basic" [auto]="true" [customUpload]="true" (uploadHandler)="uploadSubMedia($event)" chooseLabel="Upload File" severity="secondary" styleClass="p-button-outlined"></p-fileupload>
+
+                     <div class="media-shell media-shell--library">
+                        <div class="media-library-header">
+                           <div>
+                              <span class="media-library-header__eyebrow">Gallery</span>
+                              <h3>Supporting Media Assets</h3>
+                              <p>Add extra photos, videos, or YouTube embeds for the product details page.</p>
+                           </div>
+
+                           <div class="media-library-header__actions">
+                              <p-fileupload
+                                mode="basic"
+                                [auto]="true"
+                                [customUpload]="true"
+                                (uploadHandler)="uploadSubMedia($event)"
+                                chooseLabel="Upload to gallery"
+                                styleClass="media-upload-btn media-upload-btn--secondary"
+                              ></p-fileupload>
+
+                              <button pButton type="button" icon="pi pi-plus" label="Manual entry" severity="secondary" [outlined]="true" (click)="addMedia()"></button>
+                           </div>
+                        </div>
+
+                        <div class="asset-library-grid" *ngIf="form.media.length; else emptyMediaState">
+                           <article *ngFor="let m of form.media; let i = index" class="asset-card animate-fade-in">
+                              <div class="asset-card__preview">
+                                 @if (m.media_type === 'image') {
+                                    <img [src]="resolveImage(m.url)" class="asset-card__media" />
+                                 } @else if (m.media_type === 'external_video' || isYouTube(m.url)) {
+                                    <iframe [src]="getYouTubeEmbedUrl(m.url)" class="asset-card__media asset-card__media--frame" frameborder="0" allowfullscreen></iframe>
+                                 } @else {
+                                    <div class="asset-card__video-fallback">
+                                       <i class="pi pi-video"></i>
+                                       <span>Video file</span>
+                                    </div>
+                                 }
+
+                                 <span class="asset-card__type">{{ m.media_type }}</span>
+                                 <span class="asset-card__index">#{{ i + 1 }}</span>
+
+                                 <button
+                                   pButton
+                                   type="button"
+                                   icon="pi pi-trash"
+                                   severity="danger"
+                                   class="asset-card__delete"
+                                   (click)="removeMedia(i)"
+                                 ></button>
+                              </div>
+
+                              <div class="asset-card__body">
+                                 <div class="asset-card__body-top">
+                                    <label class="field-stack field-stack--compact">
+                                       <span>Media type</span>
+                                       <p-select [options]="mediaTypes" [(ngModel)]="m.media_type" optionLabel="label" optionValue="value" appendTo="body" styleClass="w-full"></p-select>
+                                    </label>
+                                 </div>
+
+                                 <label class="field-stack field-stack--compact">
+                                    <span>Source URL / Path</span>
+                                    <input pInputText [(ngModel)]="m.url" placeholder="e.g. /media/gallery/item.jpg or https://..." class="w-full" />
+                                 </label>
+
+                                 <div class="asset-card__actions">
+                                    <button
+                                      pButton
+                                      type="button"
+                                      [icon]="m.is_primary ? 'pi pi-star-fill' : 'pi pi-star'"
+                                      [label]="m.is_primary ? 'Primary media' : 'Make primary'"
+                                      [severity]="m.is_primary ? 'success' : 'secondary'"
+                                      [outlined]="!m.is_primary"
+                                      (click)="setPrimaryMedia(i)"
+                                    ></button>
+                                 </div>
+                              </div>
+                           </article>
+                        </div>
+
+                        <ng-template #emptyMediaState>
+                           <div class="media-empty-state">
+                              <div class="media-empty-state__icon">
+                                 <i class="pi pi-images"></i>
+                              </div>
+                              <h4>No gallery assets yet</h4>
+                              <p>Start with a few supporting photos so the product page feels richer and more trustworthy.</p>
+                              <div class="media-empty-state__actions">
+                                 <button pButton type="button" icon="pi pi-plus" label="Add first gallery item" (click)="addMedia()"></button>
+                              </div>
+                           </div>
+                        </ng-template>
                      </div>
-                  </div>
+                  </section>
                </div>
             </p-tabpanel>
 
@@ -385,27 +572,6 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
       
       <div class="form-footer-spacing" style="margin-bottom: 5rem;"></div>
 
-      <!-- Quick Group Creator Dialog -->
-      <p-dialog [visible]="showGroupCreator()" (visibleChange)="showGroupCreator.set($event)" [header]="'Create New Addon Group'" [modal]="true" [style]="{width: '450px'}" appendTo="body" class="admin-dialog">
-          <div class="form-grid gap-6">
-              <label class="field-stack">
-                  <span>Group Name (Arabic)</span>
-                  <input pInputText [(ngModel)]="newGroupForm.name_ar" placeholder="مثلاً: صوصات إضافية" />
-              </label>
-              <label class="field-stack">
-                  <span>Group Name (English)</span>
-                  <input pInputText [(ngModel)]="newGroupForm.name_en" placeholder="e.g. Extra Sauces" />
-              </label>
-              <div class="flex items-center gap-3 mt-4">
-                  <p-toggleswitch [(ngModel)]="newGroupForm.is_required"></p-toggleswitch>
-                  <label class="font-bold">Required Selection?</label>
-              </div>
-          </div>
-          <ng-template pTemplate="footer">
-              <button pButton label="Cancel" severity="secondary" (click)="showGroupCreator.set(false)" class="p-button-text"></button>
-              <button pButton label="Create Group" icon="pi pi-plus" [loading]="creatingGroup()" (click)="createAddonGroup()"></button>
-          </ng-template>
-      </p-dialog>
     </div>
   `,
   styles: [`
@@ -492,135 +658,511 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
     .form-grid.three-columns {
         grid-template-columns: 1fr 1fr 1fr;
     }
-    .addon-editing-list {
+    .form-section.p-8 { padding: 2rem; }
+    .addon-workspace {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .addon-group-modern {
+        background: rgba(15, 23, 42, 0.45);
+        border: 1px solid rgba(148, 163, 184, 0.08);
+        border-radius: 40px;
+        overflow: hidden;
+        transition: all 400ms var(--ease-out);
+        box-shadow: 0 12px 40px -10px rgba(0,0,0,0.3);
+        &:hover { border-color: rgba(var(--brand-primary-rgb), 0.3); transform: translateY(-2px); }
+    }
+    .group-hero-header {
+        padding: 2.25rem 2.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        background: rgba(255,255,255,0.02);
+        .group-title { font-size: 1.25rem; font-weight: 900; color: #f8fafc; tracking: -0.02em; }
+    }
+    .badge-pill {
+        font-size: 0.68rem;
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        &.badge-pill--primary { background: rgba(var(--brand-primary-rgb), 0.15); color: var(--primary-color); border: 1px solid rgba(var(--brand-primary-rgb), 0.1); }
+        &.badge-pill--slate { background: #1e293b; color: #94a3b8; border: 1px solid rgba(255,255,255,0.03); }
+    }
+    .group-content-body { padding: 0.5rem 2.75rem 2.75rem; }
+    .opt-premium-row {
+        padding: 2rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        transition: opacity 300ms;
+        &:last-child { border: none; }
+        &.opt-disabled { opacity: 0.35; filter: grayscale(0.8) blur(0.5px); }
+    }
+    .opt-label { font-size: 1.05rem; font-weight: 700; color: #f1f5f9; transition: color 200ms; &:hover { color: var(--primary-color); } }
+    .opt-base-pricing { min-width: 140px; }
+    .opt-extra-matrix {
+        margin-top: 2rem;
+        background: rgba(2, 6, 23, 0.6);
+        border-radius: 30px;
+        padding: 2rem;
+        border: 1px dashed rgba(var(--brand-primary-rgb), 0.25);
+    }
+    .matrix-grid { gap: 1.5rem; }
+    .matrix-cell { min-width: 154px; }
+
+    .media-tab-shell {
+        padding: 1rem 0 0;
+    }
+    .media-workbench {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .media-intro-card,
+    .media-shell {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.72));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        border-radius: 28px;
+        box-shadow: 0 25px 60px -28px rgba(0, 0, 0, 0.55);
+    }
+    .media-intro-card {
+        padding: 1.5rem 1.75rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1.5rem;
+        align-items: center;
+        h3 {
+            margin: 0.45rem 0 0.5rem;
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: #f8fafc;
+        }
+        p {
+            margin: 0;
+            color: #94a3b8;
+            max-width: 52rem;
+            line-height: 1.7;
+        }
+    }
+    .media-intro-card__eyebrow,
+    .media-library-header__eyebrow,
+    .media-preview-meta__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(var(--brand-primary-rgb), 0.12);
+        color: var(--primary-color);
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+    .media-intro-card__stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+        gap: 0.9rem;
+        min-width: 280px;
+    }
+    .media-stat-box {
+        padding: 1rem 1.1rem;
+        border-radius: 22px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        text-align: center;
+        strong {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #f8fafc;
+        }
+        span {
+            display: block;
+            margin-top: 0.25rem;
+            color: #94a3b8;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+    }
+    .media-shell {
+        padding: 1.5rem;
+    }
+    .media-shell--hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+        gap: 1.5rem;
+        align-items: start;
+    }
+    .media-shell__preview {
+        min-width: 0;
+    }
+    .media-preview-card {
+        background: rgba(2, 6, 23, 0.52);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    .media-preview-stage {
+        position: relative;
+        aspect-ratio: 16 / 10;
+        min-height: 320px;
+        background: radial-gradient(circle at top, rgba(var(--brand-primary-rgb), 0.12), transparent 40%), #020617;
+        overflow: hidden;
+    }
+    .media-preview-stage__image,
+    .main-preview {
+        width: 100%;
+        height: 100%;
+        border: none;
+        object-fit: cover;
+        display: block;
+    }
+    .media-preview-stage__empty {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        color: #cbd5e1;
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.35), rgba(15, 23, 42, 0.85));
+        i {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+        strong {
+            font-size: 1.05rem;
+            color: #f8fafc;
+        }
+        span {
+            max-width: 24rem;
+            line-height: 1.7;
+        }
+    }
+    .media-preview-stage__badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.8);
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        backdrop-filter: blur(12px);
+    }
+    .media-preview-meta {
+        padding: 1.25rem 1.35rem 1.35rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-end;
+        h4 {
+            margin: 0.5rem 0 0.45rem;
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #f8fafc;
+        }
+        p {
+            margin: 0;
+            color: #94a3b8;
+            line-height: 1.65;
+        }
+    }
+    .media-preview-meta__chips {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+    .media-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.55rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.15);
+        color: #bbf7d0;
+        font-size: 0.78rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    .media-chip--muted {
+        background: rgba(148, 163, 184, 0.14);
+        color: #cbd5e1;
+    }
+    .media-chip--outline {
+        background: transparent;
+        color: #cbd5e1;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    .media-shell__controls {
         display: flex;
         flex-direction: column;
         gap: 1rem;
     }
-    .addon-group-edit-card {
-        background: rgba(15, 23, 42, 0.3);
+    .media-panel {
+        background: rgba(2, 6, 23, 0.48);
         border: 1px solid rgba(148, 163, 184, 0.1);
-        border-radius: 20px;
-        overflow: hidden;
+        border-radius: 24px;
+        padding: 1.25rem;
     }
-    .group-header {
-        padding: 1.25rem 1.75rem;
+    .media-panel__header {
+        margin-bottom: 1rem;
         display: flex;
-        align-items: center;
-        cursor: pointer;
-        background: rgba(148, 163, 184, 0.03);
-        font-weight: 800;
-        color: #f1f5f9;
-        transition: background 200ms;
-        &:hover { background: rgba(148, 163, 184, 0.08); }
-        .group-badge {
-            font-size: 0.75rem;
-            background: rgba(34, 197, 94, 0.2);
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            color: #86efac;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+        h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: #f8fafc;
+        }
+        p {
+            margin: 0.4rem 0 0;
+            color: #94a3b8;
+            line-height: 1.6;
+            font-size: 0.92rem;
         }
     }
-    .group-body {
-        padding: 1rem 1.75rem 2rem;
-        background: rgba(0,0,0,0.2);
+    .media-panel__header--compact {
+        margin-bottom: 0.6rem;
     }
-    .option-row {
-        padding: 1.5rem 0;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+    .media-panel__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    .media-panel__actions--stack {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+    .field-stack--compact {
+        gap: 0.45rem;
+        span {
+            font-size: 0.82rem;
+        }
+    }
+    .media-tip-list {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
-        &:last-child { border: none; }
+        gap: 0.75rem;
     }
-    .option-main-info {
+    .media-tip {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 0.85rem 0.95rem;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.04);
+        i {
+            margin-top: 0.1rem;
+            color: var(--primary-color);
+        }
+        span {
+            color: #cbd5e1;
+            line-height: 1.65;
+            font-size: 0.92rem;
+        }
+    }
+    .media-library-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        .option-name { font-weight: 700; color: #f8fafc; }
-    }
-    .disabled-row {
-        opacity: 0.45;
-        filter: grayscale(1);
-        cursor: not-allowed;
-        pointer-events: none;
-        .flex.items-center.gap-3 { pointer-events: auto !important; }
-    }
-    .option-price-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
         align-items: flex-end;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        h3 {
+            margin: 0.5rem 0 0.45rem;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #f8fafc;
+        }
+        p {
+            margin: 0;
+            color: #94a3b8;
+            line-height: 1.65;
+        }
     }
-    .option-overrides {
-        background: rgba(15, 23, 42, 0.4);
-        padding: 1.25rem;
-        border-radius: 16px;
-        border: 1px solid rgba(34, 197, 94, 0.1);
-    }
-    .override-header {
+    .media-library-header__actions {
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        font-size: 0.75rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        color: var(--primary-color);
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: flex-end;
     }
-    .override-grid {
-        display: flex;
-        overflow-x: auto;
-        gap: 1.5rem;
-        padding-bottom: 1rem;
-        &::-webkit-scrollbar { height: 4px; }
-        &::-webkit-scrollbar-track { background: rgba(148, 163, 184, 0.05); }
-        &::-webkit-scrollbar-thumb { background: rgba(34, 197, 94, 0.4); border-radius: 10px; }
+    .asset-library-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.25rem;
     }
-    .size-price-input {
+    .asset-card {
+        background: rgba(2, 6, 23, 0.5);
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+        &:hover {
+            transform: translateY(-2px);
+            border-color: rgba(var(--brand-primary-rgb), 0.28);
+            box-shadow: 0 18px 40px -28px rgba(0,0,0,0.8);
+        }
+    }
+    .asset-card__preview {
+        position: relative;
+        aspect-ratio: 16 / 10;
+        background: #020617;
+        overflow: hidden;
+    }
+    .asset-card__media {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        border: none;
+    }
+    .asset-card__media--frame {
+        background: #000;
+    }
+    .asset-card__video-fallback {
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
-    }
-    .preview-wrapper {
-        position: relative;
-        width: 240px;
-        height: 240px;
-        flex-shrink: 0;
-        border-radius: 30px;
-        overflow: hidden;
-        background: #000;
-        img { width: 100%; height: 100%; object-fit: cover; }
-    }
-    .image-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0,0,0,0.4);
-        display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
+        gap: 0.75rem;
+        color: #cbd5e1;
+        background: radial-gradient(circle at top, rgba(var(--brand-primary-rgb), 0.1), transparent 45%), #020617;
+        i {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+    }
+    .asset-card__type,
+    .asset-card__index {
+        position: absolute;
+        top: 0.9rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
         font-weight: 800;
-        font-size: 0.8rem;
-        border-radius: 30px;
+        backdrop-filter: blur(10px);
     }
-    .media-gallary {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 2rem;
+    .asset-card__type {
+        left: 0.9rem;
+        background: rgba(15, 23, 42, 0.82);
+        color: #f8fafc;
+        text-transform: capitalize;
     }
-    .media-entry-card {
-        background: rgba(15, 23, 42, 0.6);
-        border-radius: 20px;
-        border: 1px solid rgba(148, 163, 184, 0.1);
-        padding: 1.5rem;
+    .asset-card__index {
+        right: 3.85rem;
+        background: rgba(var(--brand-primary-rgb), 0.2);
+        color: var(--primary-color);
     }
-    .media-toolbar {
+    .asset-card__delete {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 2.4rem;
+        height: 2.4rem;
+    }
+    .asset-card__body {
+        padding: 1rem;
         display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+    }
+    .asset-card__body-top {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    .asset-card__actions {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: auto;
+        padding-top: 0.2rem;
+    }
+    .media-empty-state {
+        padding: 3rem 2rem;
+        border-radius: 24px;
+        border: 1px dashed rgba(148, 163, 184, 0.18);
+        background: rgba(2, 6, 23, 0.42);
+        display: flex;
+        flex-direction: column;
         align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+        text-align: center;
+        gap: 0.8rem;
+        h4 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #f8fafc;
+        }
+        p {
+            margin: 0;
+            max-width: 32rem;
+            color: #94a3b8;
+            line-height: 1.7;
+        }
+    }
+    .media-empty-state__icon {
+        width: 4.25rem;
+        height: 4.25rem;
+        border-radius: 1.25rem;
+        display: grid;
+        place-items: center;
+        background: rgba(var(--brand-primary-rgb), 0.12);
+        color: var(--primary-color);
+        font-size: 1.6rem;
+    }
+    .media-empty-state__actions {
+        margin-top: 0.6rem;
+    }
+    .glass-input-card {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    @media (max-width: 1180px) {
+        .media-shell--hero {
+            grid-template-columns: 1fr;
+        }
+        .media-preview-meta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .media-preview-meta__chips {
+            justify-content: flex-start;
+        }
+    }
+    @media (max-width: 860px) {
+        .media-intro-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .media-intro-card__stats {
+            min-width: 0;
+            width: 100%;
+        }
+        .media-library-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .media-library-header__actions {
+            justify-content: stretch;
+        }
     }
     .advanced-danger-zone {
         background: rgba(239, 68, 68, 0.02);
@@ -649,6 +1191,15 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
             }
             .p-multiselect-items, .p-select-items {
                 padding: 0.5rem !important;
+               /* PrimeNG Select (Dropdown) Global Fixes for Theme Harmony */
+                .p-select {
+                    .p-select-label {
+                    color: inherit !important; /* Allow the label to inherit the current text color (supports dark/light) */
+                    }
+                    .p-select-placeholder {
+                    color: rgba(148, 163, 184, 0.6) !important;
+                    }
+                }
                 .p-multiselect-item, .p-select-item {
                     border-radius: 8px !important;
                     margin-bottom: 2px !important;
@@ -915,6 +1466,12 @@ export class ProductEditorPage implements OnInit {
     return existing || generated || `size_${index + 1}`;
   }
 
+  setPrimaryMedia(index: number) {
+     this.form.media.forEach((m, i) => {
+         m.is_primary = (i === index);
+     });
+  }
+
   addSize() {
     this.form.has_base_price = false;
     this.form.sizes.push({
@@ -977,8 +1534,8 @@ export class ProductEditorPage implements OnInit {
     const file = event.files[0];
      try {
       const res = await firstValueFrom(this.adminApi.upload(file, 'catalog'));
-      // Remove trailing slash if present
-      this.form.main_image_path = (res.url || res.path).replace(/\/$/, "");
+      // Remove trailing slash if present (extremely robust trim)
+      this.form.main_image_path = (res.url || res.path).split('?')[0].replace(/\/$/, "");
     } catch {}
   }
 
@@ -986,7 +1543,7 @@ export class ProductEditorPage implements OnInit {
     const file = event.files[0];
      try {
       const res = await firstValueFrom(this.adminApi.upload(file, 'gallery'));
-      const url = (res.url || res.path).replace(/\/$/, "");
+      const url = (res.url || res.path).split('?')[0].replace(/\/$/, "");
       this.form.media.push({ url, media_type: file.type.startsWith('video') ? 'video' : 'image' });
     } catch {}
   }
@@ -997,8 +1554,11 @@ export class ProductEditorPage implements OnInit {
       this.creatingGroup.set(true);
       try {
          const payload = {
+            product_id: this.id() || null,
             name: { ar: this.newGroupForm.name_ar || this.newGroupForm.name_en, en: this.newGroupForm.name_en || this.newGroupForm.name_ar },
             selection_type: 'multiple',
+            min_select: 0,
+            max_select: null,
             is_required: this.newGroupForm.is_required
          };
 
