@@ -12,6 +12,15 @@ import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
+type ProductGalleryItem = {
+  id: string;
+  source: string;
+  thumb: string;
+  media_type: 'image' | 'video' | 'external_video';
+  isFeatured: boolean;
+  isYouTube: boolean;
+};
+
 @Component({
   selector: 'app-product-detail-page',
   imports: [SharedUiModule],
@@ -35,6 +44,9 @@ export class ProductDetailPage implements OnInit {
   protected readonly loading = signal(false);
   protected readonly selectedSizeId = signal<number | null>(null);
   protected readonly quantity = signal(1);
+  protected readonly selectedMediaIndex = signal(0);
+  protected readonly viewerVisible = signal(false);
+  protected readonly zoomLevel = signal(1);
   protected readonly reviewLoading = signal(false);
   protected readonly addToCartLoading = signal(false);
   protected readonly currentYear = new Date().getFullYear();
@@ -97,6 +109,68 @@ export class ProductDetailPage implements OnInit {
     const items = this.reviews();
     if (items.length === 0) return 0;
     return items.reduce((sum, review) => sum + review.rating, 0) / items.length;
+  });
+
+  protected readonly galleryItems = computed<ProductGalleryItem[]>(() => {
+    const current = this.product();
+    if (!current) {
+      return [];
+    }
+
+    const items: ProductGalleryItem[] = [];
+    const seen = new Set<string>();
+    const fallback = 'https://placehold.co/640x520/7c2d12/ffffff?text=Product';
+
+    const pushItem = (
+      rawSource?: string | null,
+      mediaType: 'image' | 'video' | 'external_video' = 'image',
+      isFeatured = false,
+    ) => {
+      const source = (rawSource || '').trim();
+      if (!source) {
+        return;
+      }
+
+      const key = `${mediaType}:${source}`;
+      if (seen.has(key)) {
+        return;
+      }
+
+      const isYouTube = this.isYouTube(source);
+      const resolved = mediaType === 'external_video' || isYouTube
+        ? source
+        : this.runtime.resolveAsset(source, fallback);
+      const thumb = isYouTube
+        ? this.resolveYouTubeThumbnail(source) || this.runtime.resolveAsset(current.main_image_path, fallback)
+        : resolved;
+
+      items.push({
+        id: key,
+        source: resolved,
+        thumb,
+        media_type: isYouTube ? 'external_video' : mediaType,
+        isFeatured,
+        isYouTube,
+      });
+      seen.add(key);
+    };
+
+    pushItem(current.main_image_path, this.isYouTube(current.main_image_path) ? 'external_video' : 'image', true);
+    for (const media of current.media || []) {
+      pushItem(media.url || media.external_url || media.path, media.media_type || 'image');
+    }
+
+    return items;
+  });
+
+  protected readonly activeMedia = computed<ProductGalleryItem | null>(() => {
+    const items = this.galleryItems();
+    if (!items.length) {
+      return null;
+    }
+
+    const index = Math.min(this.selectedMediaIndex(), items.length - 1);
+    return items[index] ?? null;
   });
 
   constructor() {
@@ -173,6 +247,32 @@ export class ProductDetailPage implements OnInit {
         structuredData,
       });
     });
+
+    effect(() => {
+      const items = this.galleryItems();
+      const index = this.selectedMediaIndex();
+
+      if (!items.length) {
+        this.selectedMediaIndex.set(0);
+        return;
+      }
+
+      if (index >= items.length) {
+        this.selectedMediaIndex.set(0);
+      }
+    });
+
+    effect((onCleanup) => {
+      const items = this.galleryItems();
+      const viewerOpen = this.viewerVisible();
+
+      if (items.length <= 1 || viewerOpen) {
+        return;
+      }
+
+      const timer = window.setInterval(() => this.nextMedia(false), 5000);
+      onCleanup(() => window.clearInterval(timer));
+    });
   }
 
   protected selectSize(sizeId: number): void {
@@ -197,6 +297,8 @@ export class ProductDetailPage implements OnInit {
       this.reviews.set(reviews.items);
       this.selectedSizeId.set(product.sizes.find((size) => size.is_default)?.id ?? product.sizes[0]?.id ?? null);
       this.selectedAddonMap.set({});
+      this.selectedMediaIndex.set(0);
+      this.zoomLevel.set(1);
 
       // --- SMART AI SUGGESTIONS ENGINE ---
       const allBestSellers = this.storefront.bestSellers();
@@ -357,5 +459,85 @@ export class ProductDetailPage implements OnInit {
 
   protected productLink(product: ProductListItem): string[] {
     return ['/products', String(product.id), product.slug];
+  }
+
+  protected selectMedia(index: number): void {
+    this.selectedMediaIndex.set(index);
+    this.zoomLevel.set(1);
+  }
+
+  protected nextMedia(resetZoom = true): void {
+    const items = this.galleryItems();
+    if (!items.length) {
+      return;
+    }
+
+    this.selectedMediaIndex.set((this.selectedMediaIndex() + 1) % items.length);
+    if (resetZoom) {
+      this.zoomLevel.set(1);
+    }
+  }
+
+  protected prevMedia(resetZoom = true): void {
+    const items = this.galleryItems();
+    if (!items.length) {
+      return;
+    }
+
+    this.selectedMediaIndex.set((this.selectedMediaIndex() - 1 + items.length) % items.length);
+    if (resetZoom) {
+      this.zoomLevel.set(1);
+    }
+  }
+
+  protected openViewer(): void {
+    if (!this.activeMedia()) {
+      return;
+    }
+
+    this.viewerVisible.set(true);
+    this.zoomLevel.set(1);
+  }
+
+  protected closeViewer(): void {
+    this.viewerVisible.set(false);
+    this.zoomLevel.set(1);
+  }
+
+  protected zoomIn(): void {
+    if (this.activeMedia()?.media_type !== 'image') {
+      return;
+    }
+
+    this.zoomLevel.set(Math.min(this.zoomLevel() + 0.25, 3));
+  }
+
+  protected zoomOut(): void {
+    if (this.activeMedia()?.media_type !== 'image') {
+      return;
+    }
+
+    this.zoomLevel.set(Math.max(this.zoomLevel() - 0.25, 1));
+  }
+
+  protected resetZoom(): void {
+    this.zoomLevel.set(1);
+  }
+
+  protected isZoomableImage(item: ProductGalleryItem | null): boolean {
+    return !!item && item.media_type === 'image';
+  }
+
+  private resolveYouTubeThumbnail(url?: string | null): string | null {
+    if (!url) {
+      return null;
+    }
+
+    let id = '';
+    if (url.includes('v=')) id = url.split('v=')[1].split('&')[0];
+    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('embed/')) id = url.split('embed/')[1].split('?')[0];
+
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
   }
 }

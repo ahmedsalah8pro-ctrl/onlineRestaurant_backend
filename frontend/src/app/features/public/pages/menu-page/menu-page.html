@@ -20,7 +20,10 @@
       </div>
     </div>
 
-    <div class="menu-toolbar__filters" *ngIf="filters.branch_id; else chooseBranchFirst">
+      <div class="menu-toolbar__corner-actions">
+        <app-share-actions [request]="menuShareRequest()" [onlyIcon]="true"></app-share-actions>
+      </div>
+
       <div class="filter-group-main">
         <div class="search-box">
           <i class="pi pi-search"></i>
@@ -61,12 +64,7 @@
           />
         </div>
       </div>
-
-      <div class="menu-toolbar__actions">
-        <app-share-actions [request]="menuShareRequest()" [buttonLabel]="ui.t('share.menu')"></app-share-actions>
-      </div>
     </div>
-  </div>
 
   <ng-template #chooseBranchFirst>
     <div class="glass-panel menu-empty">
@@ -87,6 +85,10 @@
           [alt]="theme.resolveText(product.translations || product.name)"
           class="product-image"
         />
+
+        <div class="menu-card__corner-share">
+           <app-share-actions [request]="{ type: 'product', resource_id: product.id }" [onlyIcon]="true" [compact]="true"></app-share-actions>
+        </div>
 
         <button
           class="menu-card__quick-add"
@@ -114,7 +116,6 @@
             <strong class="price-text">{{ storefront.formatMoney(product.base_price) }}</strong>
           </div>
           <div class="menu-card__actions">
-            <app-share-actions [request]="{ type: 'product', resource_id: product.id }" [icon]="'pi pi-share-alt'" [compact]="true"></app-share-actions>
             <a pButton severity="primary" [routerLink]="productLink(product)" (click)="$event.stopPropagation()" icon="pi pi-external-link" iconPos="right" class="details-btn">
               {{ ui.t('menu.details') }}
             </a>
@@ -149,16 +150,68 @@
       </div>
     } @else if (previewProduct(); as current) {
       <div class="preview-modal">
-        <img
-          [src]="runtime.resolveAsset(current.main_image_path, (current.media && current.media.length > 0) ? (current.media[0].url || '') : 'https://placehold.co/640x520/111827/ffffff?text=Preview')"
-          [alt]="theme.resolveText(current.translations || current.name)"
-        />
-          <div class="preview-modal__body">
-            <span class="eyebrow">{{ ui.t('menu.previewTitle') }}</span>
-            <h2>{{ theme.resolveText(current.translations || current.name) }}</h2>
-            <p>{{ theme.resolveText(current.short_description_translations || current.short_description) || theme.resolveText(current.description_translations || current.description) || ui.t('menu.noDescription') }}</p>
-            
-            <div class="preview-config">
+        @if (activePreviewMedia(); as media) {
+          <div class="preview-modal__media">
+            <div class="preview-gallery__stage">
+              <button type="button" class="gallery-nav gallery-nav--prev" *ngIf="previewGalleryItems().length > 1" (click)="prevPreviewMedia(); $event.stopPropagation()" [attr.aria-label]="ui.t('product.prevMedia')">
+                <i class="pi pi-angle-left"></i>
+              </button>
+
+              @if (media.media_type === 'image') {
+                <img
+                  [src]="media.source"
+                  [alt]="theme.resolveText(current.translations || current.name)"
+                  class="preview-gallery__asset preview-gallery__asset--image"
+                  (click)="openPreviewViewer()"
+                />
+              } @else if (media.isYouTube) {
+                <iframe [src]="getYouTubeEmbedUrl(media.source)" frameborder="0" allowfullscreen class="preview-gallery__asset preview-gallery__asset--frame"></iframe>
+              } @else {
+                <video class="preview-gallery__asset preview-gallery__asset--video" [src]="media.source" controls playsinline preload="metadata"></video>
+              }
+
+              <div class="preview-gallery__overlay">
+                <span class="preview-gallery__counter">{{ previewMediaIndex() + 1 }} / {{ previewGalleryItems().length }}</span>
+                <button pButton type="button" icon="pi pi-external-link" severity="secondary" [outlined]="true" class="preview-gallery__expand" [label]="ui.t('product.viewMedia')" (click)="openPreviewViewer(); $event.stopPropagation()"></button>
+              </div>
+
+              <button type="button" class="gallery-nav gallery-nav--next" *ngIf="previewGalleryItems().length > 1" (click)="nextPreviewMedia(); $event.stopPropagation()" [attr.aria-label]="ui.t('product.nextMedia')">
+                <i class="pi pi-angle-right"></i>
+              </button>
+            </div>
+
+            <div class="preview-gallery__thumbs" *ngIf="previewGalleryItems().length > 1">
+              <button type="button" class="preview-gallery__thumb" *ngFor="let item of previewGalleryItems(); let i = index" [class.is-active]="previewMediaIndex() === i" (click)="selectPreviewMedia(i)">
+                @if (item.media_type === 'image') {
+                  <img [src]="item.thumb" [alt]="theme.resolveText(current.translations || current.name)" />
+                } @else if (item.isYouTube) {
+                  <img [src]="item.thumb" [alt]="ui.t('product.galleryYouTube')" />
+                  <span class="preview-gallery__badge">{{ ui.t('product.galleryYouTube') }}</span>
+                } @else {
+                  <div class="preview-gallery__video-thumb">
+                    <i class="pi pi-video"></i>
+                  </div>
+                  <span class="preview-gallery__badge">{{ ui.t('product.galleryVideo') }}</span>
+                }
+              </button>
+            </div>
+          </div>
+        }
+
+        <div class="preview-modal__body">
+            <div class="preview-modal__head">
+              <div class="preview-modal__headline">
+                <span class="eyebrow">{{ ui.t('menu.previewTitle') }}</span>
+                <h2>{{ theme.resolveText(current.translations || current.name) }}</h2>
+                <p>{{ theme.resolveText(current.short_description_translations || current.short_description) || theme.resolveText(current.description_translations || current.description) || ui.t('menu.noDescription') }}</p>
+
+                <div class="preview-modal__share">
+                  <app-share-actions [request]="{ type: 'product', resource_id: current.id }" [onlyIcon]="true" [compact]="true"></app-share-actions>
+                </div>
+              </div>
+            </div>
+             
+             <div class="preview-config">
               <!-- Sizes -->
               <div class="config-section" *ngIf="current.sizes && current.sizes.length">
                 <h3>{{ ui.t('product.sizes') }}</h3>
@@ -200,7 +253,69 @@
               ></button>
               <a pButton severity="secondary" [routerLink]="productLink(current)" (click)="closePreview()" icon="pi pi-external-link">{{ ui.t('menu.fullDetails') }}</a>
             </div>
+        </div>
+      </div>
+    }
+  </p-dialog>
+
+  <p-dialog
+    [visible]="previewViewerVisible()"
+    [modal]="true"
+    appendTo="body"
+    [draggable]="false"
+    [dismissableMask]="true"
+    styleClass="surface-dialog product-viewer-dialog"
+    [style]="{ width: 'min(1180px, 96vw)' }"
+    (onHide)="closePreviewViewer()"
+  >
+    @if (activePreviewMedia(); as media) {
+      <div class="product-viewer">
+        <div class="product-viewer__toolbar">
+          <div>
+            <span class="eyebrow">{{ ui.t('product.mediaGallery') }}</span>
+            <strong>{{ theme.resolveText(previewProduct()?.translations || previewProduct()?.name || '') }}</strong>
           </div>
+
+          <div class="product-viewer__controls">
+            <button pButton type="button" icon="pi pi-search-plus" severity="secondary" [text]="true" *ngIf="isPreviewZoomable()" (click)="zoomPreviewIn()" [attr.aria-label]="ui.t('product.zoomIn')"></button>
+            <button pButton type="button" icon="pi pi-search-minus" severity="secondary" [text]="true" *ngIf="isPreviewZoomable()" (click)="zoomPreviewOut()" [attr.aria-label]="ui.t('product.zoomOut')"></button>
+            <button pButton type="button" icon="pi pi-refresh" severity="secondary" [text]="true" *ngIf="isPreviewZoomable()" (click)="resetPreviewZoom()" [attr.aria-label]="ui.t('product.resetZoom')"></button>
+          </div>
+        </div>
+
+        <div class="product-viewer__stage">
+          <button type="button" class="gallery-nav gallery-nav--prev" *ngIf="previewGalleryItems().length > 1" (click)="prevPreviewMedia()" [attr.aria-label]="ui.t('product.prevMedia')">
+            <i class="pi pi-angle-left"></i>
+          </button>
+
+          @if (media.media_type === 'image') {
+            <div class="product-viewer__image-wrap">
+              <img [src]="media.source" [alt]="theme.resolveText(previewProduct()?.translations || previewProduct()?.name || '')" class="product-viewer__image" [style.transform]="'scale(' + previewZoomLevel() + ')'" />
+            </div>
+          } @else if (media.isYouTube) {
+            <iframe [src]="getYouTubeEmbedUrl(media.source)" frameborder="0" allowfullscreen class="product-viewer__frame"></iframe>
+          } @else {
+            <video class="product-viewer__video" [src]="media.source" controls autoplay playsinline></video>
+          }
+
+          <button type="button" class="gallery-nav gallery-nav--next" *ngIf="previewGalleryItems().length > 1" (click)="nextPreviewMedia()" [attr.aria-label]="ui.t('product.nextMedia')">
+            <i class="pi pi-angle-right"></i>
+          </button>
+        </div>
+
+        <div class="product-viewer__thumbs" *ngIf="previewGalleryItems().length > 1">
+          <button type="button" class="product-viewer__thumb" *ngFor="let item of previewGalleryItems(); let i = index" [class.is-active]="previewMediaIndex() === i" (click)="selectPreviewMedia(i)">
+            @if (item.media_type === 'image') {
+              <img [src]="item.thumb" [alt]="theme.resolveText(previewProduct()?.translations || previewProduct()?.name || '')" />
+            } @else if (item.isYouTube) {
+              <img [src]="item.thumb" [alt]="ui.t('product.galleryYouTube')" />
+            } @else {
+              <div class="product-viewer__video-thumb">
+                <i class="pi pi-video"></i>
+              </div>
+            }
+          </button>
+        </div>
       </div>
     }
   </p-dialog>

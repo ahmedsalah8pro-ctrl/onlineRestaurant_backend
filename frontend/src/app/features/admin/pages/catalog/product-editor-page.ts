@@ -339,19 +339,19 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                   <section class="media-workbench">
                      <article class="media-intro-card animate-fade-in">
                         <div>
-                           <span class="media-intro-card__eyebrow">Media Studio</span>
-                           <h3>Prepare the product visuals customers will actually see</h3>
-                           <p>Manage the featured asset, gallery images, videos, and YouTube embeds from one clean workspace.</p>
+                           <span class="media-intro-card__eyebrow">{{ ui.t('admin.mediaStudio.eyebrow') }}</span>
+                           <h3>{{ ui.t('admin.mediaStudio.title') }}</h3>
+                           <p>{{ ui.t('admin.mediaStudio.subtitle') }}</p>
                         </div>
 
                         <div class="media-intro-card__stats">
                            <div class="media-stat-box">
                               <strong>{{ form.main_image_path ? '1' : '0' }}</strong>
-                              <span>Featured asset</span>
+                              <span>{{ ui.t('admin.mediaStudio.featuredCount') }}</span>
                            </div>
                            <div class="media-stat-box">
                               <strong>{{ form.media.length }}</strong>
-                              <span>Gallery items</span>
+                              <span>{{ ui.t('admin.mediaStudio.galleryCount') }}</span>
                            </div>
                         </div>
                      </article>
@@ -368,25 +368,25 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
                                  <div class="media-preview-stage__empty" *ngIf="!form.main_image_path">
                                     <i class="pi pi-image"></i>
-                                    <strong>Featured media preview</strong>
-                                    <span>Upload a primary image or paste a direct media URL.</span>
+                                    <strong>{{ ui.t('admin.mediaStudio.featuredPreview') }}</strong>
+                                    <span>{{ ui.t('admin.mediaStudio.featuredPreviewCopy') }}</span>
                                  </div>
 
-                                 <div class="media-preview-stage__badge">Featured</div>
+                                 <div class="media-preview-stage__badge">{{ ui.t('admin.mediaStudio.featuredBadge') }}</div>
                               </div>
 
                               <div class="media-preview-meta">
                                  <div>
-                                    <span class="media-preview-meta__eyebrow">Storefront Priority</span>
-                                    <h4>Primary visual for cards and social previews</h4>
-                                    <p>This asset is used first in menu cards, product previews, and most shared links.</p>
+                                    <span class="media-preview-meta__eyebrow">{{ ui.t('admin.mediaStudio.priority') }}</span>
+                                    <h4>{{ ui.t('admin.mediaStudio.priorityTitle') }}</h4>
+                                    <p>{{ ui.t('admin.mediaStudio.priorityCopy') }}</p>
                                  </div>
 
                                  <div class="media-preview-meta__chips">
                                     <span class="media-chip" [class.media-chip--muted]="!form.main_image_path">
-                                      {{ form.main_image_path ? 'Ready to publish' : 'Needs a source' }}
+                                      {{ form.main_image_path ? ui.t('admin.mediaStudio.ready') : ui.t('admin.mediaStudio.needsSource') }}
                                     </span>
-                                    <span class="media-chip media-chip--outline">{{ form.media.length }} gallery items</span>
+                                    <span class="media-chip media-chip--outline">{{ form.media.length }} {{ ui.t('admin.mediaStudio.galleryCount') }}</span>
                                  </div>
                               </div>
                            </article>
@@ -396,14 +396,14 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                            <article class="media-panel">
                               <div class="media-panel__header">
                                  <div>
-                                    <h3>Featured Asset</h3>
-                                    <p>Set the hero image or video that represents the product everywhere.</p>
+                                    <h3>{{ ui.t('admin.mediaStudio.featuredAsset') }}</h3>
+                                    <p>{{ ui.t('admin.mediaStudio.featuredAssetCopy') }}</p>
                                  </div>
                               </div>
 
                               <label class="field-stack field-stack--compact">
-                                 <span>Primary media source</span>
-                                 <input pInputText [(ngModel)]="form.main_image_path" placeholder="e.g. /media/catalog/pizza.jpg or https://..." class="w-full" />
+                                 <span>{{ ui.t('admin.mediaStudio.primarySource') }}</span>
+                                 <input pInputText [(ngModel)]="form.main_image_path" [placeholder]="ui.t('admin.mediaStudio.sourcePlaceholder')" class="w-full" />
                               </label>
 
                               <div class="media-panel__actions media-panel__actions--stack">
@@ -412,36 +412,12 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                                    [auto]="true"
                                    [customUpload]="true"
                                    (uploadHandler)="uploadMainImage($event)"
-                                   [chooseLabel]="'Upload featured image'"
+                                   [chooseLabel]="ui.t('admin.mediaStudio.uploadFeatured')"
                                    styleClass="w-full media-upload-btn"
                                  ></p-fileupload>
 
-                                 <button pButton type="button" icon="pi pi-plus" label="Add gallery item" severity="secondary" [outlined]="true" (click)="addMedia()"></button>
-                                 <button pButton type="button" icon="pi pi-times" label="Clear featured" severity="contrast" [text]="true" (click)="form.main_image_path = ''" *ngIf="form.main_image_path"></button>
-                              </div>
-                           </article>
-
-                           <article class="media-panel media-panel--tips">
-                              <div class="media-panel__header media-panel__header--compact">
-                                 <div>
-                                    <h3>Recommended Setup</h3>
-                                    <p>Small improvements here make the storefront feel much more polished.</p>
-                                 </div>
-                              </div>
-
-                              <div class="media-tip-list">
-                                 <div class="media-tip">
-                                    <i class="pi pi-images"></i>
-                                    <span>Keep the featured visual clean and crop-friendly for menu cards.</span>
-                                 </div>
-                                 <div class="media-tip">
-                                    <i class="pi pi-link"></i>
-                                    <span>Use direct image links or proper YouTube URLs to avoid broken embeds.</span>
-                                 </div>
-                                 <div class="media-tip">
-                                    <i class="pi pi-star-fill"></i>
-                                    <span>Mark one gallery item as primary if you want it to lead product galleries.</span>
-                                 </div>
+                                 <button pButton type="button" icon="pi pi-plus" [label]="ui.t('admin.mediaStudio.addGalleryItem')" severity="secondary" [outlined]="true" (click)="addMedia()"></button>
+                                 <button pButton type="button" icon="pi pi-times" [label]="ui.t('admin.mediaStudio.clearFeatured')" severity="contrast" [text]="true" (click)="form.main_image_path = ''" *ngIf="form.main_image_path"></button>
                               </div>
                            </article>
                         </div>
@@ -450,9 +426,9 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                      <div class="media-shell media-shell--library">
                         <div class="media-library-header">
                            <div>
-                              <span class="media-library-header__eyebrow">Gallery</span>
-                              <h3>Supporting Media Assets</h3>
-                              <p>Add extra photos, videos, or YouTube embeds for the product details page.</p>
+                              <span class="media-library-header__eyebrow">{{ ui.t('admin.mediaStudio.galleryBadge') }}</span>
+                              <h3>{{ ui.t('admin.mediaStudio.galleryTitle') }}</h3>
+                              <p>{{ ui.t('admin.mediaStudio.galleryCopy') }}</p>
                            </div>
 
                            <div class="media-library-header__actions">
@@ -461,11 +437,11 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                                 [auto]="true"
                                 [customUpload]="true"
                                 (uploadHandler)="uploadSubMedia($event)"
-                                chooseLabel="Upload to gallery"
+                                [chooseLabel]="ui.t('admin.mediaStudio.uploadGallery')"
                                 styleClass="media-upload-btn media-upload-btn--secondary"
                               ></p-fileupload>
 
-                              <button pButton type="button" icon="pi pi-plus" label="Manual entry" severity="secondary" [outlined]="true" (click)="addMedia()"></button>
+                              <button pButton type="button" icon="pi pi-plus" [label]="ui.t('admin.mediaStudio.manualEntry')" severity="secondary" [outlined]="true" (click)="addMedia()"></button>
                            </div>
                         </div>
 
@@ -479,11 +455,11 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                                  } @else {
                                     <div class="asset-card__video-fallback">
                                        <i class="pi pi-video"></i>
-                                       <span>Video file</span>
+                                       <span>{{ ui.t('product.galleryVideo') }}</span>
                                     </div>
                                  }
 
-                                 <span class="asset-card__type">{{ m.media_type }}</span>
+                                 <span class="asset-card__type">{{ mediaTypeLabel(m.media_type) }}</span>
                                  <span class="asset-card__index">#{{ i + 1 }}</span>
 
                                  <button
@@ -499,14 +475,14 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                               <div class="asset-card__body">
                                  <div class="asset-card__body-top">
                                     <label class="field-stack field-stack--compact">
-                                       <span>Media type</span>
-                                       <p-select [options]="mediaTypes" [(ngModel)]="m.media_type" optionLabel="label" optionValue="value" appendTo="body" styleClass="w-full"></p-select>
+                                       <span>{{ ui.t('admin.mediaStudio.mediaType') }}</span>
+                                       <p-select [options]="mediaTypes()" [(ngModel)]="m.media_type" optionLabel="label" optionValue="value" appendTo="body" styleClass="w-full"></p-select>
                                     </label>
                                  </div>
 
                                  <label class="field-stack field-stack--compact">
-                                    <span>Source URL / Path</span>
-                                    <input pInputText [(ngModel)]="m.url" placeholder="e.g. /media/gallery/item.jpg or https://..." class="w-full" />
+                                    <span>{{ ui.t('admin.mediaStudio.source') }}</span>
+                                    <input pInputText [(ngModel)]="m.url" [placeholder]="ui.t('admin.mediaStudio.sourcePlaceholder')" class="w-full" />
                                  </label>
 
                                  <div class="asset-card__actions">
@@ -514,7 +490,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                                       pButton
                                       type="button"
                                       [icon]="m.is_primary ? 'pi pi-star-fill' : 'pi pi-star'"
-                                      [label]="m.is_primary ? 'Primary media' : 'Make primary'"
+                                      [label]="m.is_primary ? ui.t('admin.mediaStudio.primaryMedia') : ui.t('admin.mediaStudio.makePrimary')"
                                       [severity]="m.is_primary ? 'success' : 'secondary'"
                                       [outlined]="!m.is_primary"
                                       (click)="setPrimaryMedia(i)"
@@ -529,10 +505,10 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                               <div class="media-empty-state__icon">
                                  <i class="pi pi-images"></i>
                               </div>
-                              <h4>No gallery assets yet</h4>
-                              <p>Start with a few supporting photos so the product page feels richer and more trustworthy.</p>
+                              <h4>{{ ui.t('admin.mediaStudio.noGallery') }}</h4>
+                              <p>{{ ui.t('admin.mediaStudio.noGalleryCopy') }}</p>
                               <div class="media-empty-state__actions">
-                                 <button pButton type="button" icon="pi pi-plus" label="Add first gallery item" (click)="addMedia()"></button>
+                                 <button pButton type="button" icon="pi pi-plus" [label]="ui.t('admin.mediaStudio.addFirstGalleryItem')" (click)="addMedia()"></button>
                               </div>
                            </div>
                         </ng-template>
@@ -794,7 +770,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
         display: grid;
         grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
         gap: 1.5rem;
-        align-items: start;
+        align-items: stretch;
     }
     .media-shell__preview {
         min-width: 0;
@@ -804,11 +780,14 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
         border: 1px solid rgba(148, 163, 184, 0.1);
         border-radius: 24px;
         overflow: hidden;
+        display: grid;
+        grid-template-rows: minmax(220px, 1fr) auto;
+        height: 100%;
     }
     .media-preview-stage {
         position: relative;
-        aspect-ratio: 16 / 10;
-        min-height: 320px;
+        aspect-ratio: 16 / 9;
+        min-height: 220px;
         background: radial-gradient(circle at top, rgba(var(--brand-primary-rgb), 0.12), transparent 40%), #020617;
         overflow: hidden;
     }
@@ -906,7 +885,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
     .media-shell__controls {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0;
     }
     .media-panel {
         background: rgba(2, 6, 23, 0.48);
@@ -1272,11 +1251,15 @@ export class ProductEditorPage implements OnInit {
   protected branches = signal<any[]>([]);
   protected addonGroupsList = signal<any[]>([]);
 
-  protected readonly mediaTypes = [
-    { label: 'Image', value: 'image' },
-    { label: 'Video', value: 'video' },
-    { label: 'YouTube', value: 'external_video' }
-  ];
+  protected readonly mediaTypes = computed(() => [
+    { label: this.ui.t('product.galleryImage'), value: 'image' },
+    { label: this.ui.t('product.galleryVideo'), value: 'video' },
+    { label: this.ui.t('product.galleryYouTube'), value: 'external_video' }
+  ]);
+
+  protected mediaTypeLabel(type?: string | null): string {
+    return this.mediaTypes().find(item => item.value === type)?.label ?? (type || this.ui.t('admin.mediaStudio.mediaType'));
+  }
 
   protected resolveImage(path?: string | null): string {
     return this.runtime.resolveAsset(path, 'https://placehold.co/640x420/111827/ffffff?text=Image');

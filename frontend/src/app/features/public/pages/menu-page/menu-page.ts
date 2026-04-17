@@ -11,6 +11,14 @@ import { ThemeService } from '../../../../core/services/theme';
 import { UiTextService } from '../../../../core/services/ui-text';
 import { SharedUiModule } from '../../../../shared/shared-ui.module';
 
+type PreviewGalleryItem = {
+  id: string;
+  source: string;
+  thumb: string;
+  media_type: 'image' | 'video' | 'external_video';
+  isYouTube: boolean;
+};
+
 @Component({
   selector: 'app-menu-page',
   imports: [SharedUiModule, RouterLink],
@@ -36,6 +44,9 @@ export class MenuPage implements OnInit, OnDestroy {
   protected readonly previewVisible = signal(false);
   protected readonly previewLoading = signal(false);
   protected readonly previewProduct = signal<ProductDetail | null>(null);
+  protected readonly previewMediaIndex = signal(0);
+  protected readonly previewViewerVisible = signal(false);
+  protected readonly previewZoomLevel = signal(1);
   protected readonly quickAddLoadingId = signal<number | null>(null);
   protected readonly addedSuccessfully = signal<number | null>(null);
 
@@ -53,6 +64,61 @@ export class MenuPage implements OnInit, OnDestroy {
       .filter((o): o is any => !!o)
       .reduce((sum, o) => sum + (o?.base_price ?? 0), 0);
     return (sizePrice + addons) * this.quantity();
+  });
+
+  protected readonly previewGalleryItems = computed<PreviewGalleryItem[]>(() => {
+    const current = this.previewProduct();
+    if (!current) {
+      return [];
+    }
+
+    const items: PreviewGalleryItem[] = [];
+    const seen = new Set<string>();
+    const fallback = 'https://placehold.co/640x520/111827/ffffff?text=Preview';
+
+    const pushItem = (rawSource?: string | null, mediaType: 'image' | 'video' | 'external_video' = 'image') => {
+      const source = (rawSource || '').trim();
+      if (!source) {
+        return;
+      }
+
+      const key = `${mediaType}:${source}`;
+      if (seen.has(key)) {
+        return;
+      }
+
+      const isYouTube = this.isYouTube(source);
+      const resolved = mediaType === 'external_video' || isYouTube
+        ? source
+        : this.runtime.resolveAsset(source, fallback);
+      const thumb = isYouTube ? this.resolveYouTubeThumbnail(source) || fallback : resolved;
+
+      items.push({
+        id: key,
+        source: resolved,
+        thumb,
+        media_type: isYouTube ? 'external_video' : mediaType,
+        isYouTube,
+      });
+      seen.add(key);
+    };
+
+    pushItem(current.main_image_path, this.isYouTube(current.main_image_path) ? 'external_video' : 'image');
+    for (const media of current.media || []) {
+      pushItem(media.url || media.external_url || media.path, media.media_type || 'image');
+    }
+
+    return items;
+  });
+
+  protected readonly activePreviewMedia = computed<PreviewGalleryItem | null>(() => {
+    const items = this.previewGalleryItems();
+    if (!items.length) {
+      return null;
+    }
+
+    const index = Math.min(this.previewMediaIndex(), items.length - 1);
+    return items[index] ?? null;
   });
 
   protected filters = {
@@ -87,6 +153,33 @@ export class MenuPage implements OnInit, OnDestroy {
       this.total();
       this.storefront.settings();
       this.applySeo();
+    });
+
+    effect(() => {
+      const items = this.previewGalleryItems();
+      const index = this.previewMediaIndex();
+
+      if (!items.length) {
+        this.previewMediaIndex.set(0);
+        return;
+      }
+
+      if (index >= items.length) {
+        this.previewMediaIndex.set(0);
+      }
+    });
+
+    effect((onCleanup) => {
+      const open = this.previewVisible();
+      const viewerOpen = this.previewViewerVisible();
+      const items = this.previewGalleryItems();
+
+      if (!open || viewerOpen || items.length <= 1) {
+        return;
+      }
+
+      const timer = window.setInterval(() => this.nextPreviewMedia(false), 5000);
+      onCleanup(() => window.clearInterval(timer));
     });
   }
 
@@ -158,6 +251,9 @@ export class MenuPage implements OnInit, OnDestroy {
   protected async openPreview(productId: number): Promise<void> {
     this.previewVisible.set(true);
     this.previewLoading.set(true);
+    this.previewMediaIndex.set(0);
+    this.previewZoomLevel.set(1);
+    this.previewViewerVisible.set(false);
 
     try {
       const product = await firstValueFrom(this.publicApi.getProduct(productId));
@@ -208,6 +304,8 @@ export class MenuPage implements OnInit, OnDestroy {
   protected closePreview(): void {
     this.previewVisible.set(false);
     this.previewProduct.set(null);
+    this.previewViewerVisible.set(false);
+    this.previewZoomLevel.set(1);
   }
 
   protected async quickAdd(product: ProductListItem, event?: Event): Promise<void> {
@@ -295,6 +393,101 @@ export class MenuPage implements OnInit, OnDestroy {
 
   protected productLink(product: ProductListItem): string[] {
     return ['/products', String(product.id), product.slug];
+  }
+
+  protected isYouTube(url?: string | null): boolean {
+    if (!url) return false;
+    return url.includes('youtube.com') || url.includes('youtu.be');
+  }
+
+  protected getYouTubeEmbedUrl(url?: string | null): any {
+    if (!url) return this.theme.sanitize('');
+    let id = '';
+    if (url.includes('v=')) id = url.split('v=')[1].split('&')[0];
+    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('embed/')) id = url.split('embed/')[1].split('?')[0];
+
+    return this.theme.safeUrl(`https://www.youtube.com/embed/${id}`);
+  }
+
+  protected selectPreviewMedia(index: number): void {
+    this.previewMediaIndex.set(index);
+    this.previewZoomLevel.set(1);
+  }
+
+  protected nextPreviewMedia(resetZoom = true): void {
+    const items = this.previewGalleryItems();
+    if (!items.length) {
+      return;
+    }
+
+    this.previewMediaIndex.set((this.previewMediaIndex() + 1) % items.length);
+    if (resetZoom) {
+      this.previewZoomLevel.set(1);
+    }
+  }
+
+  protected prevPreviewMedia(resetZoom = true): void {
+    const items = this.previewGalleryItems();
+    if (!items.length) {
+      return;
+    }
+
+    this.previewMediaIndex.set((this.previewMediaIndex() - 1 + items.length) % items.length);
+    if (resetZoom) {
+      this.previewZoomLevel.set(1);
+    }
+  }
+
+  protected openPreviewViewer(): void {
+    if (!this.activePreviewMedia()) {
+      return;
+    }
+
+    this.previewViewerVisible.set(true);
+    this.previewZoomLevel.set(1);
+  }
+
+  protected closePreviewViewer(): void {
+    this.previewViewerVisible.set(false);
+    this.previewZoomLevel.set(1);
+  }
+
+  protected zoomPreviewIn(): void {
+    if (this.activePreviewMedia()?.media_type !== 'image') {
+      return;
+    }
+
+    this.previewZoomLevel.set(Math.min(this.previewZoomLevel() + 0.25, 3));
+  }
+
+  protected zoomPreviewOut(): void {
+    if (this.activePreviewMedia()?.media_type !== 'image') {
+      return;
+    }
+
+    this.previewZoomLevel.set(Math.max(this.previewZoomLevel() - 0.25, 1));
+  }
+
+  protected resetPreviewZoom(): void {
+    this.previewZoomLevel.set(1);
+  }
+
+  protected isPreviewZoomable(): boolean {
+    return this.activePreviewMedia()?.media_type === 'image';
+  }
+
+  private resolveYouTubeThumbnail(url?: string | null): string | null {
+    if (!url) {
+      return null;
+    }
+
+    let id = '';
+    if (url.includes('v=')) id = url.split('v=')[1].split('&')[0];
+    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('embed/')) id = url.split('embed/')[1].split('?')[0];
+
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
   }
 
   private applySeo(): void {

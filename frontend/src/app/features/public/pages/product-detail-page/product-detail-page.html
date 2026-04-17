@@ -6,25 +6,80 @@
   <section class="page-shell surface-grid">
     <div class="detail-grid">
       <div class="glass-panel detail-media">
-        <img
-          [src]="runtime.resolveAsset(current.main_image_path, (current.media && current.media.length > 0) ? (current.media[0].url || '') : 'https://placehold.co/640x520/7c2d12/ffffff?text=Product')"
-          [alt]="theme.resolveText(current.translations || current.name)"
-        />
-        <div class="detail-gallery" *ngIf="current.media.length">
-          <div class="detail-gallery__item" *ngFor="let media of current.media">
-            @if (isYouTube(media.url || media.external_url)) {
-               <iframe [src]="getYouTubeEmbedUrl(media.url || media.external_url)" frameborder="0" allowfullscreen class="gallery-video"></iframe>
+        @if (activeMedia(); as active) {
+          <div class="detail-media__stage">
+            <button type="button" class="gallery-nav gallery-nav--prev" *ngIf="galleryItems().length > 1" (click)="prevMedia(); $event.stopPropagation()" [attr.aria-label]="ui.t('product.prevMedia')">
+              <i class="pi pi-angle-left"></i>
+            </button>
+
+            @if (active.media_type === 'image') {
+              <img
+                [src]="active.source"
+                [alt]="theme.resolveText(current.translations || current.name)"
+                class="detail-media__asset detail-media__asset--image"
+                (click)="openViewer()"
+              />
+            } @else if (active.isYouTube) {
+              <iframe [src]="getYouTubeEmbedUrl(active.source)" frameborder="0" allowfullscreen class="detail-media__asset detail-media__asset--frame"></iframe>
             } @else {
-               <img [src]="runtime.resolveAsset(media.url || media.external_url, '')" />
+              <video class="detail-media__asset detail-media__asset--video" [src]="active.source" controls playsinline preload="metadata"></video>
             }
+
+            <div class="detail-media__overlay">
+              <span class="detail-media__counter">{{ selectedMediaIndex() + 1 }} / {{ galleryItems().length }}</span>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-external-link"
+                severity="secondary"
+                [outlined]="true"
+                class="detail-media__expand"
+                [label]="ui.t('product.viewMedia')"
+                (click)="openViewer(); $event.stopPropagation()"
+              ></button>
+            </div>
+
+            <button type="button" class="gallery-nav gallery-nav--next" *ngIf="galleryItems().length > 1" (click)="nextMedia(); $event.stopPropagation()" [attr.aria-label]="ui.t('product.nextMedia')">
+              <i class="pi pi-angle-right"></i>
+            </button>
           </div>
+        }
+
+        <div class="detail-gallery" *ngIf="galleryItems().length > 1">
+          <button
+            type="button"
+            class="detail-gallery__item"
+            *ngFor="let media of galleryItems(); let i = index"
+            [class.is-active]="selectedMediaIndex() === i"
+            (click)="selectMedia(i)"
+          >
+            @if (media.media_type === 'image') {
+              <img [src]="media.thumb" [alt]="theme.resolveText(current.translations || current.name)" />
+            } @else if (media.isYouTube) {
+              <img [src]="media.thumb" [alt]="ui.t('product.galleryYouTube')" />
+              <span class="detail-gallery__badge">{{ ui.t('product.galleryYouTube') }}</span>
+            } @else {
+              <div class="detail-gallery__video-thumb">
+                <i class="pi pi-video"></i>
+              </div>
+              <span class="detail-gallery__badge">{{ ui.t('product.galleryVideo') }}</span>
+            }
+          </button>
         </div>
       </div>
 
       <div class="glass-panel detail-panel">
-        <span class="eyebrow">{{ ui.t('product.eyebrow') }}</span>
-        <h1 class="section-title">{{ theme.resolveText(current.translations || current.name) }}</h1>
-        <p class="section-copy">{{ theme.resolveText(current.description_translations || current.description) || ui.t('product.copy') }}</p>
+        <div class="detail-panel__head">
+          <div class="detail-panel__headline">
+            <span class="eyebrow">{{ ui.t('product.eyebrow') }}</span>
+            <h1 class="section-title">{{ theme.resolveText(current.translations || current.name) }}</h1>
+            <p class="section-copy">{{ theme.resolveText(current.description_translations || current.description) || ui.t('product.copy') }}</p>
+
+            <div class="detail-panel__share">
+              <app-share-actions [request]="{ type: 'product', resource_id: current.id }" [onlyIcon]="true" [compact]="true"></app-share-actions>
+            </div>
+          </div>
+        </div>
 
         <div class="detail-meta">
           <div class="rating-line">
@@ -37,9 +92,6 @@
           <div class="price-pill">{{ storefront.formatMoney(current.base_price) }}</div>
         </div>
 
-        <div class="detail-share-row">
-          <app-share-actions [request]="{ type: 'product', resource_id: current.id }" [buttonLabel]="ui.t('share.product')" severity="secondary"></app-share-actions>
-        </div>
 
         <div class="surface-grid" *ngIf="current.sizes && current.sizes.length > 0">
           <h3>{{ ui.t('product.sizes') }}</h3>
@@ -90,6 +142,68 @@
         </div>
       </div>
     </div>
+
+    <p-dialog
+      [visible]="viewerVisible()"
+      [modal]="true"
+      appendTo="body"
+      [draggable]="false"
+      [dismissableMask]="true"
+      styleClass="surface-dialog product-viewer-dialog"
+      [style]="{ width: 'min(1180px, 96vw)' }"
+      (onHide)="closeViewer()"
+    >
+      @if (activeMedia(); as active) {
+        <div class="product-viewer">
+          <div class="product-viewer__toolbar">
+            <div>
+              <span class="eyebrow">{{ ui.t('product.mediaGallery') }}</span>
+              <strong>{{ theme.resolveText(current.translations || current.name) }}</strong>
+            </div>
+
+            <div class="product-viewer__controls">
+              <button pButton type="button" icon="pi pi-search-plus" severity="secondary" [text]="true" *ngIf="isZoomableImage(active)" (click)="zoomIn()" [attr.aria-label]="ui.t('product.zoomIn')"></button>
+              <button pButton type="button" icon="pi pi-search-minus" severity="secondary" [text]="true" *ngIf="isZoomableImage(active)" (click)="zoomOut()" [attr.aria-label]="ui.t('product.zoomOut')"></button>
+              <button pButton type="button" icon="pi pi-refresh" severity="secondary" [text]="true" *ngIf="isZoomableImage(active)" (click)="resetZoom()" [attr.aria-label]="ui.t('product.resetZoom')"></button>
+            </div>
+          </div>
+
+          <div class="product-viewer__stage">
+            <button type="button" class="gallery-nav gallery-nav--prev" *ngIf="galleryItems().length > 1" (click)="prevMedia()" [attr.aria-label]="ui.t('product.prevMedia')">
+              <i class="pi pi-angle-left"></i>
+            </button>
+
+            @if (active.media_type === 'image') {
+              <div class="product-viewer__image-wrap">
+                <img [src]="active.source" [alt]="theme.resolveText(current.translations || current.name)" class="product-viewer__image" [style.transform]="'scale(' + zoomLevel() + ')'" />
+              </div>
+            } @else if (active.isYouTube) {
+              <iframe [src]="getYouTubeEmbedUrl(active.source)" frameborder="0" allowfullscreen class="product-viewer__frame"></iframe>
+            } @else {
+              <video class="product-viewer__video" [src]="active.source" controls autoplay playsinline></video>
+            }
+
+            <button type="button" class="gallery-nav gallery-nav--next" *ngIf="galleryItems().length > 1" (click)="nextMedia()" [attr.aria-label]="ui.t('product.nextMedia')">
+              <i class="pi pi-angle-right"></i>
+            </button>
+          </div>
+
+          <div class="product-viewer__thumbs" *ngIf="galleryItems().length > 1">
+            <button type="button" class="product-viewer__thumb" *ngFor="let media of galleryItems(); let i = index" [class.is-active]="selectedMediaIndex() === i" (click)="selectMedia(i)">
+              @if (media.media_type === 'image') {
+                <img [src]="media.thumb" [alt]="theme.resolveText(current.translations || current.name)" />
+              } @else if (media.isYouTube) {
+                <img [src]="media.thumb" [alt]="ui.t('product.galleryYouTube')" />
+              } @else {
+                <div class="product-viewer__video-thumb">
+                  <i class="pi pi-video"></i>
+                </div>
+              }
+            </button>
+          </div>
+        </div>
+      }
+    </p-dialog>
 
     <div class="glass-panel detail-reviews">
       <div class="panel-head">
@@ -167,6 +281,9 @@
               [src]="runtime.resolveAsset(suggestion.main_image_path, 'http://127.0.0.1:8000/storage/products/burger.png')"
               [alt]="suggestion.name"
             />
+            <div class="menu-card__corner-share">
+              <app-share-actions [request]="{ type: 'product', resource_id: suggestion.id }" [onlyIcon]="true" [compact]="true"></app-share-actions>
+            </div>
           </div>
           <div class="best-seller__content" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
             <div class="best-seller__meta">
