@@ -50,6 +50,43 @@ class MarketingService
         return $configured !== '' ? $configured : 'Restaurant';
     }
 
+    public function supportPhone(): ?string
+    {
+        $value = $this->settings->getValue('general', 'support_phone');
+
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    public function supportEmail(): ?string
+    {
+        $value = $this->settings->getValue('general', 'support_email');
+
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    public function logoUrl(): ?string
+    {
+        $path = $this->settings->getValue('branding', 'square_logo_path')
+            ?? $this->settings->getValue('branding', 'logo_path');
+
+        return $this->assetUrl(is_string($path) ? $path : null);
+    }
+
+    /**
+     * @return array{primary:string,secondary:string,accent:string,surface:string}
+     */
+    public function brandPalette(): array
+    {
+        $palette = $this->settings->getValue('branding', 'brand_palette', []);
+
+        return [
+            'primary' => is_array($palette) && is_string($palette['primary'] ?? null) ? $palette['primary'] : '#B22222',
+            'secondary' => is_array($palette) && is_string($palette['secondary'] ?? null) ? $palette['secondary'] : '#111827',
+            'accent' => is_array($palette) && is_string($palette['accent'] ?? null) ? $palette['accent'] : '#F59E0B',
+            'surface' => is_array($palette) && is_string($palette['surface'] ?? null) ? $palette['surface'] : '#FFF7ED',
+        ];
+    }
+
     public function defaultMetaTitle(?string $locale = null): string
     {
         $configured = $this->translated($this->settings->getValue('seo', 'default_meta_title'), $locale);

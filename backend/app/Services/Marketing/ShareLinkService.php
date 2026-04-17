@@ -14,7 +14,10 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class ShareLinkService
 {
-    public function __construct(protected MarketingService $marketing)
+    public function __construct(
+        protected MarketingService $marketing,
+        protected MenuSharePreviewService $menuPreview,
+    )
     {
     }
 
@@ -93,6 +96,15 @@ class ShareLinkService
             rawurlencode($slug),
             rawurlencode($link->code),
         );
+    }
+
+    public function previewImageUrl(ShareLink $link): ?string
+    {
+        if ($link->resource_type === 'menu') {
+            return $this->menuPreview->previewUrl($link);
+        }
+
+        return $link->image_url ?: $this->marketing->defaultOgImageUrl();
     }
 
     public function recordVisit(ShareLink $link, Request $request): void

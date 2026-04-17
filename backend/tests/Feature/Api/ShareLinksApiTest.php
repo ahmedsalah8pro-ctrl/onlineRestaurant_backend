@@ -64,5 +64,19 @@ class ShareLinksApiTest extends TestCase
             ->assertJsonPath('data.type', 'menu')
             ->assertJsonPath('data.slug_hint', 'menu-b1-c1-pizza')
             ->assertJsonPath('data.destination_url', config('app.frontend_url').'/menu?branch_id=1&category_id=1&search=pizza');
+
+        $imageUrl = (string) $response->json('data.image_url');
+        $this->assertStringContainsString('/preview.jpg', $imageUrl);
+
+        $previewPath = parse_url($imageUrl, PHP_URL_PATH);
+        $this->assertIsString($previewPath);
+
+        $this->get($previewPath)
+            ->assertOk()
+            ->assertHeader('content-type', 'image/jpeg');
+
+        $this->get(parse_url((string) $response->json('data.share_url'), PHP_URL_PATH))
+            ->assertOk()
+            ->assertSee($imageUrl, false);
     }
 }

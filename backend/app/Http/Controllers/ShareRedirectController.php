@@ -24,7 +24,7 @@ class ShareRedirectController extends Controller
         $language = $request->getPreferredLanguage(['ar', 'en']) ?: $this->marketing->defaultLocale();
         $title = e($link->title);
         $description = e($link->description ?? '');
-        $imageUrl = e($link->image_url ?? $this->marketing->defaultOgImageUrl() ?? '');
+        $imageUrl = e($this->shareLinks->previewImageUrl($link) ?? '');
         $canonicalUrl = e($destinationUrl);
         $shareUrl = e($this->shareLinks->shareUrl($link));
         $siteName = e($this->marketing->siteName());

@@ -37,11 +37,27 @@ export class ProductDetailPage implements OnInit {
   protected readonly quantity = signal(1);
   protected readonly reviewLoading = signal(false);
   protected readonly addToCartLoading = signal(false);
+  protected readonly currentYear = new Date().getFullYear();
   protected readonly reviewModel = {
     rating: 5,
     comment: '',
     is_anonymous: false,
   };
+
+  protected isYouTube(url?: string | null): boolean {
+    if (!url) return false;
+    return url.includes('youtube.com') || url.includes('youtu.be');
+  }
+
+  protected getYouTubeEmbedUrl(url?: string | null): any {
+    if (!url) return this.theme.sanitize('');
+    let id = '';
+    if (url.includes('v=')) id = url.split('v=')[1].split('&')[0];
+    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('embed/')) id = url.split('embed/')[1].split('?')[0];
+    
+    return this.theme.safeUrl(`https://www.youtube.com/embed/${id}`);
+  }
 
   protected readonly selectedAddonMap = signal<Record<number, number[]>>({});
   protected readonly reviewPage = signal(1);

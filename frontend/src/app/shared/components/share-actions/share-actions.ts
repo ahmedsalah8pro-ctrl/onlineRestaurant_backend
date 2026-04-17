@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PopoverModule } from 'primeng/popover';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { ShareLinkResult } from '../../../core/models/api.models';
 import { SocialShareService, ShareRequestPayload } from '../../../core/services/social-share';
@@ -13,7 +14,7 @@ import { UiTextService } from '../../../core/services/ui-text';
 @Component({
   selector: 'app-share-actions',
   standalone: true,
-  imports: [CommonModule, ButtonModule, InputTextModule, PopoverModule, ProgressSpinnerModule],
+  imports: [CommonModule, ButtonModule, InputTextModule, PopoverModule, ProgressSpinnerModule, TooltipModule],
   template: `
     <button
       type="button"
@@ -39,6 +40,10 @@ import { UiTextService } from '../../../core/services/ui-text';
 
     <p-popover #popover [dismissable]="true" appendTo="body" styleClass="share-popover">
       <div class="share-sheet">
+        <div class="share-sheet__top-bar">
+            <button pButton icon="pi pi-times" class="p-button-text p-button-secondary p-button-sm" (click)="popover.hide()"></button>
+        </div>
+
         <div class="share-sheet__hero">
           <div class="share-sheet__hero-copy">
             <span class="share-sheet__badge">{{ resolvedLabel() }}</span>
@@ -88,24 +93,36 @@ import { UiTextService } from '../../../core/services/ui-text';
             </div>
           </label>
 
-          <div class="share-sheet__section-label">{{ ui.t('share.channels') }}</div>
+          <div class="share-sheet__section-label flex-center">{{ ui.t('share.channels') }}</div>
 
-          <div class="share-sheet__grid">
-            <button type="button" class="share-channel share-channel--whatsapp" (click)="open('whatsapp', currentLink)">
+          <div class="share-sheet__grid centered-grid">
+            <button type="button" class="share-channel share-channel--whatsapp" (click)="open('whatsapp', currentLink)" pTooltip="WhatsApp">
               <span class="share-channel__glyph">W</span>
-              <span>{{ ui.t('share.whatsapp') }}</span>
+              <span class="share-channel__body">
+                <strong>{{ ui.t('share.whatsapp') }}</strong>
+                <small>WhatsApp</small>
+              </span>
             </button>
-            <button type="button" class="share-channel share-channel--facebook" (click)="open('facebook', currentLink)">
+            <button type="button" class="share-channel share-channel--facebook" (click)="open('facebook', currentLink)" pTooltip="Facebook">
               <span class="share-channel__glyph">f</span>
-              <span>{{ ui.t('share.facebook') }}</span>
+              <span class="share-channel__body">
+                <strong>{{ ui.t('share.facebook') }}</strong>
+                <small>Facebook</small>
+              </span>
             </button>
-            <button type="button" class="share-channel share-channel--telegram" (click)="open('telegram', currentLink)">
+            <button type="button" class="share-channel share-channel--telegram" (click)="open('telegram', currentLink)" pTooltip="Telegram">
               <span class="share-channel__glyph"><i class="pi pi-send"></i></span>
-              <span>{{ ui.t('share.telegram') }}</span>
+              <span class="share-channel__body">
+                <strong>{{ ui.t('share.telegram') }}</strong>
+                <small>Telegram</small>
+              </span>
             </button>
-            <button type="button" class="share-channel share-channel--x" (click)="open('x', currentLink)">
+            <button type="button" class="share-channel share-channel--x" (click)="open('x', currentLink)" pTooltip="X (Twitter)">
               <span class="share-channel__glyph">X</span>
-              <span>{{ ui.t('share.x') }}</span>
+              <span class="share-channel__body">
+                <strong>{{ ui.t('share.x') }}</strong>
+                <small>X</small>
+              </span>
             </button>
           </div>
 
@@ -118,6 +135,10 @@ import { UiTextService } from '../../../core/services/ui-text';
             styleClass="share-sheet__native"
             (click)="nativeShare(currentLink)"
           ></button>
+
+          <div class="share-sheet__footer mt-4 flex-center">
+              <button pButton [label]="ui.t('nav.cancel')" severity="secondary" class="p-button-text w-full" (click)="popover.hide()"></button>
+          </div>
         } @else {
           <div class="share-sheet__loading">
             <p-progressspinner strokeWidth="4" styleClass="w-3rem h-3rem"></p-progressspinner>
@@ -223,6 +244,17 @@ import { UiTextService } from '../../../core/services/ui-text';
       display: flex;
       flex-direction: column;
       gap: 1.15rem;
+      padding: 0.5rem;
+    }
+    .share-sheet__top-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: -1rem;
+    }
+    .centered-grid {
+        justify-content: stretch;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 0.9rem !important;
     }
     .share-sheet__hero {
       display: flex;
@@ -347,7 +379,7 @@ import { UiTextService } from '../../../core/services/ui-text';
       display: inline-flex;
       align-items: center;
       gap: 0.75rem;
-      min-height: 3rem;
+      min-height: 4rem;
       border-radius: 1rem;
       border: 1px solid rgba(148, 163, 184, 0.14);
       background: rgba(15, 23, 42, 0.62);
@@ -369,6 +401,23 @@ import { UiTextService } from '../../../core/services/ui-text';
       flex-shrink: 0;
       font-weight: 800;
       color: #fff;
+    }
+    .share-channel__body {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.12rem;
+      text-align: start;
+    }
+    .share-channel__body strong {
+      font-size: 0.88rem;
+      line-height: 1.1;
+      color: #f8fafc;
+    }
+    .share-channel__body small {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      line-height: 1.1;
     }
     .share-channel--whatsapp .share-channel__glyph { background: linear-gradient(135deg, #25d366, #16a34a); }
     .share-channel--facebook .share-channel__glyph { background: linear-gradient(135deg, #1877f2, #1d4ed8); }
@@ -427,6 +476,9 @@ import { UiTextService } from '../../../core/services/ui-text';
       }
       .share-sheet__grid {
         grid-template-columns: 1fr;
+      }
+      .centered-grid {
+        grid-template-columns: 1fr !important;
       }
     }
     @keyframes shareGlow {

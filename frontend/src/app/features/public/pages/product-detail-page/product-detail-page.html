@@ -11,10 +11,13 @@
           [alt]="theme.resolveText(current.translations || current.name)"
         />
         <div class="detail-gallery" *ngIf="current.media.length">
-          <a class="detail-gallery__item" *ngFor="let media of current.media" [href]="media.url || media.external_url" target="_blank">
-            <i class="pi pi-image" *ngIf="media.media_type === 'image'"></i>
-            <i class="pi pi-video" *ngIf="media.media_type !== 'image'"></i>
-          </a>
+          <div class="detail-gallery__item" *ngFor="let media of current.media">
+            @if (isYouTube(media.url || media.external_url)) {
+               <iframe [src]="getYouTubeEmbedUrl(media.url || media.external_url)" frameborder="0" allowfullscreen class="gallery-video"></iframe>
+            } @else {
+               <img [src]="runtime.resolveAsset(media.url || media.external_url, '')" />
+            }
+          </div>
         </div>
       </div>
 

@@ -23,7 +23,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
         </div>
       </div>
       <div class="header-actions">
-        <button pButton [label]="ui.t('admin.settings.save')" icon="pi pi-check" (click)="save()" [loading]="saving()"></button>
+        <button pButton [label]="isEdit() ? ui.t('admin.settings.save') : (ui.t('admin.catalog.create') + ' ' + ui.t('admin.catalog.title'))" icon="pi pi-check" (click)="save()" [loading]="saving()"></button>
       </div>
     </div>
 
@@ -45,8 +45,17 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                   <div class="form-section flex-1">
                     <h3>{{ ui.t('admin.settings.general') }}</h3>
                     <div class="form-grid">
-                       <label class="field-stack">
-                         <span title="The base price if no size is chosen">{{ ui.t('admin.catalog.price') }}</span>
+                       <div class="flex-column mb-4" style="gap: 1.25rem;">
+                          <div class="flex-center" style="gap: 0.75rem;">
+                            <p-toggleswitch [(ngModel)]="form.has_base_price" inputId="basePriceToggle"></p-toggleswitch>
+                            <label for="basePriceToggle" class="toggle-label" pTooltip="Fixed price for all sizes" tooltipPosition="top">
+                                {{ ui.t('admin.catalog.price') }} (Fixed / Base)
+                            </label>
+                          </div>
+                       </div>
+
+                       <label class="field-stack animate-fade-in" *ngIf="form.has_base_price">
+                         <span>{{ ui.t('admin.catalog.price') }}</span>
                          <p-inputnumber [(ngModel)]="form.base_price" mode="decimal" [min]="0" styleClass="w-full" [placeholder]="ui.t('admin.catalog.price')" [required]="true" name="basePrice"></p-inputnumber>
                        </label>
                        
@@ -201,7 +210,13 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                         </div>
                      </div>
 
-                     @if (!form.sizes.length) {
+                     <div class="flex-center p-8 bg-black/10 rounded-3xl border border-dashed border-slate-700 opacity-60 flex-column text-center" *ngIf="form.has_base_price">
+                        <i class="pi pi-lock text-3xl mb-3"></i>
+                        <p class="m-0 font-bold">Base Price is active.</p>
+                        <p class="m-0 text-sm">Disable "Base Price" in the General tab to manage specific prices per size.</p>
+                     </div>
+
+                     @if (!form.sizes.length && !form.has_base_price) {
                         <div class="empty-hint">
                            <i class="pi pi-box mb-3 text-4xl opacity-50"></i>
                            <p>لا توجد أحجام لهذا المنتج. سيتم استخدام السعر الأساسي.</p>
@@ -219,41 +234,52 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                         <h3>{{ ui.t('admin.catalog.addons') }}</h3>
                         <p>Customize add-on pricing per product size</p>
                      </div>
-                     <p-multiselect [options]="addonGroupsList()" [(ngModel)]="selectedAddonGroups" 
-                                    (onChange)="syncAddonGroupsSelection()"
-                                    optionLabel="name" optionValue="id" [placeholder]="ui.t('admin.catalog.addons')" 
-                                    appendTo="body" styleClass="w-full max-w-sm"></p-multiselect>
+                     <div class="flex items-center gap-3">
+                        <p-multiselect [options]="addonGroupsList()" [(ngModel)]="selectedAddonGroups" 
+                                       (onChange)="syncAddonGroupsSelection()"
+                                       optionLabel="name" optionValue="id" [placeholder]="ui.t('admin.catalog.addons')" 
+                                       appendTo="body" styleClass="w-full max-w-sm"></p-multiselect>
+                        <button pButton icon="pi pi-plus" pTooltip="Create new brand group" (click)="showGroupCreator.set(true)" class="p-button-secondary p-button-outlined"></button>
+                     </div>
                   </div>
                   
                   <div class="addon-editing-list">
-                     <div *ngFor="let group of form.addon_groups; let gIdx = index" class="addon-group-edit-card mb-4 animate-fade-in">
+                     <div *ngFor="let group of form.addon_groups; let gIdx = index" class="addon-group-edit-card mb-4 animate-fade-in shadow-xl">
                         <div class="group-header" (click)="group.expanded = !group.expanded">
                            <i class="pi" [class.pi-chevron-down]="group.expanded" [class.pi-chevron-right]="!group.expanded"></i>
                            <span class="group-name">{{ group.name }}</span>
-                           <span class="group-badge ml-3">{{ group.options.length }} Options</span>
+                           <span class="group-badge ml-3" [pTooltip]="'Enable/Disable specific options inside this group'">
+                              {{ group.options.filter(isOptionEnabled).length }} / {{ group.options.length }} Enabled
+                           </span>
                         </div>
                         
                         <div class="group-body" *ngIf="group.expanded">
-                           <div *ngFor="let opt of group.options; let oIdx = index" class="option-row">
+                           <div *ngFor="let opt of group.options; let oIdx = index" class="option-row" [class.disabled-row]="!opt.is_enabled">
                               <div class="option-main-info">
-                                 <span class="option-name">{{ opt.name }}</span>
-                                 <div class="option-price-stack">
-                                    <span class="text-xs text-slate-500 uppercase font-bold">Base Price</span>
-                                    <p-inputnumber [(ngModel)]="opt.base_price" mode="decimal" [min]="0" styleClass="p-inputtext-sm" placeholder="Base"></p-inputnumber>
+                                 <div class="flex items-center gap-3">
+                                     <p-checkbox [(ngModel)]="opt.is_enabled" [binary]="true" [id]="'opt_'+gIdx+'_'+oIdx"></p-checkbox>
+                                     <label [for]="'opt_'+gIdx+'_'+oIdx" class="option-name cursor-pointer">{{ opt.name }}</label>
+                                 </div>
+                                 <div class="option-price-stack" *ngIf="opt.is_enabled">
+                                    <span class="text-xs text-slate-500 uppercase font-bold" pTooltip="The default price for this addon">Base Price</span>
+                                    <p-inputnumber [(ngModel)]="opt.base_price" mode="decimal" [min]="0" styleClass="p-inputtext-sm" placeholder="Base Price"></p-inputnumber>
                                  </div>
                               </div>
                               
-                              <div class="option-overrides" *ngIf="form.sizes.length > 0">
+                              <div class="option-overrides" *ngIf="opt.is_enabled && form.sizes.length > 0">
                                  <div class="override-header">
                                     <i class="pi pi-sliders-h"></i>
-                                    <span>{{ ui.t('admin.catalog.price_override') }}</span>
+                                    <span pTooltip="Custom price for each size. Leave blank to disable this addon for a specific size.">
+                                       {{ ui.t('admin.catalog.price_override') }}
+                                    </span>
                                  </div>
                                  <div class="override-grid">
                                     <div *ngFor="let size of form.sizes; let sizeIndex = index" class="size-price-input">
-                                       <span class="text-xs text-slate-400">{{ size.translations.en || size.translations.ar || generatedSizeCode(size, sizeIndex) }}</span>
+                                       <span class="text-xs text-slate-400 capitalize">{{ size.translations.en || size.translations.ar || generatedSizeCode(size, sizeIndex) }}</span>
                                        <p-inputnumber [(ngModel)]="opt.size_price_overrides[size.id || generatedSizeCode(size, sizeIndex)]" 
                                                       mode="decimal" [min]="0" 
-                                                      class="p-inputnumber-sm" [placeholder]="opt.base_price || '0'"></p-inputnumber>
+                                                      class="p-inputnumber-sm" 
+                                                      [placeholder]="''"></p-inputnumber>
                                     </div>
                                  </div>
                               </div>
@@ -276,10 +302,14 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                <div class="form-section">
                   <h3>{{ ui.t('admin.catalog.image') }}</h3>
                   <div class="main-image-upload">
-                     <div class="preview-wrapper">
-                         <img [src]="resolveImage(form.main_image_path)" class="main-preview" />
+                      <div class="preview-wrapper bg-slate-900 border border-slate-800">
+                          @if (isYouTube(form.main_image_path)) {
+                             <iframe [src]="getYouTubeEmbedUrl(form.main_image_path)" class="main-preview" frameborder="0" allowfullscreen></iframe>
+                          } @else {
+                             <img [src]="resolveImage(form.main_image_path)" class="main-preview" />
+                          }
                         <div class="image-overlay" *ngIf="!form.main_image_path">
-                           <span>Select Primary Image</span>
+                           <span>Select Primary Image / URL</span>
                         </div>
                      </div>
                      <div class="upload-controls">
@@ -302,9 +332,11 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
                            <button pButton icon="pi pi-trash" severity="danger" (click)="removeMedia(i)" class="p-button-text ml-auto"></button>
                         </div>
                         <div class="media-card-body">
-                           <div class="media-preview-container mb-3" style="aspect-ratio: 1; border-ratio: 12px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center;">
+                           <div class="media-preview-container mb-3" style="aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center;">
                                @if (m.media_type === 'image') {
                                    <img [src]="resolveImage(m.url)" style="width:100%; height:100%; object-fit: cover;" />
+                               } @else if (m.media_type === 'external_video' || isYouTube(m.url)) {
+                                   <iframe [src]="getYouTubeEmbedUrl(m.url)" style="width:100%; height:100%;" frameborder="0" allowfullscreen></iframe>
                                } @else {
                                    <i class="pi pi-video text-4xl opacity-50"></i>
                                }
@@ -350,6 +382,30 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
             </p-tabpanel>
         </p-tabpanels>
       </p-tabs>
+      
+      <div class="form-footer-spacing" style="margin-bottom: 5rem;"></div>
+
+      <!-- Quick Group Creator Dialog -->
+      <p-dialog [visible]="showGroupCreator()" (visibleChange)="showGroupCreator.set($event)" [header]="'Create New Addon Group'" [modal]="true" [style]="{width: '450px'}" appendTo="body" class="admin-dialog">
+          <div class="form-grid gap-6">
+              <label class="field-stack">
+                  <span>Group Name (Arabic)</span>
+                  <input pInputText [(ngModel)]="newGroupForm.name_ar" placeholder="مثلاً: صوصات إضافية" />
+              </label>
+              <label class="field-stack">
+                  <span>Group Name (English)</span>
+                  <input pInputText [(ngModel)]="newGroupForm.name_en" placeholder="e.g. Extra Sauces" />
+              </label>
+              <div class="flex items-center gap-3 mt-4">
+                  <p-toggleswitch [(ngModel)]="newGroupForm.is_required"></p-toggleswitch>
+                  <label class="font-bold">Required Selection?</label>
+              </div>
+          </div>
+          <ng-template pTemplate="footer">
+              <button pButton label="Cancel" severity="secondary" (click)="showGroupCreator.set(false)" class="p-button-text"></button>
+              <button pButton label="Create Group" icon="pi pi-plus" [loading]="creatingGroup()" (click)="createAddonGroup()"></button>
+          </ng-template>
+      </p-dialog>
     </div>
   `,
   styles: [`
@@ -481,7 +537,14 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
         display: flex;
         justify-content: space-between;
         align-items: center;
-        .option-name { font-weight: 700; color: #cbd5e1; }
+        .option-name { font-weight: 700; color: #f8fafc; }
+    }
+    .disabled-row {
+        opacity: 0.45;
+        filter: grayscale(1);
+        cursor: not-allowed;
+        pointer-events: none;
+        .flex.items-center.gap-3 { pointer-events: auto !important; }
     }
     .option-price-stack {
         display: flex;
@@ -599,6 +662,7 @@ import { SharedUiModule } from '../../../../shared/shared-ui.module';
             }
         }
     }
+    .main-preview { width: 100%; height: 100%; border: none; }
   `]
 })
 export class ProductEditorPage implements OnInit {
@@ -613,13 +677,22 @@ export class ProductEditorPage implements OnInit {
   protected readonly id = signal<number | null>(null);
   protected readonly isEdit = computed(() => !!this.id());
   protected readonly saving = signal(false);
+  protected readonly creatingGroup = signal(false);
   protected readonly submitted = signal(false);
+  protected readonly showGroupCreator = signal(false);
+
+  protected newGroupForm = {
+    name_ar: '',
+    name_en: '',
+    is_required: false
+  };
 
 
   // Form State
   protected form = {
     slug: '',
     base_price: 0,
+    has_base_price: true,
     is_active: true,
     is_available_in_all_branches: true,
     is_best_seller_pinned: false,
@@ -658,10 +731,27 @@ export class ProductEditorPage implements OnInit {
     return this.runtime.resolveAsset(path, 'https://placehold.co/640x420/111827/ffffff?text=Image');
   }
 
+  protected isYouTube(url?: string | null): boolean {
+    if (!url) return false;
+    return url.includes('youtube.com') || url.includes('youtu.be');
+  }
+
+  protected getYouTubeEmbedUrl(url?: string | null): any {
+    if (!url) return this.theme.sanitize('');
+    let id = '';
+    if (url.includes('v=')) id = url.split('v=')[1].split('&')[0];
+    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('embed/')) id = url.split('embed/')[1].split('?')[0];
+    
+    return this.theme.safeUrl(`https://www.youtube.com/embed/${id}`);
+  }
+
   protected readonly mainSizeLabel = computed(() => {
     const main = this.form.sizes.find((s: any) => s.is_default);
     return main ? this.theme.resolveText(main.translations) : 'Select Size';
   });
+
+  protected isOptionEnabled(opt: any) { return opt.is_enabled; }
 
   async ngOnInit() {
     await this.loadDependencies();
@@ -711,7 +801,8 @@ export class ProductEditorPage implements OnInit {
        const p = await firstValueFrom(this.adminApi.showResource<any>('products', this.id()!));
        // Hydrate form
        this.form.slug = p.slug;
-       this.form.base_price = p.base_price;
+       this.form.base_price = p.base_price || 0;
+       this.form.has_base_price = (this.form.base_price > 0 || (p.sizes ?? []).length === 0);
        this.form.is_active = p.is_active;
        this.form.is_best_seller_pinned = p.is_best_seller_pinned ?? false;
        this.form.best_seller_rank = p.best_seller_rank;
@@ -764,6 +855,7 @@ export class ProductEditorPage implements OnInit {
              id: o.id,
              name: this.theme.resolveText(o.translations || o.name),
              base_price: o.base_price,
+             is_enabled: true,
              size_price_overrides: o.size_price_overrides || {}
           }))
        }));
@@ -824,6 +916,7 @@ export class ProductEditorPage implements OnInit {
   }
 
   addSize() {
+    this.form.has_base_price = false;
     this.form.sizes.push({
       code: '',
       price: 0,
@@ -868,6 +961,7 @@ export class ProductEditorPage implements OnInit {
                     id: o.id,
                     name: o.name,
                     base_price: o.base_price,
+                    is_enabled: true,
                     size_price_overrides: {}
                  }))
               });
@@ -881,21 +975,57 @@ export class ProductEditorPage implements OnInit {
 
   async uploadMainImage(event: any) {
     const file = event.files[0];
-    try {
+     try {
       const res = await firstValueFrom(this.adminApi.upload(file, 'catalog'));
-      this.form.main_image_path = res.url || res.path;
+      // Remove trailing slash if present
+      this.form.main_image_path = (res.url || res.path).replace(/\/$/, "");
     } catch {}
   }
 
   async uploadSubMedia(event: any) {
     const file = event.files[0];
-    try {
+     try {
       const res = await firstValueFrom(this.adminApi.upload(file, 'gallery'));
-      this.form.media.push({ url: res.url || res.path, media_type: file.type.startsWith('video') ? 'video' : 'image' });
+      const url = (res.url || res.path).replace(/\/$/, "");
+      this.form.media.push({ url, media_type: file.type.startsWith('video') ? 'video' : 'image' });
     } catch {}
   }
 
-  async save() {
+   async createAddonGroup() {
+      if (!this.newGroupForm.name_ar && !this.newGroupForm.name_en) return;
+      
+      this.creatingGroup.set(true);
+      try {
+         const payload = {
+            name: { ar: this.newGroupForm.name_ar || this.newGroupForm.name_en, en: this.newGroupForm.name_en || this.newGroupForm.name_ar },
+            selection_type: 'multiple',
+            is_required: this.newGroupForm.is_required
+         };
+
+         const res = await firstValueFrom(this.adminApi.createResource<any>('addon-groups', payload));
+         this.message.add({ severity: 'success', summary: 'Added', detail: 'Group created' });
+         
+         // Add to list and select it
+         const newEntry = { 
+            id: res.id, 
+            name: payload.name.ar, 
+            options: [] 
+         };
+         this.addonGroupsList.update(list => [...list, newEntry]);
+         this.selectedAddonGroups = [...this.selectedAddonGroups, res.id];
+         this.syncAddonGroupsSelection();
+         
+         // Clear form
+         this.newGroupForm = { name_ar: '', name_en: '', is_required: false };
+         this.showGroupCreator.set(false);
+      } catch (err) {
+         this.message.add({ severity: 'error', summary: 'Error', detail: 'Creation failed' });
+      } finally {
+         this.creatingGroup.set(false);
+      }
+   }
+
+   async save() {
     this.submitted.set(true);
     
     // Core localized validation
@@ -913,7 +1043,7 @@ export class ProductEditorPage implements OnInit {
      try {
        const payload = {
          slug: this.form.slug || this.suggestedSlug(),
-         base_price: this.form.base_price,
+         base_price: this.form.has_base_price ? this.form.base_price : 0,
          is_active: this.form.is_active,
          is_available_in_all_branches: this.form.is_available_in_all_branches,
          main_image_path: this.form.main_image_path,
@@ -937,12 +1067,14 @@ export class ProductEditorPage implements OnInit {
          branch_ids: this.form.is_available_in_all_branches ? [] : this.selectedBranches,
          
          addon_groups: this.form.addon_groups.map(g => ({
+            id: g.id,
             name: { ar: g.name, en: g.name },
             selection_type: g.selection_type,
             min_select: g.min_select,
             max_select: g.max_select,
             is_required: g.is_required,
-            options: g.options.map((o: any) => ({
+            options: g.options.filter((o: any) => o.is_enabled).map((o: any) => ({
+               id: o.id,
                name: { ar: o.name, en: o.name },
                base_price: o.base_price,
                size_price_overrides: o.size_price_overrides

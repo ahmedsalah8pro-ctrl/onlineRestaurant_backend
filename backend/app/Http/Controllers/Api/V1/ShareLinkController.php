@@ -48,7 +48,7 @@ class ShareLinkController extends Controller
             'slug_hint' => $link->slug_hint,
             'title' => $link->title,
             'description' => $link->description,
-            'image_url' => $link->image_url,
+            'image_url' => $this->shareLinks->previewImageUrl($link),
             'share_url' => $this->shareLinks->shareUrl($link),
             'destination_url' => $this->shareLinks->destinationUrl($link),
         ], 'Share link created.', 201);

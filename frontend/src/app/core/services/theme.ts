@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject, signal } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FontLibraryItem, PublicSettings, TranslatedText } from '../models/api.models';
 import { RuntimeConfigService } from './runtime-config';
 
@@ -9,6 +10,7 @@ import { RuntimeConfigService } from './runtime-config';
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
   private readonly runtime = inject(RuntimeConfigService);
+  private readonly sanitizer = inject(DomSanitizer);
   private readonly localeKey = 'restaurant-demo.locale';
   private readonly fontStyleElementId = 'restaurant-demo-font-library';
 
@@ -34,6 +36,14 @@ export class ThemeService {
     }
 
     return value[this.locale()] ?? value.ar ?? value.en ?? '';
+  }
+
+  safeUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  sanitize(url: string): SafeResourceUrl {
+    return this.safeUrl(url);
   }
 
   applyPublicSettings(settings: PublicSettings | null): void {
