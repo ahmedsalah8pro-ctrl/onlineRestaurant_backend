@@ -49,6 +49,12 @@ export class RuntimeConfigService {
     // Normalize: strip leading slash and redundant /storage prefix if present
     const cleanPath = path.replace(/^\//, '').replace(/^storage\//i, '');
 
+    // Some seeded/demo data may accidentally store external URLs under "storage/".
+    // If the normalized value is already an absolute URL, return it as-is.
+    if (/^https?:\/\//i.test(cleanPath)) {
+      return cleanPath;
+    }
+
     return `${this.cdnBaseUrl.replace(/\/$/, '')}/${cleanPath}`;
   }
 
