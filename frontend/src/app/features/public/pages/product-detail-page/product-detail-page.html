@@ -94,12 +94,22 @@
         </div>
 
         <div class="detail-meta">
-          <div class="rating-line">
-            <app-visual-rating [value]="averageRating()" size="md" [showValue]="true"></app-visual-rating>
-            <span class="muted">({{ current.rating_summary.count || 0 }} {{ ui.t('product.reviews_count') }})</span>
-            <span class="purchases-count" *ngIf="current.purchases_count">
-              <i class="pi pi-shopping-bag"></i> {{ current.purchases_count }} {{ ui.t('product.purchases_count') }}
-            </span>
+          <div class="detail-meta__stack">
+            <div class="rating-line">
+              <app-visual-rating [value]="averageRating()" size="md" [showValue]="true"></app-visual-rating>
+              <span class="muted">({{ current.rating_summary.count || 0 }} {{ ui.t('product.reviews_count') }})</span>
+            </div>
+
+            <div class="detail-meta__summary">
+              <span class="detail-insight-chip" *ngIf="current.purchases_count">
+                <i class="pi pi-shopping-bag"></i>
+                {{ current.purchases_count }} {{ ui.t('product.totalOrdered') }}
+              </span>
+              <span class="detail-insight-chip" *ngIf="current.unique_customers_count">
+                <i class="pi pi-users"></i>
+                {{ current.unique_customers_count }} {{ ui.t('product.uniqueCustomers') }}
+              </span>
+            </div>
           </div>
           <div class="price-pill">{{ storefront.formatMoney(current.base_price) }}</div>
         </div>
@@ -242,12 +252,57 @@
         <div>
           <span class="eyebrow">{{ ui.t('product.reviews') }}</span>
           <h2 class="section-title">{{ ui.t('product.reviewTitle') }}</h2>
+          <p class="section-copy review-summary__copy">{{ ui.t('product.reviewSnapshotCopy') }}</p>
         </div>
         
         <div class="review-filters">
            <button pButton icon="pi pi-filter" class="p-button-text p-button-rounded" (click)="reviewRatingFilter.set(null)" [severity]="reviewRatingFilter() === null ? undefined : 'secondary'"></button>
            <button *ngFor="let rate of [5, 4, 3, 2, 1]" pButton [label]="rate + ' ★'" class="p-button-text p-button-sm" (click)="reviewRatingFilter.set(rate)" [severity]="reviewRatingFilter() === rate ? undefined : 'secondary'"></button>
         </div>
+      </div>
+
+      <div class="review-summary">
+        <article class="review-summary__card review-summary__card--rating">
+          <span class="review-summary__icon">
+            <i class="pi pi-star-fill"></i>
+          </span>
+          <div class="review-summary__body">
+            <small>{{ ui.t('product.currentRating') }}</small>
+            <div class="review-summary__rating">
+              <app-visual-rating [value]="averageRating()" size="md" [showValue]="true"></app-visual-rating>
+            </div>
+          </div>
+        </article>
+
+        <article class="review-summary__card">
+          <span class="review-summary__icon">
+            <i class="pi pi-comments"></i>
+          </span>
+          <div class="review-summary__body">
+            <small>{{ ui.t('product.totalReviews') }}</small>
+            <strong>{{ current.rating_summary.count || 0 }}</strong>
+          </div>
+        </article>
+
+        <article class="review-summary__card">
+          <span class="review-summary__icon">
+            <i class="pi pi-shopping-bag"></i>
+          </span>
+          <div class="review-summary__body">
+            <small>{{ ui.t('product.totalOrdered') }}</small>
+            <strong>{{ current.purchases_count || 0 }}</strong>
+          </div>
+        </article>
+
+        <article class="review-summary__card">
+          <span class="review-summary__icon">
+            <i class="pi pi-users"></i>
+          </span>
+          <div class="review-summary__body">
+            <small>{{ ui.t('product.uniqueCustomers') }}</small>
+            <strong>{{ current.unique_customers_count || 0 }}</strong>
+          </div>
+        </article>
       </div>
 
       <div class="review-form" *ngIf="auth.isAuthenticated()">

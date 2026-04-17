@@ -110,6 +110,9 @@ export class ProductDetailPage implements OnInit {
   });
 
   protected readonly averageRating = computed(() => {
+    const current = this.product();
+    if (current) return current.rating_summary.average || 0;
+
     const items = this.reviews();
     if (items.length === 0) return 0;
     return items.reduce((sum, review) => sum + review.rating, 0) / items.length;

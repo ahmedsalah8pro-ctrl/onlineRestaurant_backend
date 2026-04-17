@@ -19,8 +19,7 @@ class ProductController extends Controller
         $query = Product::query()
             ->active()
             ->withCount('addonGroups')
-            ->withCount('reviews')
-            ->withAvg(['reviews as reviews_avg_rating' => fn ($q) => $q->visible()], 'rating');
+            ->withPublicMetrics();
 
         if ($request->filled('category_id')) {
             $query->whereHas('categories', fn ($q) => $q->where('categories.id', $request->integer('category_id')));
@@ -76,9 +75,11 @@ class ProductController extends Controller
     {
         abort_unless($product->is_active, 404);
 
-        $product->load(['categories', 'tags', 'sizes', 'addonGroups.options', 'media'])
-                ->loadCount('reviews')
-                ->loadAvg(['reviews as reviews_avg_rating' => fn ($q) => $q->visible()], 'rating');
+        $product = Product::query()
+            ->active()
+            ->with(['categories', 'tags', 'sizes', 'addonGroups.options', 'media', 'branches'])
+            ->withPublicMetrics()
+            ->findOrFail($product->id);
 
         return $this->successResponse(
             new ProductDetailResource($product),
@@ -93,8 +94,7 @@ class ProductController extends Controller
             ->where(function ($query) {
                 $query->where('is_best_seller_pinned', true)->orWhereNotNull('best_seller_rank');
             })
-            ->withCount('reviews')
-            ->withAvg(['reviews as reviews_avg_rating' => fn ($q) => $q->visible()], 'rating')
+            ->withPublicMetrics()
             ->orderBy('best_seller_rank')
             ->limit(10)
             ->get();

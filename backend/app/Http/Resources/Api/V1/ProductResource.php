@@ -27,7 +27,8 @@ class ProductResource extends JsonResource
                 'count' => (int) ($this->reviews_count ?? 0),
             ],
             'addon_groups_count' => (int) ($this->addon_groups_count ?? 0),
-            'purchases_count' => (int) ($this->purchases_count ?? 0),
+            'purchases_count' => (int) ($this->ordered_quantity_total ?? $this->purchases_count ?? 0),
+            'unique_customers_count' => (int) ($this->unique_customers_total ?? 0),
         ];
     }
 }

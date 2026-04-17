@@ -184,6 +184,7 @@ export interface ProductListItem {
   };
   addon_groups_count?: number;
   purchases_count?: number;
+  unique_customers_count?: number;
 }
 
 export interface ShareLinkResult {
@@ -203,6 +204,7 @@ export interface ShareLinkCreatePayload {
   resource_id?: number;
   slug?: string;
   query?: Record<string, unknown>;
+  locale?: string;
 }
 
 export interface ProductMediaItem {

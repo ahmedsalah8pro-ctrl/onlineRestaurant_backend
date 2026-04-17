@@ -85,6 +85,30 @@ class Product extends Model
         return $query->where('is_active', true);
     }
 
+    public function scopeWithPublicMetrics(Builder $query): Builder
+    {
+        return $query
+            ->withCount(['reviews as reviews_count' => fn (Builder $reviewQuery) => $reviewQuery->visible()])
+            ->withAvg(['reviews as reviews_avg_rating' => fn ($reviewQuery) => $reviewQuery->visible()], 'rating')
+            ->selectSub(
+                OrderItem::query()
+                    ->selectRaw('COALESCE(SUM(order_items.quantity), 0)')
+                    ->join('orders', 'orders.id', '=', 'order_items.order_id')
+                    ->whereColumn('order_items.product_id', 'products.id')
+                    ->whereNotIn('orders.status', ['cancelled', 'refunded']),
+                'ordered_quantity_total'
+            )
+            ->selectSub(
+                OrderItem::query()
+                    ->selectRaw('COUNT(DISTINCT orders.user_id)')
+                    ->join('orders', 'orders.id', '=', 'order_items.order_id')
+                    ->whereColumn('order_items.product_id', 'products.id')
+                    ->whereNotIn('orders.status', ['cancelled', 'refunded'])
+                    ->whereNotNull('orders.user_id'),
+                'unique_customers_total'
+            );
+    }
+
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class);
@@ -120,5 +144,10 @@ class Product extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

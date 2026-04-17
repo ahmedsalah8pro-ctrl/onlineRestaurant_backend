@@ -203,6 +203,34 @@
   color: #64748b;
 }
 
+.detail-meta__stack {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.detail-meta__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.detail-insight-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+  color: #475569;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  font-size: 0.85rem;
+  font-weight: 800;
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
 .detail-panel {
   align-self: start;
 }
@@ -226,6 +254,68 @@
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
+}
+
+.review-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.review-summary__card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.review-summary__card--rating {
+  grid-column: span 2;
+}
+
+.review-summary__icon {
+  width: 2.8rem;
+  height: 2.8rem;
+  flex: 0 0 2.8rem;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.16), rgba(245, 158, 11, 0.16));
+  color: var(--primary-color);
+  font-size: 1.05rem;
+}
+
+.review-summary__body {
+  display: grid;
+  gap: 0.25rem;
+
+  small {
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  strong {
+    color: #0f172a;
+    font-size: 1.3rem;
+    line-height: 1;
+    font-weight: 900;
+  }
+}
+
+.review-summary__rating {
+  display: flex;
+  align-items: center;
+}
+
+.review-summary__copy {
+  margin-top: 0.4rem;
+  max-width: 44rem;
 }
 
 .review-form {
@@ -632,6 +722,13 @@
 
   .panel-head { flex-direction: column; align-items: flex-start !important; gap: 1rem; }
   .review-filters { width: 100%; overflow-x: auto; }
+  .review-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .review-summary__card--rating {
+    grid-column: auto;
+  }
   .product-viewer__toolbar {
     flex-direction: column;
     align-items: flex-start;

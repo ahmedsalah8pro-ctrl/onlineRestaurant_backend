@@ -494,6 +494,12 @@ export class UiTextService {
     'validation.mismatch': { ar: 'كلمتا المرور غير متطابقتين.', en: 'Passwords do not match.' },
     'validation.unique': { ar: 'هذه القيمة مستخدمة بالفعل.', en: 'This value is already taken.' },
     'public.footerSocial': { ar: 'تواصل معنا', en: 'Follow Us' },
+    'product.currentRating': { ar: 'متوسط التقييم', en: 'Current Rating' },
+    'product.totalReviews': { ar: 'إجمالي التقييمات', en: 'Total Reviews' },
+    'product.totalOrdered': { ar: 'إجمالي مرات الطلب', en: 'Total Ordered' },
+    'product.uniqueCustomers': { ar: 'عملاء اشتروا المنتج', en: 'Unique Customers' },
+    'product.reviewSnapshot': { ar: 'ملخص المراجعات', en: 'Review Snapshot' },
+    'product.reviewSnapshotCopy': { ar: 'إحصاءات سريعة عن التقييمات والطلب الفعلي لهذا المنتج.', en: 'Quick stats about reviews and real purchase activity for this product.' },
   };
 
   t(key: string): string {

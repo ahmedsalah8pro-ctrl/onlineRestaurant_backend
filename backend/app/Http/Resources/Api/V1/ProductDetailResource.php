@@ -83,7 +83,8 @@ class ProductDetailResource extends JsonResource
                 'translations' => $media->title,
                 'is_primary' => $media->is_primary,
             ]),
-            'purchases_count' => (int) ($this->purchases_count ?? 0),
+            'purchases_count' => (int) ($this->ordered_quantity_total ?? $this->purchases_count ?? 0),
+            'unique_customers_count' => (int) ($this->unique_customers_total ?? 0),
             'rating_summary' => [
                 'average' => round((float) ($this->reviews_avg_rating ?? 0), 2),
                 'count' => (int) ($this->reviews_count ?? 0),
