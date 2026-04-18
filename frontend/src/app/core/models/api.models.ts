@@ -391,6 +391,10 @@ export interface OrderDetail extends OrderSummary {
   currency_code: string;
   coupon_snapshot?: Record<string, unknown> | null;
   notes?: string | null;
+  can_update_notes?: boolean;
+  notes_locked_reason?: string | null;
+  can_cancel_instantly?: boolean;
+  cancel_locked_reason?: string | null;
   payment_summary?: {
     method: 'cash_on_delivery' | 'wallet' | 'wallet_plus_cash_on_delivery';
     paid_from_wallet: number;

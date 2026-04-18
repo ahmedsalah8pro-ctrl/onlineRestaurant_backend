@@ -65,6 +65,22 @@ export class OrdersPage implements OnInit {
     return order.status === 'created' || order.status === 'pending';
   }
 
+  protected canCancelInstantly(order: OrderDetail): boolean {
+    if (typeof order.can_cancel_instantly === 'boolean') {
+      return order.can_cancel_instantly;
+    }
+
+    return this.canSelfManage(order);
+  }
+
+  protected canEditNotes(order: OrderDetail): boolean {
+    if (typeof order.can_update_notes === 'boolean') {
+      return order.can_update_notes;
+    }
+
+    return this.canSelfManage(order);
+  }
+
   protected isSpecialTerminalStatus(order: OrderDetail): boolean {
     return order.status === 'cancelled' || order.status === 'refunded';
   }
@@ -143,20 +159,87 @@ export class OrdersPage implements OnInit {
     });
   }
 
+  protected async saveNotesSafe(): Promise<void> {
+    const current = this.selectedOrder();
+    if (!current) {
+      return;
+    }
+
+    if (!this.canEditNotes(current)) {
+      return;
+    }
+
+    try {
+      const updated = await firstValueFrom(this.publicApi.updateOrderNotes(current.id, this.noteDraft()));
+      this.selectedOrder.set(updated);
+      this.noteDraft.set(updated.notes ?? '');
+      this.message.add({
+        severity: 'success',
+        summary: this.ui.t('nav.orders'),
+        detail: this.ui.locale() === 'ar' ? 'تم تحديث ملاحظات الطلب بنجاح.' : 'Order notes updated successfully.',
+      });
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 422) {
+        const message = String((error.error as any)?.message ?? '');
+        if (message.includes('Order notes can no longer be updated')) {
+          this.selectedOrder.set({
+            ...current,
+            can_update_notes: false,
+            notes_locked_reason: message,
+          });
+          this.noteDraft.set(current.notes ?? '');
+          this.message.add({
+            severity: 'info',
+            summary: this.ui.t('nav.orders'),
+            detail: this.ui.locale() === 'ar' ? 'لا يمكن تعديل ملاحظات الطلب الآن.' : 'Order notes can no longer be updated.',
+          });
+          return;
+        }
+      }
+
+      throw error;
+    }
+  }
+
   protected async cancelOrder(): Promise<void> {
     const current = this.selectedOrder();
     if (!current) {
       return;
     }
 
-    const updated = await firstValueFrom(this.publicApi.cancelOrder(current.id));
-    this.selectedOrder.set(updated);
-    this.message.add({
-      severity: 'warn',
-      summary: this.ui.t('nav.orders'),
-      detail: this.ui.locale() === 'ar' ? 'تم إلغاء الطلب.' : 'Order cancelled.',
-    });
-    await this.loadOrders();
+    if (!this.canCancelInstantly(current)) {
+      return;
+    }
+
+    try {
+      const updated = await firstValueFrom(this.publicApi.cancelOrder(current.id));
+      this.selectedOrder.set(updated);
+      this.message.add({
+        severity: 'warn',
+        summary: this.ui.t('nav.orders'),
+        detail: this.ui.locale() === 'ar' ? 'تم إلغاء الطلب.' : 'Order cancelled.',
+      });
+      await this.loadOrders();
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 422) {
+        const message = String((error.error as any)?.message ?? '');
+        if (message.includes('Order can no longer be cancelled instantly')) {
+          this.selectedOrder.set({
+            ...current,
+            can_cancel_instantly: false,
+            cancel_locked_reason: message,
+          });
+          this.message.add({
+            severity: 'info',
+            summary: this.ui.t('nav.orders'),
+            detail: this.ui.locale() === 'ar' ? 'لا يمكن إلغاء الطلب الآن.' : 'Order can no longer be cancelled instantly.',
+          });
+          return;
+        }
+      }
+
+      throw error;
+    }
   }
 
   private async resolveRoute(id: string | null): Promise<void> {

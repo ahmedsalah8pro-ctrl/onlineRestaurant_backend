@@ -12,6 +12,7 @@ use App\Support\Translatable;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 /**
  * @mixin \App\Models\Order
@@ -51,6 +52,10 @@ class OrderDetailResource extends JsonResource
         $grandTotalBeforeDiscount = round((float) $order->subtotal + (float) $order->delivery_fee, 2);
         $grandTotalBeforeWallet = round($grandTotalBeforeDiscount - (float) $order->discount_total, 2);
         $paymentMethod = $this->paymentMethod($order);
+        $graceEndsAt = $order->grace_period_ends_at ? Carbon::parse($order->grace_period_ends_at) : null;
+        $isInGracePeriod = $order->status === \App\Enums\OrderStatus::Pending->value && $graceEndsAt && $graceEndsAt->isFuture();
+        $canUpdateNotes = $isInGracePeriod;
+        $canCancelInstantly = in_array($order->status, [\App\Enums\OrderStatus::Created->value, \App\Enums\OrderStatus::Pending->value], true);
 
         return [
             'id' => $order->id,
@@ -75,6 +80,10 @@ class OrderDetailResource extends JsonResource
             'coupon_code' => $order->coupon_code,
             'coupon_snapshot' => $order->coupon_snapshot,
             'notes' => $order->notes,
+            'can_update_notes' => (bool) $canUpdateNotes,
+            'notes_locked_reason' => $canUpdateNotes ? null : 'Order notes can no longer be updated.',
+            'can_cancel_instantly' => (bool) $canCancelInstantly,
+            'cancel_locked_reason' => $canCancelInstantly ? null : 'Order can no longer be cancelled instantly.',
             'grace_period_ends_at' => $order->grace_period_ends_at,
             'placed_at' => $order->placed_at,
             'delivery_person_name' => $order->delivery_person_name,

@@ -57,16 +57,18 @@ class OrderController extends Controller
 
         abort_unless($order->user_id === $user->id, 403);
 
-        if ($order->grace_period_ends_at->isPast() || $order->status !== OrderStatus::Pending->value) {
+        // Customers can cancel freely until the order moves past the early review stage.
+        if (! in_array($order->status, [OrderStatus::Created->value, OrderStatus::Pending->value], true)) {
             return $this->errorResponse('Order can no longer be cancelled instantly.', 422);
         }
 
+        $fromStatus = $order->status;
         $order->update(['status' => OrderStatus::Cancelled->value]);
         $order->statusLogs()->create([
-            'from_status' => OrderStatus::Pending->value,
+            'from_status' => $fromStatus,
             'to_status' => OrderStatus::Cancelled->value,
             'actor_id' => $order->user_id,
-            'notes' => 'Cancelled by customer during grace period.',
+            'notes' => 'Cancelled by customer.',
         ]);
         $order = $order->fresh(['items', 'statusLogs', 'branch', 'deliveryZone', 'address', 'user']) ?? $order;
         $this->orderNotificationService->notifyCancelled($order);

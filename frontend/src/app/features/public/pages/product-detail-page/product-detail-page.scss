@@ -240,6 +240,26 @@
   }
 }
 
+.detail-insight-chip--ordered {
+  background: rgba(59, 130, 246, 0.10);
+  border-color: rgba(59, 130, 246, 0.22);
+  color: #1d4ed8;
+
+  i {
+    color: #2563eb;
+  }
+}
+
+.detail-insight-chip--customers {
+  background: rgba(139, 92, 246, 0.10);
+  border-color: rgba(139, 92, 246, 0.22);
+  color: #6d28d9;
+
+  i {
+    color: #7c3aed;
+  }
+}
+
 .detail-panel {
   align-self: start;
 }
@@ -263,6 +283,81 @@
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
+}
+
+.choice-row {
+  position: relative;
+}
+
+.choice-row :deep(.p-button) {
+  position: relative;
+  padding-inline-start: 2.35rem !important;
+  border-radius: 16px !important;
+  font-weight: 800 !important;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease !important;
+}
+
+.choice-row :deep(.p-button)::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  border: 2px solid rgba(148, 163, 184, 0.7);
+  background: transparent;
+}
+
+.choice-row :deep(.p-button:not(.p-button-secondary))::before {
+  background: currentColor;
+  border-color: currentColor;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.04);
+}
+
+.choice-row--multi-optional :deep(.p-button)::before {
+  border-radius: 6px;
+}
+
+.choice-row--single-required :deep(.p-button) {
+  box-shadow: 0 14px 30px rgba(239, 68, 68, 0.10);
+}
+
+.choice-row--single-required :deep(.p-button-secondary) {
+  border-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+.choice-row--single-required :deep(.p-button)::before {
+  border-color: rgba(239, 68, 68, 0.55);
+}
+
+.choice-row--single-required :deep(.p-button:not(.p-button-secondary)) {
+  background: linear-gradient(135deg, #b22222, #8b1a1a) !important;
+}
+
+.choice-row--single-optional :deep(.p-button-secondary) {
+  border-color: rgba(245, 158, 11, 0.22) !important;
+}
+
+.choice-row--single-optional :deep(.p-button)::before {
+  border-color: rgba(245, 158, 11, 0.55);
+}
+
+.choice-row--single-optional :deep(.p-button:not(.p-button-secondary)) {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+.choice-row--multi-optional :deep(.p-button-secondary) {
+  border-color: rgba(59, 130, 246, 0.22) !important;
+}
+
+.choice-row--multi-optional :deep(.p-button)::before {
+  border-color: rgba(59, 130, 246, 0.55);
+}
+
+.choice-row--multi-optional :deep(.p-button:not(.p-button-secondary)) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
 }
 
 .review-summary {

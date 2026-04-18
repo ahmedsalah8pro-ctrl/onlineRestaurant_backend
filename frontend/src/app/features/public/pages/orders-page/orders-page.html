@@ -297,7 +297,7 @@
           </div>
 
           @if (canSelfManage(current)) {
-            <div class="glass-panel actions-panel">
+            <div class="glass-panel actions-panel" [class.is-notes-locked]="selectedOrder() && !canEditNotes(selectedOrder()!)">
               <div class="panel-head">
                 <div>
                   <span class="eyebrow">{{ ui.locale() === 'ar' ? 'إدارة سريعة' : 'Self-Service' }}</span>
@@ -305,14 +305,21 @@
                 </div>
               </div>
 
+              <div class="notes-locked-head" *ngIf="selectedOrder() && !canEditNotes(selectedOrder()!)">
+                <div>
+                  <span class="eyebrow">{{ ui.locale() === 'ar' ? 'الملاحظه' : 'Order note' }}</span>
+                  <h2>{{ ui.locale() === 'ar' ? 'لا يمكن تعديل الملاحظة حالياً' : 'Note editing is disabled' }}</h2>
+                </div>
+              </div>
+
               <div class="field-stack">
-                <label>{{ ui.t('orders.changeNote') }}</label>
-                <textarea pTextarea rows="4" [ngModel]="noteDraft()" (ngModelChange)="noteDraft.set($event)"></textarea>
+                <label>{{ selectedOrder() && !canEditNotes(selectedOrder()!) ? (ui.locale() === 'ar' ? 'الملاحظه' : 'Note') : ui.t('orders.changeNote') }}</label>
+                <textarea pTextarea rows="4" [ngModel]="noteDraft()" (ngModelChange)="noteDraft.set($event)" [disabled]="selectedOrder() ? !canEditNotes(selectedOrder()!) : true"></textarea>
               </div>
 
               <div class="actions-row">
-                <button pButton type="button" [label]="ui.t('orders.saveNotes')" severity="secondary" icon="pi pi-save" (click)="saveNotes()"></button>
-                <button pButton type="button" [label]="ui.t('orders.cancelOrder')" severity="danger" icon="pi pi-times" (click)="cancelOrder()"></button>
+                <button *ngIf="selectedOrder() && canEditNotes(selectedOrder()!)" pButton type="button" [label]="ui.t('orders.saveNotes')" severity="secondary" icon="pi pi-save" (click)="saveNotesSafe()"></button>
+                <button *ngIf="selectedOrder() && canCancelInstantly(selectedOrder()!)" pButton type="button" [label]="ui.t('orders.cancelOrder')" severity="danger" icon="pi pi-times" (click)="cancelOrder()"></button>
               </div>
             </div>
           }

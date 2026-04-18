@@ -101,11 +101,11 @@
             </div>
 
             <div class="detail-meta__summary">
-              <span class="detail-insight-chip" *ngIf="current.purchases_count">
+              <span class="detail-insight-chip detail-insight-chip--ordered" *ngIf="current.purchases_count">
                 <i class="pi pi-shopping-bag"></i>
                 {{ current.purchases_count }} {{ ui.t('product.totalOrdered') }}
               </span>
-              <span class="detail-insight-chip" *ngIf="current.unique_customers_count">
+              <span class="detail-insight-chip detail-insight-chip--customers" *ngIf="current.unique_customers_count">
                 <i class="pi pi-users"></i>
                 {{ current.unique_customers_count }} {{ ui.t('product.uniqueCustomers') }}
               </span>
@@ -134,7 +134,12 @@
             <h3>{{ theme.resolveText(group.translations || group.name) }}</h3>
           </div>
 
-          <div class="chip-row">
+          <div
+            class="chip-row choice-row"
+            [class.choice-row--single-required]="group.selection_type === 'single' && group.is_required"
+            [class.choice-row--single-optional]="group.selection_type === 'single' && !group.is_required"
+            [class.choice-row--multi-optional]="group.selection_type !== 'single' && !group.is_required"
+          >
             <button
               pButton
               type="button"
